@@ -1,0 +1,20 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property._SupportedPlatformList = Linux,macOS,Windows,browser
+build_property.RootNamespace = PrimeWeb
+build_property.RootNamespace = PrimeWeb
+build_property.ProjectDir = C:\Users\Oscar\source\PrimeNet\PrimeNet\PrimeWeb\
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\Oscar\source\PrimeNet\PrimeNet\PrimeWeb
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/Users/Oscar/source/PrimeNet/PrimeNet/PrimeWeb/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 

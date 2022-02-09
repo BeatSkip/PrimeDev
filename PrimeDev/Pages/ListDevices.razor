@@ -1,0 +1,28 @@
+﻿@page "/ListDevices"
+
+@inject PrimeManager manager
+
+<button @onclick="Initialize"> Initialize </button>
+
+
+<br/>
+<br/>
+@foreach(var d in calcs)
+{
+      <button @onclick="@(async ()=>{await d.Connect();})">Connect @d.ProductName @d.IsConnected</button> <br/>
+}
+
+@code{
+    private List<PrimeCalculator> calcs = new List<PrimeCalculator>();
+
+    public async Task Initialize()
+    {
+        var success = await manager.InitializeAsync();
+        if(success){
+            calcs.Add(manager.GetCalculator());
+        }
+
+        
+
+    }
+}

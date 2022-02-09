@@ -1,0 +1,252 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\PrimeDev\\PrimeDev.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\Blazm.HID\\Blazm.Hid\\Blazm.Hid\\Blazm.Hid.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\Blazm.HID\\Blazm.Hid\\Blazm.Hid\\Blazm.Hid.csproj",
+        "projectName": "Blazm.Hid",
+        "projectPath": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\Blazm.HID\\Blazm.Hid\\Blazm.Hid\\Blazm.Hid.csproj",
+        "packagesPath": "C:\\Users\\Oscar\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\Blazm.HID\\Blazm.Hid\\Blazm.Hid\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "D:\\Documents\\Visual Studio\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Oscar\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "D:\\Documents\\Prism.Templates": {},
+          "D:\\Downloads\\EmguCV\\NugetRepo": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.Components.Web": {
+              "target": "Package",
+              "version": "[6.0.0-preview.5.21301.17, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\PrimeDev\\PrimeDev.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\PrimeDev\\PrimeDev.csproj",
+        "projectName": "PrimeDev",
+        "projectPath": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\PrimeDev\\PrimeDev.csproj",
+        "packagesPath": "C:\\Users\\Oscar\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\PrimeDev\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "D:\\Documents\\Visual Studio\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Oscar\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "D:\\Documents\\Prism.Templates": {},
+          "D:\\Downloads\\EmguCV\\NugetRepo": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\Blazm.HID\\Blazm.Hid\\Blazm.Hid\\Blazm.Hid.csproj": {
+                "projectPath": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\Blazm.HID\\Blazm.Hid\\Blazm.Hid\\Blazm.Hid.csproj"
+              },
+              "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\PrimeWeb\\PrimeWeb.csproj": {
+                "projectPath": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\PrimeWeb\\PrimeWeb.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.Components.WebAssembly": {
+              "target": "Package",
+              "version": "[6.0.1, )"
+            },
+            "Microsoft.AspNetCore.Components.WebAssembly.DevServer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[6.0.1, )"
+            },
+            "MudBlazor": {
+              "target": "Package",
+              "version": "[6.0.2, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.NETCore.App.Runtime.Mono.browser-wasm",
+              "version": "[6.0.1, 6.0.1]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.101\\RuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "browser-wasm": {
+          "#import": []
+        }
+      }
+    },
+    "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\PrimeWeb\\PrimeWeb.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\PrimeWeb\\PrimeWeb.csproj",
+        "projectName": "PrimeWeb",
+        "projectPath": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\PrimeWeb\\PrimeWeb.csproj",
+        "packagesPath": "C:\\Users\\Oscar\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\PrimeWeb\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "D:\\Documents\\Visual Studio\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Oscar\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "D:\\Documents\\Prism.Templates": {},
+          "D:\\Downloads\\EmguCV\\NugetRepo": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\Blazm.HID\\Blazm.Hid\\Blazm.Hid\\Blazm.Hid.csproj": {
+                "projectPath": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\Blazm.HID\\Blazm.Hid\\Blazm.Hid\\Blazm.Hid.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.Components.Web": {
+              "target": "Package",
+              "version": "[6.0.2, )"
+            },
+            "System.Drawing.Common": {
+              "target": "Package",
+              "version": "[6.0.2-mauipre.1.22054.8, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

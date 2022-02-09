@@ -1,0 +1,29 @@
+﻿<MudTreeView Color="Color" T="string" Hover="true" @bind-SelectedValue="SelectedValue">
+        
+        <MudTreeViewItem Value='"HP Prime"' Icon="@Icons.Filled.Calculate">
+            <MudTreeViewItem Value='"Applications"' Icon="@Icons.Filled.Apps">
+
+            </MudTreeViewItem>
+            <MudTreeViewItem Value='"Settings"' Icon="@Icons.Filled.Settings" />
+            <MudTreeViewItem Value='"Info"' Icon="@Icons.Filled.Info" />
+            <MudTreeViewItem Value='"Programs"' Icon="@Icons.Filled.Pages" />
+        </MudTreeViewItem>
+
+        <MudTreeViewItem Value='"HP Prime [Virtual]"' Icon="@Icons.Filled.Calculate">
+            <MudTreeViewItem Value='"Applications"' Icon="@Icons.Filled.Apps">
+
+            </MudTreeViewItem>
+            <MudTreeViewItem Value='"Settings"' Icon="@Icons.Filled.Settings" />
+            <MudTreeViewItem Value='"Info"' Icon="@Icons.Filled.Info" />
+            <MudTreeViewItem Value='"Programs"' Icon="@Icons.Filled.Pages" />
+        </MudTreeViewItem>
+        
+ </MudTreeView>
+
+
+
+ @code{
+    public string SelectedValue { get; set; }
+
+    public Color Color { get; set; }
+ }

@@ -1,0 +1,3 @@
+[submodule "Blazm.HID"]
+	path = Blazm.HID
+	url = https://github.com/EngstromJimmy/Blazm.HID.git

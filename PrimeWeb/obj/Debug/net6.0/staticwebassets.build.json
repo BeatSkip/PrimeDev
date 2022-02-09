@@ -1,0 +1,73 @@
+{
+  "Version": 1,
+  "Hash": "cOyzxM5NM8ucbFSZfz7bBuDdYNuAqfVCqtBHEZ55Jz8=",
+  "Source": "PrimeWeb",
+  "BasePath": "_content/PrimeWeb",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\Blazm.HID\\Blazm.Hid\\Blazm.Hid\\Blazm.Hid.csproj",
+      "Version": 2,
+      "Source": "Blazm.Hid",
+      "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalPublishPropertiesToRemove": "TargetFramework;RuntimeIdentifier",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalBuildPropertiesToRemove": "TargetFramework;RuntimeIdentifier"
+    }
+  ],
+  "DiscoveryPatterns": [
+    {
+      "Name": "Blazm.Hid\\wwwroot",
+      "Source": "Blazm.Hid",
+      "ContentRoot": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\Blazm.HID\\Blazm.Hid\\Blazm.Hid\\wwwroot\\",
+      "BasePath": "_content/Blazm.Hid",
+      "Pattern": "**"
+    },
+    {
+      "Name": "PrimeWeb\\wwwroot",
+      "Source": "PrimeWeb",
+      "ContentRoot": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\PrimeWeb\\wwwroot\\",
+      "BasePath": "_content/PrimeWeb",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\Blazm.HID\\Blazm.Hid\\Blazm.Hid\\wwwroot\\background.png",
+      "SourceId": "Blazm.Hid",
+      "SourceType": "Project",
+      "ContentRoot": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\Blazm.HID\\Blazm.Hid\\Blazm.Hid\\wwwroot\\",
+      "BasePath": "_content/Blazm.Hid",
+      "RelativePath": "background.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\background.png"
+    },
+    {
+      "Identity": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\Blazm.HID\\Blazm.Hid\\Blazm.Hid\\wwwroot\\Blazm.Hid.js",
+      "SourceId": "Blazm.Hid",
+      "SourceType": "Project",
+      "ContentRoot": "C:\\Users\\Oscar\\source\\PrimeNet\\PrimeNet\\Blazm.HID\\Blazm.Hid\\Blazm.Hid\\wwwroot\\",
+      "BasePath": "_content/Blazm.Hid",
+      "RelativePath": "Blazm.Hid.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\Blazm.Hid.js"
+    }
+  ]
+}
