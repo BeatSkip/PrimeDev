@@ -7,7 +7,9 @@ python and PPL programs. The current
 Other things to include:
 
   - **Technology stack**: Indicate the technological nature of the software, including primary programming language(s) and whether the software is intended as standalone or as a module in a framework or other ecosystem.
-  - **Status**:  Very very alpha, and currently working on the initial communication between the SPA and the prime itself..
+
+ ## Status
+ Very very alpha, and currently working on the initial communication between the SPA and the prime itself..
  
 - [x] Initial bring-up
 - [x] Scan and discover USB HID devices
@@ -16,7 +18,7 @@ Other things to include:
 - [ ] Discover files on Prime
 
 
-**Screenshot**: 
+## Screenshots 
 
 
 ## Dependencies
