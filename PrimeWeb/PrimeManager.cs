@@ -15,7 +15,10 @@ namespace PrimeWeb
 
 		private PrimeCalculator CurrentPrime;
 
-		private bool initialized = false;
+		private bool _initialized = false;
+
+
+		public bool IsInitialized { get { return _initialized; } private set { _initialized = value; } }
 
 		public PrimeManager(HidNavigator nav)
 		{
@@ -39,6 +42,7 @@ namespace PrimeWeb
 			if (myDevice != null)
 			{
 				CurrentPrime = new PrimeCalculator(myDevice, myDevice.ProductName);
+				IsInitialized = true;
 				return true;
 			}
 
@@ -75,6 +79,8 @@ namespace PrimeWeb
 
 		public async ValueTask DisposeAsync()
 		{
+			IsInitialized = false;
+
 				await navigator.DisposeAsync();
 		}
 

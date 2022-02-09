@@ -1,5 +1,8 @@
 ﻿@inherits LayoutComponentBase
 
+@inject IDialogService DialogService
+@inject PrimeManager manager
+
 <MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
@@ -8,8 +11,10 @@
     <MudAppBar Elevation="0">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudSpacer />
-        <MudChip Icon="@Icons.Material.Filled.Upload" Color="Color.Info" >Upload to Device</MudChip>
-        <MudChip Icon="@Icons.Material.Filled.Download" Color="Color.Secondary" >Load from Device</MudChip>
+        @if (!manager.IsInitialized)
+        {
+            <MudChip Icon="@Icons.Material.Filled.PrivateConnectivity" Color="Color.Secondary" @onclick="Initialize">Connect to Prime!</MudChip>
+        }
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
         <MudDrawerHeader>
@@ -25,10 +30,25 @@
 </MudLayout>
 
 @code {
-    bool _drawerOpen = true;
+
+    bool _drawerOpen = false;
 
     void DrawerToggle()
     {
-        _drawerOpen = !_drawerOpen;
+        if(manager.IsInitialized)
+            _drawerOpen = !_drawerOpen;
+    }
+
+    private List<PrimeCalculator> calcs = new List<PrimeCalculator>();
+
+    public async Task Initialize()
+    {
+        var success = await manager.InitializeAsync();
+        if(success){
+            var options = new DialogOptions { CloseButton = true };
+            DialogService.Show<ConnectSuccessDialog>("Connected!", options);
+        }
+
+      
     }
 }

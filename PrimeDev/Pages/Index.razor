@@ -2,15 +2,24 @@
 
 @inject PrimeManager manager
 
-<button @onclick="Initialize"> Initialize </button>
+<MudGrid Spacing="5" Justify="Justify.Center">
+    <MudItem>
+        <MudPaper Style="padding: 15px;">
+               @if (!manager.IsInitialized)
+                {
+                    <MudText Typo="Typo.h6" Align="Align.Center">It seems you haven't connected your HP Prime Yet!</MudText>
+                    <MudText Typo="Typo.subtitle1" Align="Align.Center">Click the connection button at the top right corner of this page to start the discovery and connection.</MudText>
+                }
+                else
+                {
+
+                }
+        </MudPaper>
+    </MudItem>
 
 
-<br/>
-<br/>
-@foreach(var d in calcs)
-{
-      <button @onclick="@(async ()=>{await d.Connect();})">Connect @d.ProductName @d.IsConnected</button> <br/>
-}
+    
+</MudGrid>
 
 @code{
     private List<PrimeCalculator> calcs = new List<PrimeCalculator>();
