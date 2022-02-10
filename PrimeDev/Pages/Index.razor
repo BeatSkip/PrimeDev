@@ -4,7 +4,7 @@
 
 <MudGrid Spacing="5" Justify="Justify.Center">
     <MudItem>
-        <MudPaper Style="padding: 15px;">
+        <MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
                @if (!manager.IsInitialized)
                 {
                     <MudText Typo="Typo.h6" Align="Align.Center">It seems you haven't connected your HP Prime Yet!</MudText>
@@ -13,25 +13,50 @@
                 else
                 {
 
+                       
+                            <MudText Typo="Typo.h6" Align="Align.Center">Initialized!</MudText>
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Press the following button to initialize a connection test</MudText>
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="SendTest" Style="margin-top: 15pt;">Send Test!</MudButton>
+                 
+                     
                 }
         </MudPaper>
     </MudItem>
+
+     
 
 
     
 </MudGrid>
 
 @code{
-    private List<PrimeCalculator> calcs = new List<PrimeCalculator>();
+    private PrimeCalculator prime;
 
-    public async Task Initialize()
+    public async Task SendTest()
     {
-        var success = await manager.InitializeAsync();
-        if(success){
-            calcs.Add(manager.GetCalculator());
-        }
-
-        
-
+        Console.WriteLine("Sending Test packet!");
+        prime = manager.GetCalculator();
+        prime.Connected += CurrentPrime_Connected;
+        prime.Connect();
     }
+
+    async void CurrentPrime_Connected(object? sender, EventArgs e)
+    {
+        Console.WriteLine("Prime is connected!");
+        var data = new PrimeUsbData("Hello from PrimeWeb!", 32, null);
+       
+        await prime.Send(data);
+    }
+
+    
+    protected override void OnInitialized()
+    {
+        manager.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        manager.OnChange -= StateHasChanged;
+    }
+
 }

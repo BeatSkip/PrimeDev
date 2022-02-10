@@ -32,7 +32,6 @@ namespace PrimeWeb
 
         }
 
-       
 
         /// <summary>
         /// Checks the Hid Devices looking for the first calculator
@@ -40,7 +39,19 @@ namespace PrimeWeb
         public async Task Connect()
         { 
             await prime.OpenAsync();
+            if (prime.Opened)
+            {
+                OnConnected();
+                prime.Notification += Prime_Notification;
+            }
+                
 
+        }
+
+        private void Prime_Notification(object? sender, OnInputReportArgs e)
+        {
+            Console.WriteLine("Received Notification!");
+            OnReport(e);
         }
 
         /// <summary>
@@ -73,12 +84,16 @@ namespace PrimeWeb
         /// Sends data to the calculator
         /// </summary>
         /// <param name="file">Data to send</param>
-        public void Send(PrimeUsbData file)
+        public async Task Send(PrimeUsbData file)
         {
-            if (IsNotReady()) return;
+            if (!IsConnected) return;
 
-            //foreach(var c in file.Chunks)
-             //   prime.Write(c);
+            Console.WriteLine("Sending chunks!");
+            foreach(var c in file.Chunks)
+            {
+                await prime.SendReportAsync(0, c);
+            }
+                
         }
 
         private bool IsNotReady()
@@ -92,6 +107,7 @@ namespace PrimeWeb
         /// <param name="e">Data received</param>
         protected virtual void OnDataReceived(DataReceivedEventArgs e)
         {
+            
             var handler = DataReceived;
             if (handler != null) handler(this, e);
         }
@@ -102,7 +118,7 @@ namespace PrimeWeb
         public int OutputChunkSize
         {
             //get { return prime.Capabilities.OutputReportByteLength; }
-            get { return 1; }
+            get { return 128; }
         }
 
         /// <summary>
@@ -122,12 +138,12 @@ namespace PrimeWeb
         /// <summary>
         /// Disables the data reception
         /// </summary>
-        public void StopReceiving()
+        public async void StopReceiving()
         {
             _continue = false;
 
-            //if(prime != null)
-             //   prime.CloseDevice();
+            if (prime != null)
+                await prime.CloseAsync();
         }
 
         private void OnReport(OnInputReportArgs report)

@@ -10,6 +10,9 @@ namespace PrimeWeb
 {
 	public class PrimeManager : IAsyncDisposable
 	{
+
+		
+
 		private HidNavigator navigator;
 		private List<HidDeviceFilter> filters;
 
@@ -43,6 +46,7 @@ namespace PrimeWeb
 			{
 				CurrentPrime = new PrimeCalculator(myDevice, myDevice.ProductName);
 				IsInitialized = true;
+				NotifyStateChanged();
 				return true;
 			}
 
@@ -50,11 +54,12 @@ namespace PrimeWeb
 				
 		}
 
-		//public List<HidDevice> Calculators { get { return devices ?? new List<HidDevice>(); } }
 
-		#region enumeration
+        //public List<HidDevice> Calculators { get { return devices ?? new List<HidDevice>(); } }
 
-		private static HidDeviceFilter CreateHidFilter(string VendorId, string ProductId)
+        #region enumeration
+
+        private static HidDeviceFilter CreateHidFilter(string VendorId, string ProductId)
 		{
 			int vid;
 			int pid;
@@ -83,6 +88,13 @@ namespace PrimeWeb
 
 				await navigator.DisposeAsync();
 		}
+
+		#endregion
+
+		#region event handling
+
+		public event Action OnChange;
+		private void NotifyStateChanged() => OnChange?.Invoke();
 
 		#endregion
 

@@ -47,6 +47,8 @@
         if(success){
             var options = new DialogOptions { CloseButton = true };
             DialogService.Show<ConnectSuccessDialog>("Connected!", options);
+            StateHasChanged();
+
         }
 
       
