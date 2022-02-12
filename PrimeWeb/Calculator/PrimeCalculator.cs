@@ -12,10 +12,108 @@ namespace PrimeWeb
     {
         public string ProductName { get { return prime.ProductName; } }
 
-
         private HidDevice prime;
 
-        private bool _isConnected, _continue;
+        public PrimeCalculator(HidDevice device, string Title = "")
+        {
+            prime = device;
+
+        }
+
+        #region properties
+
+        /// <summary>
+        /// There is at least one compatible device connected
+        /// </summary>
+        public bool IsConnected
+        {
+            get { return prime.Opened; }
+        }
+
+
+        /// <summary>
+        /// Size of the output chunk (Output Report lenght)
+        /// </summary>
+        public int OutputChunkSize
+        {
+            //get { return prime.Capabilities.OutputReportByteLength; }
+            get { return 1024; }
+        }
+
+		#endregion
+
+		#region Connection methods
+
+		/// <summary>
+		/// Checks the Hid Devices looking for the first calculator
+		/// </summary>
+		public async Task Connect()
+        {
+            if (prime == null)
+                return;
+
+            if (prime.Opened)
+                return;
+            
+            await prime.OpenAsync();
+
+            if (prime.Opened)
+            {
+                OnConnected();
+                prime.Notification += Prime_Notification;
+            }
+        }
+
+        public async Task Disconnect()
+		{
+            if (prime == null)
+                return;
+
+            if (!prime.Opened)
+                return;
+
+            prime.Notification -= Prime_Notification;
+
+            await prime.CloseAsync();
+
+            OnDisconnected();
+
+        }
+		#endregion
+
+		#region General methods
+
+		/// <summary>
+		/// Sends data to the calculator
+		/// </summary>
+		/// <param name="file">Data to send</param>
+		public async Task Send(PrimeUsbData file)
+        {
+            if (!IsConnected) return;
+
+            Console.WriteLine("Sending chunks!");
+            foreach (var c in file.Chunks)
+            {
+                byte id = c.ReportID;
+                byte[] data = c.Data;
+                await prime.SendReportAsync(id, data);
+            }
+
+        }
+
+        public async Task SendChatMessage(string Message)
+        {
+            if (!IsConnected) return;
+
+            var data = new PrimeUsbData(Message, 1024, null);
+
+            await this.Send(data);
+
+        }
+
+        #endregion
+
+        #region eventhandlers
 
         /// <summary>
         /// Reports physical device events
@@ -32,28 +130,10 @@ namespace PrimeWeb
         /// </summary>
         public event EventHandler<MessageReceivedEventArgs> ChatMessageReceived;
 
-
-        public PrimeCalculator(HidDevice device, string Title = "")
-        {
-            prime = device;
-
-        }
+        #endregion
 
 
-        /// <summary>
-        /// Checks the Hid Devices looking for the first calculator
-        /// </summary>
-        public async Task Connect()
-        {
-            await prime.OpenAsync();
-            if (prime.Opened)
-            {
-                OnConnected();
-                prime.Notification += Prime_Notification;
-            }
-
-
-        }
+        #region events
 
         private void Prime_Notification(object? sender, OnInputReportArgs e)
         {
@@ -62,77 +142,28 @@ namespace PrimeWeb
             rcv.Print();
 
             DbgTools.PrintPacket(e.Data);
-			/*
 
-            List<byte> alldat = new List<byte>();
-            alldat.Add((byte)e.ReportId);
-            alldat.AddRange(e.Data);
-
-            var data = new PrimeUsbData(alldat.ToArray());
-            Console.WriteLine($"\nData valid: {data.IsValid}");
-            Console.WriteLine($"Data complete: {data.IsComplete}");
-            Console.WriteLine($"Data name: {data.Name}");
-            Console.WriteLine($"Data name: {BitConverter.ToString(data.Data)}");
-            */
-			switch (rcv.Type)
-			{
-                case(PacketType.Chat):
+            switch (rcv.Type)
+            {
+                case (PacketType.Chat):
                     OnMessage(rcv);
                     break;
                 default:
                     OnReport(e);
                     break;
             }
-            
         }
 
-        /// <summary>
-        /// There is at least one compatible device connected
-        /// </summary>
-        public bool IsConnected
+        private void OnReport(OnInputReportArgs report)
         {
-            get { return prime.Opened; }
+            OnDataReceived(new DataReceivedEventArgs(report.Data));
         }
 
-        /// <summary>
-        /// First compatible device was found and it is connected
-        /// </summary>
-        protected virtual void OnConnected()
+        private void OnMessage(PrimeChunk chunk)
         {
-            var handler = Connected;
-            if (handler != null) handler(this, EventArgs.Empty);
-        }
+            var args = new MessageReceivedEventArgs() { Message = chunk.ToString(), Source = chunk };
 
-        /// <summary>
-        /// The last connected device was removed
-        /// </summary>
-        protected virtual void OnDisconnected()
-        {
-            var handler = Disconnected;
-            if (handler != null) handler(this, EventArgs.Empty);
-        }
-
-        /// <summary>
-        /// Sends data to the calculator
-        /// </summary>
-        /// <param name="file">Data to send</param>
-        public async Task Send(PrimeUsbData file)
-        {
-            if (!IsConnected) return;
-
-            Console.WriteLine("Sending chunks!");
-            foreach (var c in file.Chunks)
-            {
-                byte id = c.ReportID;
-                byte[] data = c.Data;
-                await prime.SendReportAsync(id, data);
-            }
-
-        }
-
-        private bool IsNotReady()
-        {
-            return !(_isConnected && prime != null);
+            OnMessageReceived(args);
         }
 
         /// <summary>
@@ -157,57 +188,24 @@ namespace PrimeWeb
         }
 
         /// <summary>
-        /// Size of the output chunk (Output Report lenght)
+        /// First compatible device was found and it is connected
         /// </summary>
-        public int OutputChunkSize
+        protected virtual void OnConnected()
         {
-            //get { return prime.Capabilities.OutputReportByteLength; }
-            get { return 1024; }
+            var handler = Connected;
+            if (handler != null) handler(this, EventArgs.Empty);
         }
 
         /// <summary>
-        /// Enabled the data reception for this device, flushing any pending data in the buffer
+        /// The last connected device was removed
         /// </summary>
-        public void StartReceiving()
+        protected virtual void OnDisconnected()
         {
-            // Flush contents
-            StopReceiving();
-
-            _continue = true;
-
-            // if (prime != null)
-            //   prime.ReadReport(OnReport);
+            var handler = Disconnected;
+            if (handler != null) handler(this, EventArgs.Empty);
         }
 
-        /// <summary>
-        /// Disables the data reception
-        /// </summary>
-        public async void StopReceiving()
-        {
-            _continue = false;
-
-            if (prime != null)
-                await prime.CloseAsync();
-        }
-
-        private void OnReport(OnInputReportArgs report)
-        {
-            //report;
-            //if(_continue)
-            //  prime.ReadReport(OnReport); // Expect more reports
-
-            if (IsNotReady()) return;
-
-            OnDataReceived(new DataReceivedEventArgs(report.Data));
-        }
-
-        private void OnMessage(PrimeChunk chunk)
-        {
-            var args = new MessageReceivedEventArgs() { Message = chunk.ToString(), Source = chunk };
-
-            OnMessageReceived(args);
-        }
-
+        #endregion
 
         #region Enumeration and HID
 
@@ -215,7 +213,7 @@ namespace PrimeWeb
         #endregion
     }
 
-    public class MessageReceivedEventArgs : EventArgs{
+	public class MessageReceivedEventArgs : EventArgs{
         public string Message { get; set; }
         public PrimeChunk Source { get; set; }
     }

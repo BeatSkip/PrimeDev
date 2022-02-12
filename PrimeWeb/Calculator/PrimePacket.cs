@@ -22,7 +22,6 @@ namespace PrimeWeb.Calculator
 
 		public PrimePacket(byte Id,byte[] src, bool isReceived = true)
 		{
-			
 			data = src;
 
 			if (isReceived)

@@ -50,9 +50,7 @@
     async void CurrentPrime_Connected(object? sender, EventArgs e)
     {
         Console.WriteLine("Prime is connected!");
-        var data = new PrimeUsbData("Hello from PrimeWeb!", 1024, null);
-
-        await prime.Send(data);
+        await prime.SendChatMessage("Hello from PrimeWeb! new func!");
     }
 
     void CurrentPrime_Received(object? sender, PrimeWeb.DataReceivedEventArgs e)
