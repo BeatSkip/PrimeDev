@@ -1,5 +1,7 @@
 ﻿using System;
 using Blazm.Hid;
+using PrimeWeb.Utility;
+using PrimeWeb.Calculator;
 
 namespace PrimeWeb
 {
@@ -13,21 +15,26 @@ namespace PrimeWeb
 
         private HidDevice prime;
 
-        private bool _isConnected,_continue;
+        private bool _isConnected, _continue;
 
         /// <summary>
         /// Reports physical device events
         /// </summary>
         public event EventHandler<EventArgs> Connected, Disconnected;
+
         /// <summary>
         /// Reports data received from the USB
         /// </summary>
         public event EventHandler<DataReceivedEventArgs> DataReceived;
 
+        /// <summary>
+        /// Reports message from the USB
+        /// </summary>
+        public event EventHandler<MessageReceivedEventArgs> ChatMessageReceived;
 
 
         public PrimeCalculator(HidDevice device, string Title = "")
-		{
+        {
             prime = device;
 
         }
@@ -37,21 +44,46 @@ namespace PrimeWeb
         /// Checks the Hid Devices looking for the first calculator
         /// </summary>
         public async Task Connect()
-        { 
+        {
             await prime.OpenAsync();
             if (prime.Opened)
             {
                 OnConnected();
                 prime.Notification += Prime_Notification;
             }
-                
+
 
         }
 
         private void Prime_Notification(object? sender, OnInputReportArgs e)
         {
             Console.WriteLine("Received Notification!");
-            OnReport(e);
+            var rcv = new PrimeChunk(e.ReportId, e.Data);
+            rcv.Print();
+
+            DbgTools.PrintPacket(e.Data);
+			/*
+
+            List<byte> alldat = new List<byte>();
+            alldat.Add((byte)e.ReportId);
+            alldat.AddRange(e.Data);
+
+            var data = new PrimeUsbData(alldat.ToArray());
+            Console.WriteLine($"\nData valid: {data.IsValid}");
+            Console.WriteLine($"Data complete: {data.IsComplete}");
+            Console.WriteLine($"Data name: {data.Name}");
+            Console.WriteLine($"Data name: {BitConverter.ToString(data.Data)}");
+            */
+			switch (rcv.Type)
+			{
+                case(PacketType.Chat):
+                    OnMessage(rcv);
+                    break;
+                default:
+                    OnReport(e);
+                    break;
+            }
+            
         }
 
         /// <summary>
@@ -89,13 +121,13 @@ namespace PrimeWeb
             if (!IsConnected) return;
 
             Console.WriteLine("Sending chunks!");
-            foreach(var c in file.Chunks)
+            foreach (var c in file.Chunks)
             {
-                byte id = c[0];
-                byte[] data = c.SubArray(1);
+                byte id = c.ReportID;
+                byte[] data = c.Data;
                 await prime.SendReportAsync(id, data);
             }
-                
+
         }
 
         private bool IsNotReady()
@@ -109,8 +141,18 @@ namespace PrimeWeb
         /// <param name="e">Data received</param>
         protected virtual void OnDataReceived(DataReceivedEventArgs e)
         {
-            
+
             var handler = DataReceived;
+            if (handler != null) handler(this, e);
+        }
+
+        /// <summary>
+        /// Chat message has been received!
+        /// </summary>
+        /// <param name="e">Chat message received</param>
+        protected virtual void OnMessageReceived(MessageReceivedEventArgs e)
+        {
+            var handler = ChatMessageReceived;
             if (handler != null) handler(this, e);
         }
 
@@ -133,8 +175,8 @@ namespace PrimeWeb
 
             _continue = true;
 
-           // if (prime != null)
-             //   prime.ReadReport(OnReport);
+            // if (prime != null)
+            //   prime.ReadReport(OnReport);
         }
 
         /// <summary>
@@ -150,19 +192,31 @@ namespace PrimeWeb
 
         private void OnReport(OnInputReportArgs report)
         {
-           // report;
-           // i//f(_continue)
-               // prime.ReadReport(OnReport); // Expect more reports
+            //report;
+            //if(_continue)
+            //  prime.ReadReport(OnReport); // Expect more reports
 
             if (IsNotReady()) return;
 
             OnDataReceived(new DataReceivedEventArgs(report.Data));
         }
 
+        private void OnMessage(PrimeChunk chunk)
+        {
+            var args = new MessageReceivedEventArgs() { Message = chunk.ToString(), Source = chunk };
 
-		#region Enumeration and HID
+            OnMessageReceived(args);
+        }
 
-       
-		#endregion
-	}
+
+        #region Enumeration and HID
+
+
+        #endregion
+    }
+
+    public class MessageReceivedEventArgs : EventArgs{
+        public string Message { get; set; }
+        public PrimeChunk Source { get; set; }
+    }
 }

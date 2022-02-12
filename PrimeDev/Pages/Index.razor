@@ -22,21 +22,28 @@
                 }
         </MudPaper>
     </MudItem>
+    <MudItem xs=12>
+        @foreach(var msg in messages)
+        {
+            <MudText Typo="Typo.subtitle1" Align="Align.Left">Message: @msg</MudText>
+        }
+    </MudItem>
 
-     
-
-
-    
+   
 </MudGrid>
 
 @code{
     private PrimeCalculator prime;
+
+    private List<string> messages = new List<string>();
 
     public async Task SendTest()
     {
         Console.WriteLine("Sending Test packet!");
         prime = manager.GetCalculator();
         prime.Connected += CurrentPrime_Connected;
+        prime.DataReceived += CurrentPrime_Received;
+        prime.ChatMessageReceived += CurrentPrime_Message;
         prime.Connect();
     }
 
@@ -44,9 +51,25 @@
     {
         Console.WriteLine("Prime is connected!");
         var data = new PrimeUsbData("Hello from PrimeWeb!", 1024, null);
-       
+
         await prime.Send(data);
     }
+
+    void CurrentPrime_Received(object? sender, PrimeWeb.DataReceivedEventArgs e)
+    {
+        Console.WriteLine("Prime is received data!");
+        var tet = new PrimeUsbData(e.Data);
+
+        Console.WriteLine(tet);
+    }
+
+    void CurrentPrime_Message(object? sender, PrimeWeb.MessageReceivedEventArgs e)
+    {
+        messages.Add((DateTime.Now.ToShortTimeString() + "\t-\t" +  e.Message));
+     
+        StateHasChanged();
+    }
+
 
     
     protected override void OnInitialized()

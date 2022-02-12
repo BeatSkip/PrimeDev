@@ -19,10 +19,14 @@ Very very alpha, and currently working on the initial communication between the 
 -  [x] Connect to single HP Prime via HID
 -  [x] Send initial test message to actual hardware
 -  [x] Receive data back from actual hardware
+-  [x] Receive message, parse content and fire message received event
+-  [ ] Explore protocol and expand library functions for IDE usage
 -  [ ] Discover files on Prime
 
   
 ![initial proof](https://github.com/BeatSkip/PrimeDev/blob/master/img/photo_poc.jpg?raw=true)
+
+![msg received](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_msgevent.png?raw=true)
 
 ## Screenshots
 

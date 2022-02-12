@@ -73,7 +73,7 @@ namespace PrimeWeb
             IsValid = true;
             IsComplete = true;
 
-            Chunks = new List<byte[]>();
+            Chunks = new List<(byte,byte[])>();
 
             // Prepare the header
             var fullData = new List<byte>(_headers[PrimeUsbDataType.Message].Header);
@@ -100,9 +100,9 @@ namespace PrimeWeb
             if (chunkSize > 0)
                 do
                 {
-                    IEnumerable<byte> tmp = new[] {(byte) 0x00, (byte) (chunk++%byte.MaxValue)};
-                    Chunks.Add(tmp.Concat(allBytes.SubArray(position == 0 ? 2 : position,
-                            Math.Min(chunkSize - 2, allBytes.Length - position))).ToArray());
+                    IEnumerable<byte> tmp = new[] {(byte) (chunk++%byte.MaxValue)};
+                    Chunks.Add((0x00,tmp.Concat(allBytes.SubArray(position == 0 ? 2 : position,
+                            Math.Min(chunkSize - 2, allBytes.Length - position))).ToArray()));
                     position += chunkSize - (position == 0 ? 0 : 2);
                 } while (position < allBytes.Length);
         }
@@ -114,7 +114,7 @@ namespace PrimeWeb
         /// <param name="data">Contents of the script in UTF-16, without any header</param>
         /// <param name="chunkSize">Chunk size to split the data</param>
         /// <param name="settings">Settings for handling the data</param>
-        public PrimeUsbData(string name, byte[] data, int chunkSize=0, PrimeParameters settings=null)
+        public PrimeUsbData(string name, byte[] data, int chunkSize=1024, PrimeParameters settings=null)
         {
             _settings = settings;
             Name = name;
@@ -123,7 +123,7 @@ namespace PrimeWeb
             IsComplete = true;
             Type = PrimeUsbDataType.File;
 
-            Chunks = new List<byte[]>();
+            Chunks = new List<(byte ReportID, byte[] Data)>();
 
             // Prepare the header
             var fullData = new List<byte>(_headers[PrimeUsbDataType.File].Header);
@@ -175,7 +175,9 @@ namespace PrimeWeb
             Name = null;
             Type = PrimeUsbDataType.Unknown;
             var b = new byte[] {0x00};
-            Chunks = new List<byte[]>(new []{b.Concat(chunkData).ToArray()});
+            List<(byte ReportID, byte[] Data)>
+            Chunks = new List<(byte ReportID, byte[] Data)>();
+            Chunks.Add((0x00, chunkData.ToArray()));
             CheckForValidity();
         }
 
@@ -188,7 +190,9 @@ namespace PrimeWeb
             IsComplete = false;
             if (Chunks.Count <= 0) return;
 
-            var tmp = Chunks.Aggregate<byte[], IEnumerable<byte>>(null, (current, b) => current == null ? b : current.Concat(b)).ToArray();
+            var tmpint = Chunks.Select(x => (new byte[] { x.ReportID }).Concat(x.Data).ToArray()).ToList();
+
+            var tmp = tmpint.Aggregate<byte[], IEnumerable<byte>>(null, (current, b) => current == null ? b : current.Concat(b)).ToArray();
 
             // Check the header
             Type = PrimeUsbDataType.Unknown;
@@ -249,7 +253,7 @@ namespace PrimeWeb
         /// <summary>
         /// Segmented data ready to send
         /// </summary>
-        public List<byte[]> Chunks { get; private set; }
+        public List<(byte ReportID, byte[] Data)> Chunks { get; private set; }
 
         /// <summary>
         /// Saves this script to the filesystem
@@ -317,6 +321,10 @@ namespace PrimeWeb
         /// <summary>
         /// Data uses a message header
         /// </summary>
-        Message
+        Message,
+        /// <summary>
+        /// Data uses a Reply header
+        /// </summary>
+        Reply
     }
 }
