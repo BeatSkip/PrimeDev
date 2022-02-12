@@ -43,7 +43,7 @@
     async void CurrentPrime_Connected(object? sender, EventArgs e)
     {
         Console.WriteLine("Prime is connected!");
-        var data = new PrimeUsbData("Hello from PrimeWeb!", 32, null);
+        var data = new PrimeUsbData("Hello from PrimeWeb!", 1024, null);
        
         await prime.Send(data);
     }

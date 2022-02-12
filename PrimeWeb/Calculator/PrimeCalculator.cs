@@ -91,7 +91,9 @@ namespace PrimeWeb
             Console.WriteLine("Sending chunks!");
             foreach(var c in file.Chunks)
             {
-                await prime.SendReportAsync(0, c);
+                byte id = c[0];
+                byte[] data = c.SubArray(1);
+                await prime.SendReportAsync(id, data);
             }
                 
         }
@@ -118,7 +120,7 @@ namespace PrimeWeb
         public int OutputChunkSize
         {
             //get { return prime.Capabilities.OutputReportByteLength; }
-            get { return 128; }
+            get { return 1024; }
         }
 
         /// <summary>

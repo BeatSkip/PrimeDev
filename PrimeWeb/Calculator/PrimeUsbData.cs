@@ -64,7 +64,7 @@ namespace PrimeWeb
         /// <param name="message">Text message</param>
         /// <param name="chunkSize">Chunk size to split the data</param>
         /// <param name="settings">Settings for handling the data</param>
-        public PrimeUsbData(String message, int chunkSize=0, PrimeParameters settings=null)
+        public PrimeUsbData(String message, int chunkSize=1024, PrimeParameters settings=null)
         {
             _settings = settings;
             Name = null;

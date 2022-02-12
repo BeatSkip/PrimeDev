@@ -31,7 +31,7 @@ namespace PrimeWeb
         /// <param name="name">Name of the script</param>
         /// <param name="data">Contents of the script in UTF-16, without any header</param>
         /// <param name="chunkSize">Chunk size to split the data</param>
-        public PrimeUsbFile(string name, byte[] data, int chunkSize)
+        public PrimeUsbFile(string name, byte[] data, int chunkSize = 1024)
         {
             Name = name;
             Data = data;
