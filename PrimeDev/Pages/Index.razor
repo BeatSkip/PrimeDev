@@ -41,16 +41,15 @@
     {
         Console.WriteLine("Sending Test packet!");
         prime = manager.GetCalculator();
-        prime.Connected += CurrentPrime_Connected;
-        prime.DataReceived += CurrentPrime_Received;
-        prime.ChatMessageReceived += CurrentPrime_Message;
-        prime.Connect();
+        //prime.Connected += CurrentPrime_Connected;
+        //prime.DataReceived += CurrentPrime_Received;
+        //prime.ChatMessageReceived += CurrentPrime_Message;
     }
 
     async void CurrentPrime_Connected(object? sender, EventArgs e)
     {
-        Console.WriteLine("Prime is connected!");
-        await prime.SendChatMessage("Hello from PrimeWeb! new func!");
+        Console.WriteLine("[Index.rzr] - Prime is connected!");
+        //await prime.SendChatMessage("Test message from WebPrime!");
     }
 
     void CurrentPrime_Received(object? sender, PrimeWeb.DataReceivedEventArgs e)

@@ -23,7 +23,11 @@ Very very alpha, and currently working on the initial communication between the 
 -  [ ] Explore protocol and expand library functions for IDE usage
 -  [ ] Discover files on Prime
 
-  
+**Latest achievements**
+- Request calculator information and display on top bar
+- Change protocol to undocumented V2 protocol
+- Set up basics for completely reworked comms library
+
 ![initial proof](https://github.com/BeatSkip/PrimeDev/blob/master/img/photo_poc.jpg?raw=true)
 
 ![msg received](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_msgevent.png?raw=true)

@@ -10,6 +10,14 @@
 <MudLayout>
     <MudAppBar Elevation="0">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        @if (manager.IsInitialized)
+        {
+            <MudText Typo="Typo.h5" Color="Color.Primary">PrimeDev</MudText>
+            <MudSpacer />
+         <MudText Typo="Typo.overline">@prime.ProductName - @prime.DeviceInfo.Serial - @prime.DeviceInfo.Version</MudText>
+         <MudSpacer />
+         <MudText Typo="Typo.overline"></MudText>   
+        }
         <MudSpacer />
         @if (!manager.IsInitialized)
         {
@@ -31,6 +39,8 @@
 
 @code {
 
+    private PrimeCalculator prime;
+
     bool _drawerOpen = false;
 
     void DrawerToggle()
@@ -44,13 +54,20 @@
     public async Task Initialize()
     {
         var success = await manager.InitializeAsync();
-        if(success){
+        if (success)
+        {
+            prime = manager.GetCalculator();
+            prime.Changed += Prime_Changed;
+            await prime.Initialize();
             var options = new DialogOptions { CloseButton = true };
             DialogService.Show<ConnectSuccessDialog>("Connected!", options);
-            StateHasChanged();
+           
 
         }
-
-      
     }
+
+    void Prime_Changed(object? sender, EventArgs e)
+	{
+        StateHasChanged();
+	}
 }

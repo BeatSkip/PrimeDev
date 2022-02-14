@@ -2,6 +2,7 @@
 using Blazm.Hid;
 using PrimeWeb.Utility;
 using PrimeWeb.Calculator;
+using PrimeWeb.HpTypes;
 
 namespace PrimeWeb
 {
@@ -14,13 +15,20 @@ namespace PrimeWeb
 
         private HidDevice prime;
 
+        private PacketWorker packetWorker;
+
         public PrimeCalculator(HidDevice device, string Title = "")
         {
             prime = device;
-
+            packetWorker = new PacketWorker(this,device);
         }
 
         #region properties
+
+        /// <summary>
+        /// Device information like software version and Serial number
+        /// </summary>
+        public HpInfos DeviceInfo { get; internal set; }
 
         /// <summary>
         /// There is at least one compatible device connected
@@ -47,7 +55,7 @@ namespace PrimeWeb
 		/// <summary>
 		/// Checks the Hid Devices looking for the first calculator
 		/// </summary>
-		public async Task Connect()
+		public async Task Initialize()
         {
             if (prime == null)
                 return;
@@ -60,7 +68,6 @@ namespace PrimeWeb
             if (prime.Opened)
             {
                 OnConnected();
-                prime.Notification += Prime_Notification;
             }
         }
 
@@ -87,7 +94,7 @@ namespace PrimeWeb
 		/// Sends data to the calculator
 		/// </summary>
 		/// <param name="file">Data to send</param>
-		public async Task Send(PrimeUsbData file)
+		internal async Task Send(PrimeUsbData file)
         {
             if (!IsConnected) return;
 
@@ -118,7 +125,7 @@ namespace PrimeWeb
         /// <summary>
         /// Reports physical device events
         /// </summary>
-        public event EventHandler<EventArgs> Connected, Disconnected;
+        public event EventHandler<EventArgs> Connected, Disconnected, Changed;
 
         /// <summary>
         /// Reports data received from the USB
@@ -154,6 +161,11 @@ namespace PrimeWeb
             }
         }
 
+        internal void InfoChanged()
+		{
+            OnChanged();
+		}
+
         private void OnReport(OnInputReportArgs report)
         {
             OnDataReceived(new DataReceivedEventArgs(report.Data));
@@ -175,6 +187,16 @@ namespace PrimeWeb
 
             var handler = DataReceived;
             if (handler != null) handler(this, e);
+        }
+
+        /// <summary>
+        /// Some data arrived (Device has to be Receiving data)
+        /// </summary>
+        /// <param name="e">Data received</param>
+        protected virtual void OnChanged()
+        {
+            var handler = Changed;
+            if (handler != null) handler(this, new EventArgs());
         }
 
         /// <summary>

@@ -9,7 +9,7 @@
 <br/>
 @foreach(var d in calcs)
 {
-      <button @onclick="@(async ()=>{await d.Connect();})">Connect @d.ProductName @d.IsConnected</button> <br/>
+      <button @onclick="@(async ()=>{await d.Initialize();})">Connect @d.ProductName @d.IsConnected</button> <br/>
 }
 
 @code{

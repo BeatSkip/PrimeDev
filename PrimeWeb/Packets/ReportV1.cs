@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PrimeWeb.Calculator
+namespace PrimeWeb.Packets
 {
-	public class PrimePacketCollection
+	public class ReportV1
 	{
-		//private List<>
 	}
 }
