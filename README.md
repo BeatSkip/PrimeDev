@@ -93,3 +93,7 @@ https://github.com/EngstromJimmy/Blazm.HID
 https://github.com/eried/PrimeComm
 
 https://github.com/debrouxl/hplp
+
+2. Special thanks to Stefan Wolfrum for some insights
+
+https://github.com/metawops
