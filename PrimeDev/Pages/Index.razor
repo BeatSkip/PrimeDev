@@ -3,25 +3,46 @@
 @inject PrimeManager manager
 
 <MudGrid Spacing="5" Justify="Justify.Center">
+   
+@if (!manager.IsInitialized)
+{
     <MudItem>
         <MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
-               @if (!manager.IsInitialized)
-                {
                     <MudText Typo="Typo.h6" Align="Align.Center">It seems you haven't connected your HP Prime Yet!</MudText>
                     <MudText Typo="Typo.subtitle1" Align="Align.Center">Click the connection button at the top right corner of this page to start the discovery and connection.</MudText>
-                }
-                else
-                {
-
-                       
-                            <MudText Typo="Typo.h6" Align="Align.Center">Initialized!</MudText>
-                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Press the following button to initialize a connection test</MudText>
-                            <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="SendTest" Style="margin-top: 15pt;">Send Test!</MudButton>
-                 
-                     
-                }
+                     </MudPaper>
+    </MudItem>
+}
+else
+{
+    <MudItem xs=4>
+        <MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
+            <MudText Typo="Typo.h6" Align="Align.Center">Initialized!</MudText>
+            <MudText Typo="Typo.subtitle1" Align="Align.Center">Press the following button to initialize a connection test</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="SendTest" Style="margin-top: 15pt;">Send Test!</MudButton>
         </MudPaper>
     </MudItem>
+
+    <MudItem xs=4>
+        <MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
+            <MudText Typo="Typo.h6" Align="Align.Center">Request Screenshot</MudText>
+            <MudText Typo="Typo.subtitle1" Align="Align.Center">Press the following button to request a screenshot</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="GetScreenshot" Style="margin-top: 15pt;">Capture Screen</MudButton>
+        </MudPaper>
+    </MudItem>
+
+        @if (screenshotreceived)
+        {
+             <MudItem xs=4>
+        <MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
+            <img width="320" height="240" src="@screenshot">
+        </MudPaper>
+    </MudItem>
+        }
+
+    }
+       
+    
     <MudItem xs=12>
         @foreach(var msg in messages)
         {
@@ -34,16 +55,41 @@
 
 @code{
     private PrimeCalculator prime;
-
+    bool screenshotreceived = false;
+    string screenshot = "";
     private List<string> messages = new List<string>();
 
     public async Task SendTest()
     {
         Console.WriteLine("Sending Test packet!");
-        prime = manager.GetCalculator();
+
         //prime.Connected += CurrentPrime_Connected;
         //prime.DataReceived += CurrentPrime_Received;
         //prime.ChatMessageReceived += CurrentPrime_Message;
+    }
+
+    public async Task GetScreenshot()
+    {
+        Console.WriteLine("[Index.rzr] - Getting screenshot");
+        if (prime == null)
+        {
+            Console.WriteLine("prime=null!");
+            return;   
+        }
+
+
+        await prime.GetScreenshot(ShowScreenshot);
+
+        //prime.Connected += CurrentPrime_Connected;
+        //prime.DataReceived += CurrentPrime_Received;
+        //prime.ChatMessageReceived += CurrentPrime_Message;
+    }
+
+
+    private void ShowScreenshot(string base64img){
+        screenshot = "data:image/png;base64," + base64img; // base64 string  
+        screenshotreceived = true;
+        StateHasChanged();
     }
 
     async void CurrentPrime_Connected(object? sender, EventArgs e)
@@ -63,20 +109,25 @@
     void CurrentPrime_Message(object? sender, PrimeWeb.MessageReceivedEventArgs e)
     {
         messages.Add((DateTime.Now.ToShortTimeString() + "\t-\t" +  e.Message));
-     
+
         StateHasChanged();
     }
 
+    private void ManagerChanged()
+    {
+        this.prime = manager.GetCalculator();
+        StateHasChanged();
+    }
 
     
     protected override void OnInitialized()
     {
-        manager.OnChange += StateHasChanged;
+        manager.OnChange += ManagerChanged;
     }
 
     public void Dispose()
     {
-        manager.OnChange -= StateHasChanged;
+        manager.OnChange -= ManagerChanged;
     }
 
 }

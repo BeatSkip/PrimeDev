@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Blazm.Hid;
-using PrimeWeb.Utility;
+﻿using Blazm.Hid;
 using PrimeWeb.HpTypes;
+using PrimeWeb.Packets;
+using System.Text;
 
 namespace PrimeWeb.Calculator
 {
@@ -14,9 +10,11 @@ namespace PrimeWeb.Calculator
 		private HidDevice calc;
 		private PrimeCalculator prime;
 
-		public long MessageCount { get; private set; }
+		public uint MessageCount { get; private set; } = 0;
 
 		public ProtocolVersion MaxProtocolVersion { get; private set; }
+
+		private V2MessageIn CurrentMessageIn { get; set; }
 
 		public PacketWorker(PrimeCalculator parent, HidDevice device)
 		{
@@ -27,26 +25,32 @@ namespace PrimeWeb.Calculator
 
 		}
 
+		public async Task SendV2Packet(byte[] Data)
+		{
+			var msg = new V2MessageOut(MessageCount++, Data);
+
+		}
+
 		private async void Prime_Connected(object? sender, EventArgs e)
 		{
 			Console.WriteLine("[PacketWorker] - Prime is connected!");
 			Console.WriteLine("Sending status packet!");
 
-			var pkt_status = GetPacketStatusRequest();
+			var pkt_status = MessageUtils.Misc.GetPacketStatusRequest();
 			await calc.SendReportAsync(pkt_status.id, pkt_status.data);
 
-			var pkt_prot = GetPacketSetProtocolV2();
+			var pkt_prot = MessageUtils.Misc.GetPacketSetProtocolV2();
 			await calc.SendReportAsync(pkt_prot.id, pkt_prot.data);
 
-			
-
+			//var pkt_sett = MessageUtils.Misc.GetPacketRequestSettings();
+			//await calc.SendReportAsync(pkt_sett.id, pkt_sett.data);
 
 		}
 
 		private void Prime_Notification(object? sender, OnInputReportArgs e)
 		{
 			var data = e.Data;
-			Console.WriteLine("[PacketWorker] - Report Received!");
+			//Console.WriteLine("[PacketWorker] - Report Received!");
 
 			var version = GetReportProtocol(data);
 
@@ -96,45 +100,48 @@ namespace PrimeWeb.Calculator
 
 		private void ParseReportNewProtocol(byte[] data)
 		{
-			Console.WriteLine("### V2 Packet ###");
-			
-			var kind = data[0] == 254 ? NewPacketType.OutOfBounds : (data[0] == 1 ? NewPacketType.IOMessageStart : NewPacketType.IOMessage);
-
-			Console.WriteLine($"Packet kind: {kind.ToString()}");
 
 
-			byte[] command = data.SubArray(1, 2);
-			var cmdstr = BitConverter.ToString(command).Replace("-", " ");
-			Console.WriteLine($"Command: {cmdstr}");
-			var BodyLength = BitConverter.ToInt32(data.SubArray(3, 4).Reverse().ToArray());
-			Console.WriteLine($"Body length: {BodyLength} Bytes");
-			var Body = data.SubArray(7, BodyLength);
-			var Bodystr = BitConverter.ToString(Body).Replace("-", " ");
-			Console.WriteLine("Body:");
-			Console.WriteLine(Bodystr);
-			Console.WriteLine("### END ###");
-			Console.WriteLine("");
+			var kind = data[0] == 254 ? NewPacketType.OutOfBounds : (data[0] == 1 ? NewPacketType.MessageStart : NewPacketType.Message);
+
+			//Console.WriteLine($"Packet kind: {kind.ToString()}");
+
+			switch (kind)
+			{
+				case (NewPacketType.OutOfBounds):
+					//Console.WriteLine("Out of bounds packet!");
+					break;
+				case (NewPacketType.MessageStart):
+					var report = new V2ReportStart(data);
+					report.Print();
+					CurrentMessageIn = new V2MessageIn(report);
+					break;
+				case (NewPacketType.Message):
+					if (CurrentMessageIn == null)
+						return;
+
+					var status = CurrentMessageIn.AddSlice(data);
+
+					if (CurrentMessageIn.Completed)
+						OnV2MessageReceived(new V2MessageEventArgs() { Data = CurrentMessageIn.GetData() });
+
+					Console.WriteLine($"Added slice {status.slicenumber} to message {CurrentMessageIn.MessageNumber}! {status.BytesToGo} Bytes to go");
+					break;
+				default:
+					break;
+
+
+			}
+
 		}
 
-	
+
 		private ProtocolVersion GetReportProtocol(byte[] data)
 		{
 			if (data[0] == 0x00)
 				return ProtocolVersion.Old;
 
-			if (data[0] == 255)
-			{
-				if (data[7] == 0)
-					return ProtocolVersion.New;
-
-				if (data[7] == 1)
-					return ProtocolVersion.New;
-			}
-
-			if (data[0] == 254)
-				return ProtocolVersion.New;
-
-			return ProtocolVersion.Unknown;
+			return ProtocolVersion.New;
 		}
 
 		#region packet parsers
@@ -146,81 +153,33 @@ namespace PrimeWeb.Calculator
 			Console.WriteLine($"Prime Info | Serialnumber: {infos.Serial} | Version: {infos.Version} | Build: {infos.Build} ");
 			prime.DeviceInfo = infos;
 			prime.InfoChanged();
-			
+
 		}
 
-		
+
 
 		#endregion
 
-		#region Packet Generators
+		#region Events
 
-		private (byte id, byte[] data) GetPacketSetProtocolV2()
-		{
-			byte[] content = { 0xFF, 0xEC, 0, 0, 0, 0, 0, 0 };
-			return (0, content);
-		}
+		public event EventHandler<V2MessageEventArgs> V2MessageReceived;
 
-		private (byte id, byte[] data) GetPacketStatusRequest()
+		protected virtual void OnV2MessageReceived(V2MessageEventArgs e)
 		{
-			byte[] content = { 0x00, 0xFA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-			return (0, content);
-		}
 
-		private (byte id, byte[] data) GetPacketAck(long packet)
-		{
-			byte[] content = { 0xFE, (byte)ResponseStatus.ACK, 0, 0, 0, 0, 0, 0 };
-			return (0, content);
-		}
-
-		private (byte id, byte[] data) GetPacketInfoRequest()
-		{
-			byte[] content = { 0x00, (byte)PrimeCMD.GET_INFOS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-			return (0, content);
+			var handler = V2MessageReceived;
+			if (handler != null) handler(this, e);
 		}
 
 		#endregion
 	}
 
-	public enum ProtocolVersion : byte
+
+	public class V2MessageEventArgs : EventArgs
 	{
-		Unknown = 254,
-		Old = 0,
-		New = 1,
+		public byte[] Data { get; set; }
 	}
 
-	public enum NewPacketType : byte
-	{
-		IOMessageStart,
-		IOMessage,
-		OutOfBounds
-	}
 
-	public enum ResponseStatus : byte
-	{
-		ACK = 0x01,
-		NACK = 0x00
-	}
 
-	public enum PrimeCMD : byte
-	{
-		//CMD_PRIME_CHECK_READY (0xFF)
-		CHECK_READY = 0xFF,
-		//CMD_PRIME_GET_INFOS (0xFA)
-		GET_INFOS = 0xFA,
-		//CMD_PRIME_RECV_SCREEN (0xFC)
-		RECV_SCREEN = 0xFC,
-		//CMD_PRIME_RECV_BACKUP (0xF9)
-		RECV_BACKUP = 0xF9,
-		//CMD_PRIME_REQ_FILE (0xF8)
-		REQ_FILE = 0xF8,
-		//CMD_PRIME_RECV_FILE (0xF7)
-		RECV_FILE = 0xF7,
-		//CMD_PRIME_SEND_CHAT (0xF2)
-		TRANSFER_CHAT = 0xF2,
-		//CMD_PRIME_SEND_KEY (0xEC)
-		SEND_KEY = 0xEC,
-		//CMD_PRIME_SET_DATE_TIME (0xE7)
-		SET_DATETIME = 0xE7,
-	}
 }

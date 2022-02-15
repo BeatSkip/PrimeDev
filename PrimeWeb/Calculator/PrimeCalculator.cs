@@ -3,6 +3,7 @@ using Blazm.Hid;
 using PrimeWeb.Utility;
 using PrimeWeb.Calculator;
 using PrimeWeb.HpTypes;
+using System.Drawing;
 
 namespace PrimeWeb
 {
@@ -11,6 +12,8 @@ namespace PrimeWeb
     /// </summary>
     public class PrimeCalculator
     {
+        private Action<string> screenshotCallback; 
+
         public string ProductName { get { return prime.ProductName; } }
 
         private HidDevice prime;
@@ -21,14 +24,30 @@ namespace PrimeWeb
         {
             prime = device;
             packetWorker = new PacketWorker(this,device);
+			packetWorker.V2MessageReceived += PacketWorker_V2MessageReceived;
         }
 
-        #region properties
+		private void PacketWorker_V2MessageReceived(object? sender, V2MessageEventArgs e)
+		{
+			
+            var header = e.Data.SubArray(0, 64);
+            DbgTools.PrintPacket(header);
 
-        /// <summary>
-        /// Device information like software version and Serial number
-        /// </summary>
-        public HpInfos DeviceInfo { get; internal set; }
+			switch ((PrimeCMD)e.Data[0])
+			{
+                case (PrimeCMD.RECV_SCREEN):
+                    Console.WriteLine("Received Screenshot!!");
+                    ProcessScreenshot(e.Data);
+                    break;
+            }
+		}
+
+		#region properties
+
+		/// <summary>
+		/// Device information like software version and Serial number
+		/// </summary>
+		public HpInfos DeviceInfo { get; internal set; }
 
         /// <summary>
         /// There is at least one compatible device connected
@@ -79,7 +98,7 @@ namespace PrimeWeb
             if (!prime.Opened)
                 return;
 
-            prime.Notification -= Prime_Notification;
+            //prime.Notification -= Prime_Notification;
 
             await prime.CloseAsync();
 
@@ -118,6 +137,31 @@ namespace PrimeWeb
 
         }
 
+        public async Task GetScreenshot(Action<string> callback)
+		{
+            if (!IsConnected) return;
+
+            screenshotCallback = callback;
+            var pkt_prot = MessageUtils.Misc.GetPacketSetProtocolV2();
+            await prime.SendReportAsync(pkt_prot.id, pkt_prot.data);
+
+            var packet = MessageUtils.Misc.GetPacketRequestScreen(ScreenFormat.PNG_320px_240px_16bit);
+            await prime.SendReportAsync(packet.id, packet.data);
+        }
+
+        private void ProcessScreenshot(byte[] data)
+		{
+            var img = ParseCommandScreenshot(data.SubArray(13));
+
+            screenshotCallback.Invoke(img);
+            
+        }
+
+        private string ParseCommandScreenshot(byte[] data)
+		{
+            return Convert.ToBase64String(data);
+        }
+
         #endregion
 
         #region eventhandlers
@@ -142,24 +186,6 @@ namespace PrimeWeb
 
         #region events
 
-        private void Prime_Notification(object? sender, OnInputReportArgs e)
-        {
-            Console.WriteLine("Received Notification!");
-            var rcv = new PrimeChunk(e.ReportId, e.Data);
-            rcv.Print();
-
-            DbgTools.PrintPacket(e.Data);
-
-            switch (rcv.Type)
-            {
-                case (PacketType.Chat):
-                    OnMessage(rcv);
-                    break;
-                default:
-                    OnReport(e);
-                    break;
-            }
-        }
 
         internal void InfoChanged()
 		{

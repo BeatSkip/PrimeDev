@@ -20,6 +20,7 @@ Very very alpha, and currently working on the initial communication between the 
 -  [x] Send initial test message to actual hardware
 -  [x] Receive data back from actual hardware
 -  [x] Receive message, parse content and fire message received event
+-  [x] Initial work done to reverse engineer V2 protocol
 -  [ ] Explore protocol and expand library functions for IDE usage
 -  [ ] Discover files on Prime
 
@@ -27,6 +28,9 @@ Very very alpha, and currently working on the initial communication between the 
 - Request calculator information and display on top bar
 - Change protocol to undocumented V2 protocol
 - Set up basics for completely reworked comms library
+- receiving Screenshot from calculator with V2 Protocol working!
+
+![screenshot](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_screenshot_received.png?raw=true)
 
 ![initial proof](https://github.com/BeatSkip/PrimeDev/blob/master/img/photo_poc.jpg?raw=true)
 
