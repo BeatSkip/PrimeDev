@@ -10,7 +10,8 @@ namespace PrimeWeb.Calculator
 	{
 		Unknown = 254,
 		Old = 0,
-		New = 1,
+		V2 = 1,
+		V3 = 2,
 	}
 
 	public enum NewPacketType : byte

@@ -12,13 +12,19 @@ namespace PrimeWeb.Calculator
         {
 			internal static (byte id, byte[] data) GetPacketRequestScreen(ScreenFormat format)
 			{
-				byte[] content = { 0x01, 0x01, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, (byte)PrimeCMD.RECV_SCREEN, 0x09 };
+				byte[] content = { 0x01, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, (byte)PrimeCMD.RECV_SCREEN, 0xFE };
 				return (0, content);
 			}
 
 			internal static (byte id, byte[] data) GetPacketSetProtocolV2()
 			{
 				byte[] content = { 0xFF, 0xEC, 0, 0, 0, 0, 0, 0 };
+				return (0, content);
+			}
+
+			internal static (byte id, byte[] data) GetPacketSetProtocolV3()
+			{
+				byte[] content = { 0xFF, 0xEC, 0, 0, 0, 0, 0, 1 };
 				return (0, content);
 			}
 

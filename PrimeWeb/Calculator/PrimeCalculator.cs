@@ -2,6 +2,7 @@
 using Blazm.Hid;
 using PrimeWeb.Utility;
 using PrimeWeb.Calculator;
+using PrimeWeb.Packets;
 using PrimeWeb.HpTypes;
 using System.Drawing;
 
@@ -79,15 +80,9 @@ namespace PrimeWeb
             if (prime == null)
                 return;
 
-            if (prime.Opened)
-                return;
-            
-            await prime.OpenAsync();
+            await packetWorker.ConnectAsync();
 
-            if (prime.Opened)
-            {
-                OnConnected();
-            }
+
         }
 
         public async Task Disconnect()
@@ -117,14 +112,6 @@ namespace PrimeWeb
         {
             if (!IsConnected) return;
 
-            Console.WriteLine("Sending chunks!");
-            foreach (var c in file.Chunks)
-            {
-                byte id = c.ReportID;
-                byte[] data = c.Data;
-                await prime.SendReportAsync(id, data);
-            }
-
         }
 
         public async Task SendChatMessage(string Message)
@@ -133,7 +120,7 @@ namespace PrimeWeb
 
             var data = new PrimeUsbData(Message, 1024, null);
 
-            await this.Send(data);
+            //await this.Send(data);
 
         }
 

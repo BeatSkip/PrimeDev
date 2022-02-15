@@ -2,52 +2,65 @@
 using PrimeWeb.HpTypes;
 using PrimeWeb.Packets;
 using System.Text;
+using PrimeWeb.Calculator;
 
-namespace PrimeWeb.Calculator
+namespace PrimeWeb.Packets
 {
 	public class PacketWorker
 	{
-		private HidDevice calc;
+		private HidDevice device;
+
 		private PrimeCalculator prime;
 
 		public uint MessageCount { get; private set; } = 0;
 
-		public ProtocolVersion MaxProtocolVersion { get; private set; }
+		public ProtocolVersion Protocol { get; private set; } = ProtocolVersion.Unknown;
 
-		private V2MessageIn CurrentMessageIn { get; set; }
+		private V2MessageIn CurrentMessageIn	{ get; set; }
+		private V2MessageOut CurrentMessageOut	{ get; set; }
 
-		public PacketWorker(PrimeCalculator parent, HidDevice device)
+		public PacketWorker(PrimeCalculator parent, HidDevice hid)
 		{
-			calc = device;
-			calc.Notification += Prime_Notification;
+			this.device = hid;
 			this.prime = parent;
-			prime.Connected += Prime_Connected;
-
+			this.device.ReportReceived += Prime_ReportReceived;
+            this.device.Connected += Device_Connected;
+			
 		}
 
-		public async Task SendV2Packet(byte[] Data)
+        private async void Device_Connected(object? sender, EventArgs e)
+        {
+			Console.WriteLine("[PacketWorker] - Prime is connected!");
+			Console.WriteLine("Sending status packet!");
+
+			var pkt_status = MessageUtils.Misc.GetPacketInfoRequest();
+			await device.SendReportAsync(pkt_status.id, pkt_status.data);
+		}
+
+
+        #region Usb Communication
+
+        public async Task ConnectAsync()
+        {
+			if (device.Opened)
+				return;
+
+			await device.OpenAsync();
+		}
+
+		#endregion
+
+
+
+		public async Task Send(byte[] Data)
 		{
 			var msg = new V2MessageOut(MessageCount++, Data);
 
 		}
 
-		private async void Prime_Connected(object? sender, EventArgs e)
-		{
-			Console.WriteLine("[PacketWorker] - Prime is connected!");
-			Console.WriteLine("Sending status packet!");
+	
 
-			var pkt_status = MessageUtils.Misc.GetPacketStatusRequest();
-			await calc.SendReportAsync(pkt_status.id, pkt_status.data);
-
-			var pkt_prot = MessageUtils.Misc.GetPacketSetProtocolV2();
-			await calc.SendReportAsync(pkt_prot.id, pkt_prot.data);
-
-			//var pkt_sett = MessageUtils.Misc.GetPacketRequestSettings();
-			//await calc.SendReportAsync(pkt_sett.id, pkt_sett.data);
-
-		}
-
-		private void Prime_Notification(object? sender, OnInputReportArgs e)
+		private void Prime_ReportReceived(object? sender, OnInputReportArgs e)
 		{
 			var data = e.Data;
 			//Console.WriteLine("[PacketWorker] - Report Received!");
@@ -59,8 +72,8 @@ namespace PrimeWeb.Calculator
 				case (ProtocolVersion.Old):
 					ParseReportOldProtocol(data);
 					break;
-				case (ProtocolVersion.New):
-					ParseReportNewProtocol(data);
+				case (ProtocolVersion.V2):
+					ParseReportV2Protocol(data);
 					break;
 				default:
 					break;
@@ -98,7 +111,7 @@ namespace PrimeWeb.Calculator
 			Console.WriteLine("");
 		}
 
-		private void ParseReportNewProtocol(byte[] data)
+		private void ParseReportV2Protocol(byte[] data)
 		{
 
 
@@ -130,7 +143,6 @@ namespace PrimeWeb.Calculator
 				default:
 					break;
 
-
 			}
 
 		}
@@ -141,18 +153,30 @@ namespace PrimeWeb.Calculator
 			if (data[0] == 0x00)
 				return ProtocolVersion.Old;
 
-			return ProtocolVersion.New;
+			return ProtocolVersion.V2;
 		}
 
 		#region packet parsers
 
-		private void ProcessHpInfos(byte[] data)
+		private async Task ProcessHpInfos(byte[] data)
 		{
 			var infos = new HpInfos(data);
 
 			Console.WriteLine($"Prime Info | Serialnumber: {infos.Serial} | Version: {infos.Version} | Build: {infos.Build} ");
 			prime.DeviceInfo = infos;
-			prime.InfoChanged();
+
+
+			if (infos.Build < 10591)
+            {
+				Console.WriteLine("Sorry Calculator not supported! please update!");
+				OnUnsupportedCalcConnected();
+				return;
+			}
+
+			var pkt_prot = MessageUtils.Misc.GetPacketSetProtocolV3();
+			await device.SendReportAsync(pkt_prot.id, pkt_prot.data);
+
+			Console.WriteLine("Sent protocol V3 request");
 
 		}
 
@@ -161,6 +185,15 @@ namespace PrimeWeb.Calculator
 		#endregion
 
 		#region Events
+		public event EventHandler UnsupportedCalcConnected;
+
+		protected virtual void OnUnsupportedCalcConnected()
+		{
+
+			var handler = UnsupportedCalcConnected;
+			if (handler != null) handler(this, EventArgs.Empty);
+		}
+
 
 		public event EventHandler<V2MessageEventArgs> V2MessageReceived;
 
