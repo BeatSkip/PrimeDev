@@ -102,23 +102,14 @@ namespace PrimeWeb
 
 		#region General methods
 
-		/// <summary>
-		/// Sends data to the calculator
-		/// </summary>
-		/// <param name="file">Data to send</param>
-		internal async Task Send(PrimeUsbData file)
-        {
-            if (!IsConnected) return;
-
-        }
-
         public async Task SendChatMessage(string Message)
         {
             if (!IsConnected) return;
 
-            var data = new PrimeUsbData(Message, 1024, null);
+            var payload = PrimeCommander.GetPayloadMessage(Message);
 
-            //await this.Send(data);
+            await packetWorker.SendPayload(payload);
+
 
         }
 
@@ -171,6 +162,10 @@ namespace PrimeWeb
 
         #region events
 
+        internal void ConnectionInitDone()
+		{
+            OnConnected();
+        }
 
         internal void InfoChanged()
 		{

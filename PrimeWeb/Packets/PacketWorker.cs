@@ -9,6 +9,8 @@ namespace PrimeWeb.Packets
 {
 	public class PacketWorker
 	{
+		private bool ProtocolNegotiated = false;
+
 		private HidDevice device;
 
 		private PrimeCalculator prime;
@@ -26,6 +28,7 @@ namespace PrimeWeb.Packets
 			this.prime = parent;
 			this.device.ReportReceived += Prime_ReportReceived;
 			this.device.Connected += Device_Connected;
+			//PrimeCommander.TestCRC();
 
 		}
 
@@ -53,18 +56,26 @@ namespace PrimeWeb.Packets
 
 
 
-		public async Task Send(byte[] Data)
+		public async Task SendPayload(byte[] Data)
 		{
 			CurrentMessageOut = new V2MessageOut(MessageCount++, Data);
+			CurrentMessageOut.GeneratePackets();
 			bool isdone;
+			var blk = 1;
 
-			do
+			foreach(var pkt in CurrentMessageOut.Packets)
 			{
-				var pkt = CurrentMessageOut.GetNextPacket(out isdone);
+				while (CurrentMessageOut.HasNacks())
+				{
+					Console.WriteLine("Detected Nack! resending...");
+					var nackpkt = CurrentMessageOut.GetNextNACK();
+					await device.SendReportAsync(0x00, nackpkt);
+				}
 
-				await device.SendReportAsync(0x00, pkt);
-
-			} while (!isdone);
+				await device.SendReportAsync(0x00, pkt.Value);
+				Console.WriteLine($"Sent message block {pkt.Key}");
+			}
+			
 
 
 
@@ -75,6 +86,7 @@ namespace PrimeWeb.Packets
 		private void Prime_ReportReceived(object? sender, OnInputReportArgs e)
 		{
 			var data = e.Data;
+			//DbgTools.PrintPacket(data, maxlines: 10);
 
 			if (data[0] == 0x00)
 				ParseReportOldProtocol(data);
@@ -94,7 +106,7 @@ namespace PrimeWeb.Packets
 			switch (kind)
 			{
 				case (NewPacketType.OutOfBounds):
-					//Console.WriteLine("Out of bounds packet!");
+					HandleOutOfBounds(data);
 					break;
 				case (NewPacketType.MessageStart):
 					var report = new V2ReportStart(data);
@@ -116,6 +128,35 @@ namespace PrimeWeb.Packets
 			}
 		}
 
+
+		private void HandleOutOfBounds(byte[] data)
+		{
+			if(data[1] == 0x00)
+			{
+				Console.WriteLine($"NACK Received! Sequence: {data[2]}");
+				if (CurrentMessageOut != null)
+					CurrentMessageOut.NAck(data[2]);
+
+				return;
+			}
+
+			if(data[1] == 0x01 && data[2] == 0xFF)
+			{
+				Console.WriteLine("heartbeat..");
+				return;
+			}
+
+			if (data[1] == 0x01 && data[2] != 0xFF)
+			{
+				Console.WriteLine("ACK Received! Sequence: {data[2]}");
+				if (CurrentMessageOut != null)
+					CurrentMessageOut.Ack(data[2]);
+
+				return;
+			}
+
+
+		}
 
 		#endregion
 
@@ -162,12 +203,18 @@ namespace PrimeWeb.Packets
 				return;
 			}
 
+			if (ProtocolNegotiated)
+				return;
+
 			var pkt_prot = MessageUtils.Misc.GetPacketSetProtocolV2();
 			await device.SendReportAsync(pkt_prot.id, pkt_prot.data);
 
 			Console.WriteLine("Sent protocol V2 request");
 
+			ProtocolNegotiated = true;
+			
 			prime.InfoChanged();
+			prime.ConnectionInitDone();
 		}
 
 		#endregion

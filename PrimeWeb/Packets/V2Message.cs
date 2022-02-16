@@ -9,11 +9,17 @@ namespace PrimeWeb.Packets
 	public class V2Message : IDisposable
 	{
 		public MsgDir Direction { get; protected set; }
-		public bool Completed { get { return (bytesleft == 0); } }
+		public bool Completed { get; protected set; }
 		public uint MessageNumber { get; protected set; }
 		public uint MessageSize { get; protected set; }
 
 		protected List<byte> Data;
+
+		public Dictionary<int, byte[]> Packets { get; protected set; }
+		public Dictionary<int, bool>  ACKS { get; protected set; }
+		public Dictionary<int, bool>  NACKS { get; protected set; }
+
+		public int completedAck { get; protected set; }
 
 		protected long bytesleft;
 
@@ -72,20 +78,98 @@ namespace PrimeWeb.Packets
 			sendcounter = 0;
 		}
 
-		public byte[] GetNextPacket(out bool FinalPacket)
+		public void GeneratePackets()
+		{
+			this.Packets = new Dictionary<int, byte[]>();
+			this.ACKS = new Dictionary<int, bool>();
+			this.NACKS = new Dictionary<int, bool>();
+			bool isdone;
+			var blk = 0;
+			do
+			{
+				var pkt = this.GetNextPacket(out isdone);
+				Packets.Add((int)pkt.sequence, pkt.Data);
+				ACKS.Add((int)pkt.sequence, false);
+				NACKS.Add((int)pkt.sequence, false);
+				blk++;
+				if (isdone)
+					completedAck = (int)pkt.sequence;
+			} while (!isdone);
+
+
+		}
+
+		public byte[] GetNextNACK()
+		{
+			bool isdone = true;
+			foreach (var item in NACKS)
+			{
+				if (item.Value)
+				{
+					NACKS[item.Key] = false;
+					return Packets[item.Key];
+				}
+					
+			}
+			return null;
+		}
+
+		public bool HasNacks()
+		{
+			bool isdone = false;
+			foreach (var item in NACKS)
+			{
+				if (item.Value)
+					isdone = true;
+			}
+			return isdone;
+		}
+
+		public bool IsAcknowledged()
+		{
+			bool isdone = true;
+			foreach (var item in ACKS)
+			{
+				if (!item.Value)
+					isdone = false;
+			}
+			return isdone;
+		}
+
+		public void Ack(int packet)
+		{
+			this.ACKS[packet] = true;
+
+			if(packet == completedAck)
+			{
+				Completed = true;
+				Console.WriteLine("Sending packet Complete!");
+			}
+				
+		}
+
+		public void NAck(int packet)
+		{
+			this.NACKS[packet] = true;
+		}
+
+		private (byte sequence, byte[] Data) GetNextPacket(out bool FinalPacket)
 		{
 			byte[] data;
-
+			byte sequence = 0;
 
 			if(sendcounter == 0)
             {
 				data = GetFirstMessage();
-				
-            }
+				sequence = 0x01;
+
+			}
             else
             {
 				data = GetNextMessage();
-            }
+				sequence = getsequenceNumber();
+
+			}
 
 			sendcounter++;
 
@@ -94,7 +178,7 @@ namespace PrimeWeb.Packets
 			else
 				FinalPacket = false;
 
-			return data;
+			return (sequence, data);
 
 		}
 		

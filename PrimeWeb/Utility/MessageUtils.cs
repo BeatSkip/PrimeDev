@@ -14,7 +14,7 @@ namespace PrimeWeb.Utility
         {
 			private static byte getsequenceNumber(int sendcounter)
 			{
-				return (byte)((sendcounter % 252) + 1);
+				return (byte)((sendcounter % 252) + 2);
 
 			}
 
