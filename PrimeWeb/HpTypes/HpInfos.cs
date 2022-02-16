@@ -20,11 +20,6 @@ namespace PrimeWeb.HpTypes
 		{
 			this.Data = data;
 
-			var Bodyhex = BitConverter.ToString(Data).Replace("-", " ");
-			var Bodystr = Encoding.UTF8.GetString(Data);
-			//Console.WriteLine($"Body [HEX]:\n {Bodyhex}");
-			//Console.WriteLine($"Body [UTF8]:\n {Bodystr}");
-
 			int index_serial = Data.Length - 16;
 			int index_version = index_serial - 16;
 			int index_build = index_version - 4;

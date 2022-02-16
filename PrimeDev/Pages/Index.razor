@@ -122,6 +122,8 @@ else
     
     protected override void OnInitialized()
     {
+        PrimeWeb.Utility.MessageUtils.Debug.TestSequence();
+
         manager.OnChange += ManagerChanged;
     }
 

@@ -8,11 +8,12 @@ namespace PrimeWeb.Utility
 {
 	public static class DbgTools
 	{
-		public static void PrintPacket(byte[] data, int linesize = 16)
+		public static void PrintPacket(byte[] data, int linesize = 16, int maxlines = int.MaxValue)
 		{
 			int index = 0;
-			
-			while(index < data.Length)
+			int linecounter = 0;
+			Console.WriteLine("# -- # ");
+			while (index < data.Length && linecounter < maxlines)
 			{
 
 				byte[] buffer;
@@ -27,7 +28,9 @@ namespace PrimeWeb.Utility
 			    line += System.Text.Encoding.UTF8.GetString(buffer, 0, buffer.Length);
 				index+= linesize;
 				Console.WriteLine(line);
+				linecounter++;
 			}
+			Console.WriteLine(" -- ");
 		}
 	}
 }

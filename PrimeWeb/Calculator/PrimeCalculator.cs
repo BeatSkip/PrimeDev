@@ -93,8 +93,6 @@ namespace PrimeWeb
             if (!prime.Opened)
                 return;
 
-            //prime.Notification -= Prime_Notification;
-
             await prime.CloseAsync();
 
             OnDisconnected();
@@ -179,23 +177,16 @@ namespace PrimeWeb
             OnChanged();
 		}
 
-        private void OnReport(OnInputReportArgs report)
+        internal void TransferCompleted(byte[] data)
         {
-            OnDataReceived(new DataReceivedEventArgs(report.Data));
-        }
-
-        private void OnMessage(PrimeChunk chunk)
-        {
-            var args = new MessageReceivedEventArgs() { Message = chunk.ToString(), Source = chunk };
-
-            OnMessageReceived(args);
+            OnTransferCompleted(new DataReceivedEventArgs(data));
         }
 
         /// <summary>
         /// Some data arrived (Device has to be Receiving data)
         /// </summary>
         /// <param name="e">Data received</param>
-        protected virtual void OnDataReceived(DataReceivedEventArgs e)
+        protected virtual void OnTransferCompleted(DataReceivedEventArgs e)
         {
 
             var handler = DataReceived;

@@ -3,16 +3,39 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PrimeWeb.Utility;
+using PrimeWeb.Calculator;
 
-namespace PrimeWeb.Calculator
+namespace PrimeWeb.Utility
 {
-	internal static class MessageUtils
+	public static class MessageUtils
 	{
+		public static class Debug
+        {
+			private static byte getsequenceNumber(int sendcounter)
+			{
+				return (byte)((sendcounter % 252) + 1);
+
+			}
+
+			public static void TestSequence()
+			{
+				List<byte> tmp = new List<byte>();
+
+                for (int i = 0; i < 1280; i++)
+                {
+					tmp.Add(getsequenceNumber(i));
+				}
+
+				Console.WriteLine("debugging sequence counter!");
+				DbgTools.PrintPacket(tmp.ToArray());
+			}
+		}
 		internal static class Misc
         {
 			internal static (byte id, byte[] data) GetPacketRequestScreen(ScreenFormat format)
 			{
-				byte[] content = { 0x01, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, (byte)PrimeCMD.RECV_SCREEN, 0xFE };
+				byte[] content = { 0x01, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, (byte)PrimeCMD.RECV_SCREEN, 0x08 , 0x00, 0x00, 0x00, 0x01, 0x03 };
 				return (0, content);
 			}
 
@@ -53,22 +76,5 @@ namespace PrimeWeb.Calculator
 				return (0, content);
 			}
 		}
-		
-		internal static class V2
-        {
-			internal static (byte id, byte[] data) CreateV2Message(UInt32 Messagecount, byte[] Data)
-            {
-				var size = BitConverter.GetBytes((UInt32)Data.Length);
-				var count = BitConverter.GetBytes(Messagecount);
-
-				byte[] header = { 0x01, count[0], count[1], count[2], count[3], size[0], size[1], size[2], size[3] };
-
-				var message = new List<byte>();
-				message.AddRange(header);
-				message.AddRange(Data);
-
-				return (0x00, message.ToArray());
-            }
-        }
 	}
 }

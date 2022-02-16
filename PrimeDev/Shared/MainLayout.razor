@@ -14,14 +14,16 @@
         {
             <MudText Typo="Typo.h5" Color="Color.Primary">PrimeDev</MudText>
             <MudSpacer />
-         <MudText Typo="Typo.overline">@prime.ProductName - @prime.DeviceInfo.Serial - @prime.DeviceInfo.Version</MudText>
+         <MudText Typo="Typo.overline" Align="Align.Center">@prime.ProductName - @prime.DeviceInfo.Version</MudText>
          <MudSpacer />
-         <MudText Typo="Typo.overline"></MudText>   
+         <MudText Typo="Typo.overline" Align="Align.Center">@prime.DeviceInfo.Serial</MudText>
+         
         }
-        <MudSpacer />
         @if (!manager.IsInitialized)
         {
+            <MudSpacer />
             <MudChip Icon="@Icons.Material.Filled.PrivateConnectivity" Color="Color.Secondary" @onclick="Initialize">Connect to Prime!</MudChip>
+            <MudSpacer />
         }
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="1">

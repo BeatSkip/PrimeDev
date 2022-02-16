@@ -61,28 +61,84 @@ namespace PrimeWeb.Packets
 
 	public class V2MessageOut : V2Message
 	{
+		private int sendcounter;
+
 		public V2MessageOut(uint msgNumber, byte[] data, int blockSize = 1024)
 		{
 			base.Direction = MsgDir.OUT;
 			Data = new List<byte>(data);
 			MessageNumber = msgNumber;
 			MessageSize = (uint)data.Length;
+			sendcounter = 0;
 		}
 
-		private byte[] GetHeader(int index)
+		public byte[] GetNextPacket(out bool FinalPacket)
 		{
-				return GetFirstHeader();
+			byte[] data;
 
+
+			if(sendcounter == 0)
+            {
+				data = GetFirstMessage();
+				
+            }
+            else
+            {
+				data = GetNextMessage();
+            }
+
+			sendcounter++;
+
+			if(Data.Count == 0)
+				FinalPacket = true;
+			else
+				FinalPacket = false;
+
+			return data;
 
 		}
+		
 
-		private byte[] GetFirstHeader()
+		private byte[] GetFirstMessage()
 		{
 			var bytes_msgnr = BitConverter.GetBytes(MessageNumber);
 			var bytes_msglen = BitConverter.GetBytes(MessageSize);
 
-			return new byte[] { 0x01, bytes_msgnr[0], bytes_msgnr[1], bytes_msgnr[2], bytes_msgnr[3], bytes_msglen[0], bytes_msglen[1], bytes_msglen[2], bytes_msglen[3] };
+			var msg = new List<byte>(new byte[] { 0x01, bytes_msgnr[0], bytes_msgnr[1], bytes_msgnr[2], bytes_msgnr[3], bytes_msglen[0], bytes_msglen[1], bytes_msglen[2], bytes_msglen[3] });
+
+			var takecount = Data.Count < 1015 ? (int)Data.Count : 1015;
+
+			msg.AddRange(Data.Take(takecount));
+			Data.RemoveRange(0, takecount);
+
+			return msg.ToArray();
+
 		}
+
+		private byte[] GetNextMessage()
+        {
+			var msg = new List<byte>(new byte[] { getsequenceNumber() });
+
+			var takecount = Data.Count < 1015 ? (int)Data.Count : 1015;
+
+			msg.AddRange(Data.Take(takecount));
+			Data.RemoveRange(0, takecount);
+
+			return msg.ToArray();
+		}
+
+		private byte getsequenceNumber()
+        {
+			return (byte)((sendcounter % 252) + 1);
+
+		}
+
+		public void TestSequence()
+        {
+
+        }
+
+
 
 
 	}
@@ -128,17 +184,10 @@ namespace PrimeWeb.Packets
 		}
 	}
 
-	public struct AckPacket
-	{
-
-
-	}
-
 	public enum MsgDir
 	{
 		IN,
 		OUT
 	}
-
 
 }
