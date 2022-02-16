@@ -3,7 +3,7 @@
 @inject IDialogService DialogService
 @inject PrimeManager manager
 
-<MudThemeProvider />
+<MudThemeProvider Theme="mytheme"/>
 <MudDialogProvider />
 <MudSnackbarProvider />
 
@@ -40,6 +40,21 @@
 </MudLayout>
 
 @code {
+
+    MudTheme mytheme = new MudTheme()
+    {
+        Palette = new Palette()
+        {
+            Primary = Colors.Blue.Darken1,
+            PrimaryDarken = Colors.Blue.Darken3,
+            PrimaryLighten = Colors.Blue.Lighten1,
+            Secondary = Colors.DeepOrange.Darken1,
+            SecondaryDarken = Colors.DeepOrange.Darken2,
+            SecondaryLighten = Colors.DeepOrange.Default,
+            AppbarBackground = Colors.Blue.Darken1,
+            
+        }
+    };
 
     private PrimeCalculator prime;
 

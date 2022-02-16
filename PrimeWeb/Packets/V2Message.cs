@@ -136,7 +136,7 @@ namespace PrimeWeb.Packets
 			return isdone;
 		}
 
-		public void Ack(int packet)
+		public bool Ack(int packet)
 		{
 			this.ACKS[packet] = true;
 
@@ -144,8 +144,9 @@ namespace PrimeWeb.Packets
 			{
 				Completed = true;
 				Console.WriteLine("Sending packet Complete!");
+				return true;
 			}
-				
+			return false;
 		}
 
 		public void NAck(int packet)

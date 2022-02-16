@@ -15,7 +15,7 @@ namespace PrimeWeb.Packets
 
 		private PrimeCalculator prime;
 
-		public uint MessageCount { get; private set; } = 0;
+		public uint MessageCount { get; private set; } = 1;
 
 		public ProtocolVersion Protocol { get; private set; } = ProtocolVersion.Unknown;
 
@@ -62,18 +62,25 @@ namespace PrimeWeb.Packets
 			CurrentMessageOut.GeneratePackets();
 			bool isdone;
 			var blk = 1;
+			bool firstsent = false;
 
 			foreach(var pkt in CurrentMessageOut.Packets)
 			{
-				while (CurrentMessageOut.HasNacks())
+				if (firstsent)
 				{
-					Console.WriteLine("Detected Nack! resending...");
-					var nackpkt = CurrentMessageOut.GetNextNACK();
-					await device.SendReportAsync(0x00, nackpkt);
+					while (CurrentMessageOut.HasNacks())
+					{
+						Console.WriteLine("Detected Nack! resending...");
+						var nackpkt = CurrentMessageOut.GetNextNACK();
+						await device.SendReportAsync(0x00, nackpkt);
+					}
 				}
+				
 
 				await device.SendReportAsync(0x00, pkt.Value);
 				Console.WriteLine($"Sent message block {pkt.Key}");
+				firstsent = true;
+				DbgTools.PrintPacket(pkt.Value, maxlines: 10);
 			}
 			
 
@@ -112,6 +119,7 @@ namespace PrimeWeb.Packets
 					var report = new V2ReportStart(data);
 					report.Print();
 					CurrentMessageIn = new V2MessageIn(report);
+
 					break;
 				case (NewPacketType.Message):
 					if (CurrentMessageIn == null)
@@ -150,7 +158,11 @@ namespace PrimeWeb.Packets
 			{
 				Console.WriteLine("ACK Received! Sequence: {data[2]}");
 				if (CurrentMessageOut != null)
-					CurrentMessageOut.Ack(data[2]);
+				{
+					var messagecomplete = CurrentMessageOut.Ack(data[2]);
+
+				}
+					
 
 				return;
 			}
