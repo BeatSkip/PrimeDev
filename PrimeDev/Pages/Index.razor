@@ -95,8 +95,9 @@ else
     async void CurrentPrime_Connected(object? sender, EventArgs e)
     {
         Console.WriteLine("[Index.rzr] - Prime is connected!");
-        await prime.SendChatMessage("Donec at risus semper");
-        Console.WriteLine("Sent chat message!");
+        //await prime.SendChatMessage("Donec at risus semper");
+        await prime.RequestBackup();
+        Console.WriteLine("Sent message!");
     }
 
     void CurrentPrime_Received(object? sender, PrimeWeb.DataReceivedEventArgs e)

@@ -9,7 +9,7 @@ namespace PrimeWeb.Packets
 	public class V2Message : IDisposable
 	{
 		public MsgDir Direction { get; protected set; }
-		public bool Completed { get; protected set; }
+		public bool Completed { get; protected set; } = false;
 		public uint MessageNumber { get; protected set; }
 		public uint MessageSize { get; protected set; }
 
@@ -39,6 +39,7 @@ namespace PrimeWeb.Packets
 
 	public class V2MessageIn : V2Message
 	{
+		private int lastpacket = 1;
 
 		public V2MessageIn(V2ReportStart first)
 		{
@@ -47,6 +48,9 @@ namespace PrimeWeb.Packets
 			MessageSize = (uint)first.MessageSize;
 			Data = new List<byte>(first.Data);
 			bytesleft = MessageSize - Data.Count;
+
+			if (bytesleft == 0)
+				Completed = true;
 		}
 
 
@@ -55,12 +59,23 @@ namespace PrimeWeb.Packets
 			var takeamount = bytesleft < 1023 ? bytesleft : 1023;
 			Data.AddRange(data.SubArray(1, (int)takeamount));
 			bytesleft -= takeamount;
+
+			if (bytesleft == 0)
+				Completed = true;
+
+			lastpacket = data[0];
+
 			return ((int)data[0], (uint)bytesleft);
 		}
 
 		public byte[] GetData()
 		{
 			return Data.ToArray();
+		}
+
+		public byte[] GetAckMessage()
+		{
+			return new byte[] { 0xFE, 0x01, (byte)lastpacket };
 		}
 		
 	}

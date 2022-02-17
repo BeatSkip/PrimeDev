@@ -40,6 +40,10 @@ namespace PrimeWeb
                     Console.WriteLine("Received Screenshot!!");
                     ProcessScreenshot(e.Data);
                     break;
+                case (PrimeCMD.RECV_FILE):
+                    Console.WriteLine("Received File!!");
+                    ProcessFileInput(e.Data);
+                    break;
             }
 		}
 
@@ -98,9 +102,27 @@ namespace PrimeWeb
             OnDisconnected();
 
         }
-		#endregion
+        #endregion
 
-		#region General methods
+        #region General methods
+
+        public async Task RequestBackup()
+        {
+            if (!IsConnected) return;
+
+            var payload = new byte[1] { (byte)PrimeCMD.RECV_BACKUP};
+
+            await packetWorker.SendPayload(payload);
+        }
+
+        public async Task RequestSettings()
+		{
+            if (!IsConnected) return;
+
+            var payload = PrimeCommander.GetPayloadRequestSettings();
+
+            await packetWorker.SendPayload(payload);
+        }
 
         public async Task SendChatMessage(string Message)
         {
@@ -118,11 +140,8 @@ namespace PrimeWeb
             if (!IsConnected) return;
 
             screenshotCallback = callback;
-            var pkt_prot = MessageUtils.Misc.GetPacketSetProtocolV2();
-            await prime.SendReportAsync(pkt_prot.id, pkt_prot.data);
-
-            var packet = MessageUtils.Misc.GetPacketRequestScreen(ScreenFormat.PNG_320px_240px_16bit);
-            await prime.SendReportAsync(packet.id, packet.data);
+            var payoad = new byte[] { (byte)PrimeCMD.RECV_SCREEN, 0x08, 0x00, 0x00, 0x00, 0x01, 0x03 , 0x00};
+            await packetWorker.SendPayload(payoad);
         }
 
         private void ProcessScreenshot(byte[] data)
@@ -132,6 +151,22 @@ namespace PrimeWeb
             screenshotCallback.Invoke(img);
             
         }
+
+        private void ProcessFileInput(byte[] data)
+		{
+			Console.WriteLine("Received File Input!");
+            byte[] result;
+            if(data[10] == 0x78)
+			{
+                result = PrimeCommander.decompress(data.SubArray(10));
+			}
+			else
+			{
+                result = data.SubArray(10);
+			}
+
+            DbgTools.PrintPacket(result);
+		}
 
         private string ParseCommandScreenshot(byte[] data)
 		{

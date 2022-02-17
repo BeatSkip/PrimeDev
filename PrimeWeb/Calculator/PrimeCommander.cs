@@ -16,6 +16,26 @@ namespace PrimeWeb.Calculator
 
 		#region Packet Creation
 
+		public static byte[] GetPayloadRequestSettings()
+		{
+			var content = UnicodeStringToBytes("calc.hpsettings");
+			var size = BitConverter.GetBytes((uint)(10 - 6 + content.Length));
+			var payload = new List<byte> { (byte)PrimeCMD.REQ_FILE, 0x03, size[3], size[2], size[1], size[0], 0x00, (byte)content.Length, 0x00,0x00 };
+			payload.AddRange(content);
+
+			return payload.ToArray();
+		}
+
+		public static byte[] GetPayloadRequestBackup()
+		{
+			var content = UnicodeStringToBytes("calc.hpsettings");
+			var size = BitConverter.GetBytes((uint)(10 - 6 + content.Length));
+			var payload = new List<byte> { (byte)PrimeCMD.RECV_BACKUP, 0x0d, size[3], size[2], size[1], size[0], 0x00, (byte)content.Length, 0x00, 0x00 };
+			payload.AddRange(content);
+
+			return payload.ToArray();
+		}
+
 		public static byte[] GetPayloadMessage(string message)
 		{
 			var content = UnicodeStringToBytes(message);
@@ -78,7 +98,7 @@ namespace PrimeWeb.Calculator
 
 		}
 
-		private static byte[] compress(byte[] input)
+		public static byte[] compress(byte[] input)
 		{
 			var deflate = new Deflater(Deflater.NO_COMPRESSION, false);
 			deflate.SetInput(input);
@@ -89,7 +109,7 @@ namespace PrimeWeb.Calculator
 		}
 
 
-		private static byte[] decompress(byte[] input)
+		public static byte[] decompress(byte[] input)
 		{
 			var outputStream = new MemoryStream();
 			using (var compressedStream = new MemoryStream(input))

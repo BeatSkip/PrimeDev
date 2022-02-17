@@ -120,14 +120,25 @@ namespace PrimeWeb.Packets
 					report.Print();
 					CurrentMessageIn = new V2MessageIn(report);
 
+					if (CurrentMessageIn.Completed)
+					{
+						OnV2MessageReceived(new V2MessageEventArgs() { Data = CurrentMessageIn.GetData() });
+						device.SendReportAsync(0x00, CurrentMessageIn.GetAckMessage());
+					}
+						
+
 					break;
 				case (NewPacketType.Message):
 					if (CurrentMessageIn == null)
 						return;
 					var status = CurrentMessageIn.AddSlice(data);
-
+					device.SendReportAsync(0x00, CurrentMessageIn.GetAckMessage());
 					if (CurrentMessageIn.Completed)
+					{
 						OnV2MessageReceived(new V2MessageEventArgs() { Data = CurrentMessageIn.GetData() });
+						
+					}
+						
 
 					Console.WriteLine($"Added slice {status.slicenumber} to message {CurrentMessageIn.MessageNumber}! {status.BytesToGo} Bytes to go");
 					break;
@@ -161,6 +172,11 @@ namespace PrimeWeb.Packets
 				{
 					var messagecomplete = CurrentMessageOut.Ack(data[2]);
 
+					if (messagecomplete)
+					{
+						//TODO: Sent message complete handler
+					}
+
 				}
 					
 
@@ -188,6 +204,7 @@ namespace PrimeWeb.Packets
 				case (PrimeCMD.GET_INFOS):
 					ProcessHpInfos(Body);
 					return;
+		
 				default:
 					break;
 			}
@@ -228,6 +245,8 @@ namespace PrimeWeb.Packets
 			prime.InfoChanged();
 			prime.ConnectionInitDone();
 		}
+
+		
 
 		#endregion
 		#region packet parsers
