@@ -8,7 +8,7 @@ namespace PrimeWeb.Utility
 {
 	public static class DbgTools
 	{
-		public static void PrintPacket(byte[] data, int linesize = 16, int maxlines = int.MaxValue)
+		public static void PrintPacket(ReadOnlySpan<byte> data, int linesize = 16, int maxlines = int.MaxValue)
 		{
 			int index = 0;
 			int linecounter = 0;
@@ -16,16 +16,16 @@ namespace PrimeWeb.Utility
 			while (index < data.Length && linecounter < maxlines)
 			{
 
-				byte[] buffer;
+				ReadOnlySpan<byte> buffer;
 				string line = "";
 				if (index + linesize < data.Length)
-					buffer = data.SubArray(index, linesize);
+					buffer = data.Slice(index, linesize);
 				else
-					buffer = data.SubArray(index);
+					buffer = data.Slice(index);
 
-				line = BitConverter.ToString(buffer).Replace("-", " ");
+				line = Convert.ToHexString(buffer);
 				line += "\t|\t";
-			    line += System.Text.Encoding.UTF8.GetString(buffer, 0, buffer.Length);
+				line += buffer.ToString();
 				index+= linesize;
 				Console.WriteLine(line);
 				linecounter++;

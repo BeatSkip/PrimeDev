@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using ICSharpCode.SharpZipLib.Zip.Compression;
-
+using PrimeWeb.Types;
 
 namespace PrimeWeb.Calculator
 {
@@ -15,6 +15,14 @@ namespace PrimeWeb.Calculator
 	{
 
 		#region Packet Creation
+
+		public static byte[] GetPayloadSendKey(uint key)
+		{
+			var size = BitConverter.GetBytes(key);
+			var payload = new List<byte> { 0x00,(byte)PrimeCMD.SEND_KEY,0x03, size[0], size[1], size[2], size[3] };
+
+			return payload.ToArray();
+		}
 
 		public static byte[] GetPayloadRequestSettings()
 		{

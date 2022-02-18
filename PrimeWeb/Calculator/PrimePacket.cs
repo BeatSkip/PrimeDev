@@ -8,19 +8,14 @@ namespace PrimeWeb.Calculator
 {
 
 
-	public class PacketHeader
-	{
 
-		long Length;
-	}
-
-	public class PrimePacket
+	public class PrimePacketold
 	{
 		private byte[] data;
 
 		public PacketType Type;
 
-		public PrimePacket(byte Id,byte[] src, bool isReceived = true)
+		public PrimePacketold(byte Id,byte[] src, bool isReceived = true)
 		{
 			data = src;
 

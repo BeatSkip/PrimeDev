@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Blazm.Hid;
+using PrimeWeb.Types;
 
 namespace PrimeWeb
 {
@@ -14,7 +15,7 @@ namespace PrimeWeb
 		
 
 		private HidNavigator navigator;
-		private List<HidDeviceFilter> filters;
+		private List<IHidFilter> filters;
 
 		private PrimeCalculator CurrentPrime;
 
@@ -27,7 +28,7 @@ namespace PrimeWeb
 		{
 			navigator = nav;
 			System.Diagnostics.Debug.WriteLine("Started Prime manager!");
-			filters = new List<HidDeviceFilter> { CreateHidFilter("0x03F0", "0x2441"), CreateHidFilter("0x03F0", "0x0441") };
+			filters = new List<IHidFilter> { new PrimeG2HidFilter(), new PrimeHidFilter()};
 			
 		}
 
@@ -57,28 +58,7 @@ namespace PrimeWeb
 
         //public List<HidDevice> Calculators { get { return devices ?? new List<HidDevice>(); } }
 
-        #region enumeration
-
-        private static HidDeviceFilter CreateHidFilter(string VendorId, string ProductId)
-		{
-			int vid;
-			int pid;
-
-			if (VendorId.StartsWith("0x"))
-				vid = Convert.ToInt32(VendorId, 16);
-			else
-				vid = int.Parse(VendorId, System.Globalization.NumberStyles.HexNumber);
-
-
-			if (ProductId.StartsWith("0x"))
-				pid = Convert.ToInt32(ProductId, 16);
-			else
-				pid = int.Parse(ProductId, System.Globalization.NumberStyles.HexNumber);
-
-			return new HidDeviceFilter() { vendorId = vid, productId = pid };
-		}
-
-		#endregion
+        
 
 		#region Disposable
 

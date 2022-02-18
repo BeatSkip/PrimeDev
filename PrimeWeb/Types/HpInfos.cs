@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PrimeWeb.HpTypes
+namespace PrimeWeb.Types
 {
 	public struct HpInfos
 	{

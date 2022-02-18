@@ -3,7 +3,8 @@ using Blazm.Hid;
 using PrimeWeb.Utility;
 using PrimeWeb.Calculator;
 using PrimeWeb.Packets;
-using PrimeWeb.HpTypes;
+using PrimeWeb.Types;
+using PrimeWeb.Protocol;
 using System.Drawing;
 
 namespace PrimeWeb
@@ -19,12 +20,12 @@ namespace PrimeWeb
 
         private HidDevice prime;
 
-        private PacketWorker packetWorker;
+        private FrameWorker packetWorker;
 
         public PrimeCalculator(HidDevice device, string Title = "")
         {
             prime = device;
-            packetWorker = new PacketWorker(this,device);
+            packetWorker = new FrameWorker(device);
 			packetWorker.V2MessageReceived += PacketWorker_V2MessageReceived;
         }
 
@@ -124,6 +125,15 @@ namespace PrimeWeb
             await packetWorker.SendPayload(payload);
         }
 
+        public async Task SendKey(uint key)
+		{
+            if (!IsConnected) return;
+
+            var payload = PrimeCommander.GetPayloadSendKey(key);
+
+            await prime.SendReportAsync(0x00,payload);
+        }
+
         public async Task SendChatMessage(string Message)
         {
             if (!IsConnected) return;
@@ -144,7 +154,11 @@ namespace PrimeWeb
             await packetWorker.SendPayload(payoad);
         }
 
-        private void ProcessScreenshot(byte[] data)
+		#endregion
+
+		#region Data Processing
+
+		private void ProcessScreenshot(byte[] data)
 		{
             var img = ParseCommandScreenshot(data.SubArray(13));
 
@@ -172,6 +186,8 @@ namespace PrimeWeb
 		{
             return Convert.ToBase64String(data);
         }
+
+
 
         #endregion
 

@@ -1,17 +1,17 @@
 ﻿using Blazm.Hid;
-using PrimeWeb.HpTypes;
+using PrimeWeb.Types;
 using PrimeWeb.Packets;
 using System.Text;
 using PrimeWeb.Calculator;
 using PrimeWeb.Utility;
 
-namespace PrimeWeb.Packets
+namespace PrimeWeb.Protocol
 {
-	public class PacketWorker
+	public class FrameWorker
 	{
 		private bool ProtocolNegotiated = false;
 
-		private HidDevice device;
+		private IHidDevice device;
 
 		private PrimeCalculator prime;
 
@@ -22,15 +22,21 @@ namespace PrimeWeb.Packets
 		private V2MessageIn CurrentMessageIn { get; set; }
 		private V2MessageOut CurrentMessageOut { get; set; }
 
-		public PacketWorker(PrimeCalculator parent, HidDevice hid)
+
+		private FrameReceiver Receiver;
+		
+		private FrameTransmitter Sender;
+
+
+
+		public FrameWorker(IHidDevice hid)
 		{
 			this.device = hid;
-			this.prime = parent;
 			this.device.ReportReceived += Prime_ReportReceived;
 			this.device.Connected += Device_Connected;
-			//PrimeCommander.TestCRC();
-
 		}
+
+		#region initialization
 
 		private async void Device_Connected(object? sender, EventArgs e)
 		{
@@ -40,9 +46,6 @@ namespace PrimeWeb.Packets
 			var pkt_status = MessageUtils.Misc.GetPacketInfoRequest();
 			await device.SendReportAsync(pkt_status.id, pkt_status.data);
 		}
-
-
-		#region Usb Communication
 
 		public async Task ConnectAsync()
 		{
@@ -54,7 +57,114 @@ namespace PrimeWeb.Packets
 
 		#endregion
 
+		#region USB Input/Output
 
+		public async Task SendFrame(IFrame payload)
+		{
+			await device.SendReportAsync(0x00, payload.GetBytes());
+		}
+
+		private void Prime_ReportReceived(object? sender, OnInputReportArgs e)
+		{
+			var data = e.Data;
+
+			switch (IdentifyReport(data.AsSpan().Slice(0, 13))){
+				case (FrameType.Legacy):
+					HandleReport_Legacy(data);
+					break;
+				case (FrameType.Content):
+					HandleReport_Content(data);
+					break;
+				case (FrameType.Ack):
+					HandleReport_Ack(data);
+					break;
+				case (FrameType.OutOfBand):
+					HandleReport_OutOfBand(data);
+					break;
+				case (FrameType.Error):
+					Console.WriteLine("[PacketWorker] - Received report with unknown header!");
+					DbgTools.PrintPacket(data);
+					break;
+			}
+		}
+
+
+		#endregion
+
+
+		#region Protocol Handling
+
+		
+
+		public void HandleReport_Legacy(byte[] data)
+		{
+			if(this.Protocol != ProtocolVersion.Old)
+			{
+				this.Protocol = ProtocolVersion.Old;
+				Console.WriteLine("Received Old protocol message while not in old protocol mode!");
+				Console.WriteLine("Switching back to old protocol mode....");
+			}
+
+			var Frame = new LegacyFrame(data);
+
+				
+
+		}
+
+		public void HandleReport_Content(byte[] data)
+		{
+			var frame = new ContentFrame(data);
+
+			if (!frame.IsValid)
+			{
+				Console.WriteLine("Received Content Frame not valid!");
+			}
+
+		}
+
+		public void HandleReport_Ack(byte[] data)
+		{
+			var frame = new AckFrame(data);
+
+			if (!frame.IsValid)
+			{
+				Console.WriteLine("Received Ack Frame not valid!");
+			}
+
+
+
+		}
+
+		public void HandleReport_OutOfBand(byte[] data)
+		{
+
+		}
+
+		public FrameType IdentifyReport(ReadOnlySpan<byte> data)
+		{
+			if (data[0] == 0x00)
+				return FrameType.Legacy;
+
+			if (data[0] > 0x00 && data[0] < 0xFE && Protocol == ProtocolVersion.V2)
+				return FrameType.Content;
+
+			if (data[0] > 0x00 && data[0] < 0xFE && Protocol == ProtocolVersion.Old)
+				return FrameType.Legacy;
+
+			if (data[0] == 0xFE && data[2] > 0x00 && data[2] < 0xFE)
+				return FrameType.Ack;
+
+			if (data[0] == 0xFE && data[2] == 0xFF)
+				return FrameType.OutOfBand;
+
+			return FrameType.Error;
+		}
+
+		#endregion
+
+
+
+		#region legacy
 
 		public async Task SendPayload(byte[] Data)
 		{
@@ -88,20 +198,6 @@ namespace PrimeWeb.Packets
 
 		}
 
-
-
-		private void Prime_ReportReceived(object? sender, OnInputReportArgs e)
-		{
-			var data = e.Data;
-			//DbgTools.PrintPacket(data, maxlines: 10);
-
-			if (data[0] == 0x00)
-				ParseReportOldProtocol(data);
-			else
-				ParseReportV2Protocol(data);
-		}
-
-		#region V2 Protocol Handling
 
 		private void ParseReportV2Protocol(byte[] data)
 		{
@@ -186,10 +282,6 @@ namespace PrimeWeb.Packets
 
 		}
 
-		#endregion
-
-		#region V1 Protocol handling
-
 		private void ParseReportOldProtocol(byte[] data)
 		{
 			var cmd = (PrimeCMD)data[1];
@@ -249,15 +341,11 @@ namespace PrimeWeb.Packets
 		
 
 		#endregion
-		#region packet parsers
 
-
-
-
-
-		#endregion
+		
 
 		#region Events
+
 		public event EventHandler UnsupportedCalcConnected;
 
 		protected virtual void OnUnsupportedCalcConnected()

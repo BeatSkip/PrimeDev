@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PrimeWeb.Calculator
+namespace PrimeWeb.Types
 {
 	public enum ProtocolVersion : byte
 	{
@@ -59,5 +59,14 @@ namespace PrimeWeb.Calculator
 		PNG_160px_120px_16bit = 0x0A,
 		//CALC_SCREENSHOT_FORMAT_PRIME_PNG_160x120x4 = 11,
 		PNG_160px_120px_4bit = 0x0B,
+	}
+
+	public enum ReportType
+	{
+		OldProtocol,
+		V2Slice,
+		AckSlice,
+		OutOfBound,
+		Error,
 	}
 }

@@ -1,5 +1,5 @@
 ﻿@page "/"
-
+@using PrimeWeb.HpTypes
 @inject PrimeManager manager
 
 <MudGrid Spacing="5" Justify="Justify.Center">
@@ -62,10 +62,16 @@ else
     public async Task SendTest()
     {
         Console.WriteLine("Sending Test packet!");
+        await prime.SendKey(HpKey.Num_0);
+        await prime.SendKey(HpKey.Num_2);
+        await prime.SendKey(HpKey.Num_6);
+        await prime.SendKey(HpKey.Up);
+        await prime.SendKey(HpKey.Down);
+        await prime.SendKey(HpKey.Left);
+        await prime.SendKey(HpKey.Num_0);
+        await prime.SendKey(HpKey.Num_2);
+        await prime.SendKey(HpKey.Num_6);
 
-        //prime.Connected += CurrentPrime_Connected;
-        //prime.DataReceived += CurrentPrime_Received;
-        //prime.ChatMessageReceived += CurrentPrime_Message;
     }
 
     public async Task GetScreenshot()
@@ -96,8 +102,8 @@ else
     {
         Console.WriteLine("[Index.rzr] - Prime is connected!");
         //await prime.SendChatMessage("Donec at risus semper");
-        await prime.RequestBackup();
-        Console.WriteLine("Sent message!");
+        //await prime.RequestBackup();
+        //Console.WriteLine("Sent message!");
     }
 
     void CurrentPrime_Received(object? sender, PrimeWeb.DataReceivedEventArgs e)
