@@ -21,7 +21,7 @@ namespace PrimeWeb.Utility
 
 			internal static (byte id, byte[] data) GetPacketSetProtocolV2()
 			{
-				byte[] content = { 0xFF, 0xEC, 0, 0, 0, 0, 0, 1 };
+				byte[] content = { 0xFF, 0xEC, 0, 0, 0, 0, 0, 0 };
 				return (0, content);
 			}
 

@@ -13,19 +13,13 @@ namespace PrimeWeb.Protocol
 
 		private IHidDevice device;
 
-		private uint CurrentMessage = 1;
-
 		public uint MessageCount { get; private set; } = 1;
 
 		public ProtocolVersion Protocol { get; private set; } = ProtocolVersion.Unknown;
 
-		private V2MessageIn CurrentMessageIn { get; set; }
-		private V2MessageOut CurrentMessageOut { get; set; }
+		private PrimePacket TransmissionPacket { get; set; }
 
-
-		private Dictionary<int, PrimePacket> SendBuffer = new Dictionary<int, PrimePacket>();
-
-		private Dictionary<int, PrimePacket> ReceiveBuffer = new Dictionary<int, PrimePacket>();
+		private PrimePacket ReceivePacket { get; set; }
 
 
 
@@ -61,25 +55,30 @@ namespace PrimeWeb.Protocol
 
 		public async Task SendFrame(IFrame frame)
 		{
-			await device.SendReportAsync(0x00, frame.GetFrameBytes());
+			var bytes = frame.GetFrameBytes();
+			await device.SendReportAsync(0x00, bytes);
+			//Console.WriteLine("-- sent data ----");
+			//DbgTools.PrintPacket(bytes, maxlines: 5);
+			//Console.WriteLine(" -- -- -- --- -- ");
 		}
 
-		private void Prime_ReportReceived(object? sender, OnInputReportArgs e)
+		private async void Prime_ReportReceived(object? sender, OnInputReportArgs e)
 		{
 			var data = e.Data;
-			var type = IdentifyReport(data.AsSpan().Slice(0, 13));
+			var type = IdentifyReport(data.SubArray(0, 13));
 
 			Console.WriteLine($"[Frameworker] - Report received! type: {type}");
-			
-			switch (type){
+
+			switch (type)
+			{
 				case (FrameType.Legacy):
 					HandleReport_Legacy(data);
 					break;
 				case (FrameType.Content):
-					HandleReport_Content(data);
+					await HandleReport_Content(data);
 					break;
 				case (FrameType.Ack):
-					HandleReport_Ack(data);
+					await HandleReport_Ack(data);
 					break;
 				case (FrameType.OutOfBand):
 					HandleReport_OutOfBand(data);
@@ -90,7 +89,7 @@ namespace PrimeWeb.Protocol
 					break;
 				default:
 					Console.WriteLine("Unkown report error!");
-				break;
+					break;
 			}
 		}
 
@@ -100,25 +99,53 @@ namespace PrimeWeb.Protocol
 
 		#region Protocol Handling	
 
-		public void HandleReport_Content(byte[] data)
+		public async Task HandleReport_Content(byte[] data)
 		{
 			var frame = new ContentFrame(data);
+
+			if (frame.IsStartFrame)
+			{
+				ReceivePacket = PayloadFactory.CreateFromFrame(frame, out IPacketPayload result);
+				ReceivePacket.OnPayloadCompleted += ReceivePacket_OnPayloadCompleted;
+				Console.WriteLine($"Created new Packet! of type: {(PrimeCMD)frame.Data[0]}");
+			}
+				
+
+			await ReceivePacket.ReceiveNextFrame(this, frame);
 
 			if (!frame.IsValid)
 			{
 				Console.WriteLine("Received Content Frame not valid!");
 			}
 
+
+
 		}
 
-		public void HandleReport_Ack(byte[] data)
+		private void ReceivePacket_OnPayloadCompleted(object? sender, TransmissionEventArgs e)
+		{
+			ReceivePacket.OnPayloadCompleted -= ReceivePacket_OnPayloadCompleted;
+
+		}
+
+		public async Task HandleReport_Ack(byte[] data)
 		{
 			var frame = new AckFrame(data);
+
+			//Console.WriteLine("Received ACK!");
+			//DbgTools.PrintPacket(data);
 
 			if (!frame.IsValid)
 			{
 				Console.WriteLine("Received Ack Frame not valid!");
 			}
+			else
+			{
+				Console.WriteLine("Received ACK!");
+				//DbgTools.PrintPacket(data);
+				//await TransmissionPacket.ReceiveNextFrame(this, frame);
+			}
+
 
 		}
 
@@ -197,44 +224,40 @@ namespace PrimeWeb.Protocol
 
 
 
-		#region legacy
+		
 
-		public async Task SendPayload(byte[] Data)
+	
+
+		#region Packet input
+
+		public async Task Send(IPacketPayload payload)
 		{
-			CurrentMessageOut = new V2MessageOut(MessageCount++, Data);
-			CurrentMessageOut.GeneratePackets();
-			bool isdone;
-			var blk = 1;
-			bool firstsent = false;
-
-			foreach(var pkt in CurrentMessageOut.Packets)
-			{
-				if (firstsent)
-				{
-					while (CurrentMessageOut.HasNacks())
-					{
-						Console.WriteLine("Detected Nack! resending...");
-						var nackpkt = CurrentMessageOut.GetNextNACK();
-						await device.SendReportAsync(0x00, nackpkt);
-					}
-				}
-				
-
-				await device.SendReportAsync(0x00, pkt.Value);
-				Console.WriteLine($"Sent message block {pkt.Key}");
-				firstsent = true;
-				DbgTools.PrintPacket(pkt.Value, maxlines: 10);
-			}
-			
-
-
-
+			await this.Send(new PrimePacket(payload));
 		}
+
+		public async Task Send(PrimePacket packet)
+		{
+			packet.Direction = TransferType.Tx;
+			packet.Initialize(MessageCount++);
+
+
+			TransmissionPacket = packet;
+
+			bool allsent = false;
+			do
+			{
+				allsent = await TransmissionPacket.TransmitNextFrame(this);
+			} while (!allsent);
+		}
+
+		#endregion
+
+		#region legacy
 
 		private async Task ProcessHpInfos(byte[] data)
 		{
 			var result = new HpInfos(data);
-
+			result.Product = ProductIdToProductString(device.ProductId);
 			Console.WriteLine($"Info | {result.Product} | Serialnumber: {result.Serial} | Version: {result.Version} | Build: {result.Build} ");
 
 			if (result.Build < 10591)
@@ -253,7 +276,7 @@ namespace PrimeWeb.Protocol
 			Console.WriteLine("Sent protocol V2 request");
 
 			ProtocolNegotiated = true;
-			result.Product = ProductIdToProductString(device.ProductId);
+
 			this.Protocol = ProtocolVersion.V2;
 			OnInfoReceived(result);
 		}
@@ -272,13 +295,58 @@ namespace PrimeWeb.Protocol
 
 			}
 		}
-		
+
 
 		#endregion
 
-		
+
 
 		#region Events
+
+
+		/// <summary>
+			/// Event to indicate Description
+			/// </summary>
+		public event EventHandler<ChatEventArgs> ChatReceived;
+		/// <summary>
+		/// Called to signal to subscribers that Description
+		/// </summary>
+		/// <param name="e"></param>
+		protected virtual void OnChatReceived(ChatEventArgs e)
+		{
+			EventHandler<ChatEventArgs> eh = ChatReceived;
+			if (eh != null)
+			{
+				eh(this, e);
+			}
+		}
+
+		/// <summary>
+			/// Event to indicate Back
+			/// </summary>
+		public event EventHandler<BackupEventArgs> BackupReceived;
+		/// <summary>
+		/// Called to signal to subscribers that Back
+		/// </summary>
+		/// <param name="e"></param>
+		protected virtual void OnBackupReceived(BackupEventArgs e)
+		{
+			EventHandler<BackupEventArgs> eh = BackupReceived;
+			if (eh != null)
+			{
+				eh(this, e);
+			}
+		}
+
+		public event EventHandler<FileReceivedEventArgs> FileReceived;
+
+		protected virtual void OnFileReceived()
+		{
+
+			var handler = FileReceived;
+			if (handler != null) handler(this, new FileReceivedEventArgs());
+		}
+
 
 		public event EventHandler UnsupportedCalcConnected;
 
@@ -295,7 +363,7 @@ namespace PrimeWeb.Protocol
 		{
 
 			var handler = CalcInitialized;
-			if (handler != null) handler(this, new CommsInitEventArgs() { Info = info, Version = ProtocolVersion.V2});
+			if (handler != null) handler(this, new CommsInitEventArgs() { Info = info, Version = ProtocolVersion.V2 });
 		}
 
 
@@ -405,6 +473,22 @@ namespace PrimeWeb.Protocol
 	{
 		public ProtocolVersion Version { get; set; }
 		public HpInfos Info { get; set; }
+	}
+
+	public class FileReceivedEventArgs : EventArgs
+	{
+		//TODO: Actual File Received args
+	}
+
+	public class BackupEventArgs : EventArgs
+	{
+		//TODO: Actual Backup Received args
+	}
+
+	public class ChatEventArgs : EventArgs
+	{
+		public DateTime Date { get; set; }
+		public string Message { get; set; }
 	}
 
 

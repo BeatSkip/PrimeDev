@@ -8,16 +8,37 @@ using PrimeWeb.Types;
 
 namespace PrimeWeb.Packets
 {
-
-	public abstract class PrimePacket : IDisposable
+	public interface IPacketPayload
 	{
-		public TransferType Direction { get; protected set; }
+		public void ReversePayload(byte[] payload);
+		public byte[] GeneratePayload();
+		public Type Type { get; }
+
+	}
+
+	public class PrimePacket : IDisposable
+	{
+		public PrimePacket(IPacketPayload parent, TransferType dir = TransferType.Tx) {
+
+			payload = parent;
+			this.Direction = dir;
+
+		}
+
+		public IPacketPayload GetPayload()
+		{
+			return this.payload;
+		}
+
+		private IPacketPayload payload;
+
+		public TransferType Direction { get; set; }
 
 		public bool Initialized { get; protected set; }
 
-		protected uint MessageNumber { get { return Frames[1].IOMessageCounter; } }
+		public uint MessageNumber { get { return Frames[1].IOMessageCounter; } }
 
-		protected uint MessageSize { get { return Frames[1].IOMessageSize; } }
+		public uint MessageSize { get { return Frames[1].IOMessageSize; } }
 
 		protected int sequencecounter = 1;
 
@@ -25,9 +46,11 @@ namespace PrimeWeb.Packets
 
 		protected bool TransmissionComplete = false;
 
-		public Dictionary<int, ContentFrame> Frames { get; protected set; }
+		protected int bytestogo = 0;
 
-		public void Initialize(int Messagenumber)
+		public Dictionary<uint, ContentFrame> Frames { get; protected set; } = new Dictionary<uint, ContentFrame>();
+
+		public void Initialize(uint Messagenumber)
 		{
 			if(this.Direction == TransferType.Tx)
 			{
@@ -41,15 +64,15 @@ namespace PrimeWeb.Packets
 
 		#region Transmission
 
-		protected abstract byte[] GeneratePayload();
+		
 
-		protected void GenerateFrames(int messagenumber)
+		protected void GenerateFrames(uint messagenumber)
 		{
-			Frames = new Dictionary<int, ContentFrame>();
+			Frames = new Dictionary<uint, ContentFrame>();
 
-			var payload = GeneratePayload();
+			var datad = payload.GeneratePayload();
 
-			var blocks = SplitDataBlocks(payload);
+			var blocks = SplitDataBlocks(datad);
 
 			int sequencenumber = 1;
 
@@ -61,7 +84,7 @@ namespace PrimeWeb.Packets
 				if (sequencenumber == 254)
 					sequencenumber = 2;
 
-				Frames.Add(block.sequence, frame);
+				Frames.Add((uint)block.sequence, frame);
 			}
 		}
 
@@ -93,10 +116,10 @@ namespace PrimeWeb.Packets
 		public async Task<bool> TransmitNextFrame(FrameWorker worker)
 		{
 
-			if (!Frames.ContainsKey(sequencecounter))
+			if (!Frames.ContainsKey((uint)sequencecounter))
 				throw new Exception("Error frame to resend is not available in Packet!");
 
-			await worker.SendFrame(Frames[sequencecounter]);
+			await worker.SendFrame(Frames[(uint)sequencecounter]);
 
 			sequencecounter++;
 
@@ -105,17 +128,17 @@ namespace PrimeWeb.Packets
 				Console.WriteLine("Last Frame is transmitted!");
 				//TODO: handle transmission done event handling
 				//TransmissionComplete = true;
-
+				return true;
 			}
 
-			return TransmissionComplete;
+			return false;
 		}
 
 		#endregion
 
 		#region Reception
 
-		protected abstract void ReversePayload(byte[] payload);
+		
 
 		protected void ReverseFrames()
 		{
@@ -137,7 +160,9 @@ namespace PrimeWeb.Packets
 				bufferpos += slice.Length;
 			}
 
-			ReversePayload(completebuffer);
+			payload.ReversePayload(completebuffer);
+
+			PayloadCompleted(this.payload, ConversionStatus.Success);
 		}
 
 		protected AckFrame ReceiveContentFrame(ContentFrame frame)
@@ -148,12 +173,30 @@ namespace PrimeWeb.Packets
 			}
 			else
 			{
-				this.Frames.Add(sequencecounter, frame);
+				this.Frames.Add((uint)sequencecounter, frame);
 				var ackpkt = GenerateAck(sequencecounter, BlockPosition);
 				BlockPosition += (uint)frame.BlockLength;
+
+				if (frame.IsStartFrame)
+				{
+					if (frame.IOMessageSize < 1015)
+						bytestogo = 0;
+					else
+						bytestogo = bytestogo = (int)frame.IOMessageSize - 1015;
+				}
+				else
+				{
+					if (bytestogo < 1023)
+						bytestogo = 0;
+					else
+						bytestogo -= 1023;
+				}
+
 				sequencecounter++;
 
-				if (BlockPosition == this.MessageSize)
+				Console.WriteLine($"added content to packet! bytestogo: {bytestogo}");
+
+				if (bytestogo == 0)
 				{
 					Console.WriteLine("Message Transfer done!");
 					//TODO: message transfer done event handling!
@@ -166,8 +209,6 @@ namespace PrimeWeb.Packets
 
 		public async Task ReceiveNextFrame(FrameWorker worker, IFrame packet)
 		{
-			if (!packet.IsValid)
-				return;
 
 			if (packet.Type == FrameType.Content)
 			{
@@ -196,22 +237,23 @@ namespace PrimeWeb.Packets
 			}
 
 			if (TransmissionComplete)
-				await Convert();
+				this.ReverseFrames();
+
 		}
 		#endregion
 
 		#region Events
 
-		private async Task Convert()
+
+		public event EventHandler<TransmissionEventArgs> OnPayloadCompleted;
+
+		protected virtual void PayloadCompleted(IPacketPayload data, ConversionStatus stat )
 		{
-			this.ReverseFrames();
-			await OnTransferFinalized();
+
+			var handler = OnPayloadCompleted;
+			if (handler != null) handler(this, new TransmissionEventArgs() { result = data, status = stat });
 		}
 
-		internal event EventHandler OnRemovalFromBufferPossible;
-
-
-		protected abstract Task OnTransferFinalized();
 
 		#endregion
 
@@ -228,10 +270,10 @@ namespace PrimeWeb.Packets
 			this.sequencecounter = sequence + 1;
 			this.BlockPosition = blockpos;
 
-			if (!Frames.ContainsKey(sequence))
+			if (!Frames.ContainsKey((uint)sequence))
 				throw new Exception("Error frame to resend is not available in Packet!");
 
-			await worker.SendFrame(Frames[sequence]);
+			await worker.SendFrame(Frames[(uint)sequence]);
 
 		}
 
@@ -245,7 +287,8 @@ namespace PrimeWeb.Packets
 
 	public class TransmissionEventArgs : EventArgs
 	{
-		public PrimePacket result { get; set; }
+		public ConversionStatus status { get; set; }
+		public IPacketPayload result { get; set; }
 	}
 
 	public enum ConversionStatus

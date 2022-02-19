@@ -62,15 +62,8 @@ else
     public async Task SendTest()
     {
         Console.WriteLine("Sending Test packet!");
-        await prime.SendKey(HpKey.Num_0);
-        await prime.SendKey(HpKey.Num_2);
-        await prime.SendKey(HpKey.Num_6);
-        await prime.SendKey(HpKey.Up);
-        await prime.SendKey(HpKey.Down);
-        await prime.SendKey(HpKey.Left);
-        await prime.SendKey(HpKey.Num_0);
-        await prime.SendKey(HpKey.Num_2);
-        await prime.SendKey(HpKey.Num_6);
+        await prime.SendChatMessage("Donec at risus semper");
+        await prime.RequestBackup();
 
     }
 
@@ -101,7 +94,7 @@ else
     async void CurrentPrime_Connected(object? sender, EventArgs e)
     {
         Console.WriteLine("[Index.rzr] - Prime is connected!");
-        //await prime.SendChatMessage("Donec at risus semper");
+        
         //await prime.RequestBackup();
         //Console.WriteLine("Sent message!");
     }

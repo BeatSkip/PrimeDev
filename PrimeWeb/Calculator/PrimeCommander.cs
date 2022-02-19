@@ -24,6 +24,7 @@ namespace PrimeWeb.Calculator
 			return payload.ToArray();
 		}
 
+		/*
 		public static byte[] GetPayloadRequestSettings()
 		{
 			var content = UnicodeStringToBytes("calc.hpsettings");
@@ -44,6 +45,7 @@ namespace PrimeWeb.Calculator
 			return payload.ToArray();
 		}
 
+		
 		public static byte[] GetPayloadMessage(string message)
 		{
 			var content = UnicodeStringToBytes(message);
@@ -70,61 +72,13 @@ namespace PrimeWeb.Calculator
 			payload.AddRange(converted);
 			return payload.ToArray();
 		}
-
+		*/
 		#endregion
 
 
 		#region data conversion
 
-		private static byte[] UnicodeStringToBytes(string message)
-		{
-			UnicodeEncoding unicode = new UnicodeEncoding();
-			var Preamble = unicode.Preamble.ToArray();
 
-			if (Preamble[0] != 0xFF || Preamble[1] != 0xFE)
-			{
-				Console.WriteLine("!!-> TEXT ENCODING ERROR, PREAMBLE NOT CORRECT! <-!!");
-			}
-
-			return unicode.GetBytes(message);
-
-
-		}
-
-		private static string BytesToUnicodeString(byte[] message)
-		{
-			UnicodeEncoding unicode = new UnicodeEncoding();
-			var Preamble = unicode.Preamble.ToArray();
-
-			if (Preamble[0] != 0xFF || Preamble[1] != 0xFE)
-			{
-				Console.WriteLine("!!-> TEXT ENCODING ERROR, PREAMBLE NOT CORRECT! <-!!");
-			}
-
-			return unicode.GetString(message);
-		}
-
-		public static byte[] compress(byte[] input)
-		{
-			var deflate = new Deflater(Deflater.NO_COMPRESSION, false);
-			deflate.SetInput(input);
-			var output = new byte[input.Length];
-			deflate.Deflate(output);
-
-			return output;
-		}
-
-		public static byte[] decompress(byte[] input)
-		{
-			var outputStream = new MemoryStream();
-			using (var compressedStream = new MemoryStream(input))
-			using (var inputStream = new InflaterInputStream(compressedStream))
-			{
-				inputStream.CopyTo(outputStream);
-				outputStream.Position = 0;
-				return outputStream.ToArray();
-			}
-		}
 
 		private static byte[] GetCRC(byte[] data)
 		{

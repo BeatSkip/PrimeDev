@@ -41,6 +41,8 @@ namespace PrimeWeb.Types
 		SEND_KEY = 0xEC,
 		//CMD_PRIME_SET_DATE_TIME (0xE7)
 		SET_DATETIME = 0xE7,
+
+		UNKNOWN = 0x00
 	}
 
 	public enum ScreenFormat : byte

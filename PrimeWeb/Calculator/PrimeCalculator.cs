@@ -36,24 +36,6 @@ namespace PrimeWeb
             ConnectionInitDone();
         }
 
-		private void PacketWorker_V2MessageReceived(byte[] data)
-		{
-			
-            var header = data.SubArray(0, 64);
-            DbgTools.PrintPacket(header);
-
-			switch ((PrimeCMD)data[0])
-			{
-                case (PrimeCMD.RECV_SCREEN):
-                    Console.WriteLine("Received Screenshot!!");
-                    ProcessScreenshot(data);
-                    break;
-                case (PrimeCMD.RECV_FILE):
-                    Console.WriteLine("Received File!!");
-                    ProcessFileInput(data);
-                    break;
-            }
-		}
 
 		#region properties
 
@@ -118,18 +100,16 @@ namespace PrimeWeb
         {
             if (!IsConnected) return;
 
-            var payload = new byte[1] { (byte)PrimeCMD.RECV_BACKUP};
+            var payload = new PrimeBackupPayload();
 
-            await packetWorker.SendPayload(payload);
+            await packetWorker.Send(payload);
         }
 
         public async Task RequestSettings()
 		{
             if (!IsConnected) return;
 
-            var payload = PrimeCommander.GetPayloadRequestSettings();
-
-            await packetWorker.SendPayload(payload);
+           
         }
 
         public async Task SendKey(uint key)
@@ -145,9 +125,9 @@ namespace PrimeWeb
         {
             if (!IsConnected) return;
 
-            var payload = PrimeCommander.GetPayloadMessage(Message);
+            var payload = new PrimeChatPayload(Message);
 
-            await packetWorker.SendPayload(payload);
+            await packetWorker.Send(payload);
 
 
         }
@@ -156,38 +136,12 @@ namespace PrimeWeb
 		{
             if (!IsConnected) return;
 
-            screenshotCallback = callback;
-            var payoad = new byte[] { (byte)PrimeCMD.RECV_SCREEN, 0x08, 0x00, 0x00, 0x00, 0x01, 0x03 , 0x00};
-            await packetWorker.SendPayload(payoad);
+            
         }
 
 		#endregion
 
 		#region Data Processing
-
-		private void ProcessScreenshot(byte[] data)
-		{
-            var img = ParseCommandScreenshot(data.SubArray(13));
-
-            screenshotCallback.Invoke(img);
-            
-        }
-
-        private void ProcessFileInput(byte[] data)
-		{
-			Console.WriteLine("Received File Input!");
-            byte[] result;
-            if(data[10] == 0x78)
-			{
-                result = PrimeCommander.decompress(data.SubArray(10));
-			}
-			else
-			{
-                result = data.SubArray(10);
-			}
-
-            DbgTools.PrintPacket(result);
-		}
 
         private string ParseCommandScreenshot(byte[] data)
 		{

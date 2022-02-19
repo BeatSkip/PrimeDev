@@ -92,6 +92,8 @@ namespace PrimeWeb.Protocol
 
 	public class ContentFrame : IFrame
 	{
+		public PrimeCMD Command { get { return IsStartFrame ? (PrimeCMD)Data[0] : PrimeCMD.UNKNOWN; } }
+
 		public bool IsStartFrame { get { return (Sequence == 0x01); } }
 
 		public int BlockLength { get { return Data.Length; } }
@@ -129,14 +131,14 @@ namespace PrimeWeb.Protocol
 			}
 		}
 
-		public ContentFrame(int sequence, byte[] data, int messagenumber = 0)
+		public ContentFrame(int sequence, byte[] data, uint messagenumber = 0)
 		{
 			Sequence = (byte)sequence;
 			Data = data;
 			if (Sequence == 0x01)
 			{
-				IOMessageCounter = (uint)data[1] | (uint)data[2] << 8 | (uint)data[3] << 16 | (uint)data[4] << 24;
-				IOMessageSize = (uint)data[5] | (uint)data[6] << 8 | (uint)data[7] << 16 | (uint)data[8] << 24;
+				IOMessageCounter = messagenumber;
+				IOMessageSize = (uint)data.Length;
 			}
 			else
 			{
