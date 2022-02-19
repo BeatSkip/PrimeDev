@@ -11,14 +11,14 @@ namespace PrimeWeb.Protocol
 	{
 		public int PacketCount { get; private set; } = 1;
 
-		public Dictionary<int, IPacket> Packets { get; set; }
+		public Dictionary<int, PrimePacket> Packets { get; set; }
 
 		public FrameTransmitter()
 		{
 			
 		}
 
-		public async Task SendPacket(IPacket packet)
+		public async Task SendPacket(PrimePacket packet)
 		{
 
 		}

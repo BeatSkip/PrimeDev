@@ -102,8 +102,6 @@ namespace PrimeWeb.Calculator
 			}
 
 			return unicode.GetString(message);
-
-
 		}
 
 		public static byte[] compress(byte[] input)
@@ -115,7 +113,6 @@ namespace PrimeWeb.Calculator
 
 			return output;
 		}
-
 
 		public static byte[] decompress(byte[] input)
 		{

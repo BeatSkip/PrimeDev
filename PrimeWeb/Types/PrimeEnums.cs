@@ -21,12 +21,6 @@ namespace PrimeWeb.Types
 		OutOfBounds
 	}
 
-	public enum ResponseStatus : byte
-	{
-		ACK = 0x01,
-		NACK = 0x00
-	}
-
 	public enum PrimeCMD : byte
 	{
 		//CMD_PRIME_CHECK_READY (0xFF)
@@ -59,6 +53,8 @@ namespace PrimeWeb.Types
 		PNG_160px_120px_16bit = 0x0A,
 		//CALC_SCREENSHOT_FORMAT_PRIME_PNG_160x120x4 = 11,
 		PNG_160px_120px_4bit = 0x0B,
+
+		UNKNOWN_A = 0x0D
 	}
 
 	public enum ReportType
@@ -68,5 +64,23 @@ namespace PrimeWeb.Types
 		AckSlice,
 		OutOfBound,
 		Error,
+	}
+
+	public enum PacketType : byte
+	{
+		Chat = 0xF2,
+		FileRequest = 0xF8,
+		FileTransfer = 0xF7,
+		SendKey = 0xEC,
+		SetDateTime = 0xE7,
+		TransferBackup = 0xF9,
+		CheckReady = 0xFF,
+		unkown = 0
+	}
+
+	public enum TransferType
+	{
+		Tx,
+		Rx,
 	}
 }

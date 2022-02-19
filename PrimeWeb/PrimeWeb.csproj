@@ -7,6 +7,13 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="V2\**" />
+    <Content Remove="V2\**" />
+    <EmbeddedResource Remove="V2\**" />
+    <None Remove="V2\**" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />
@@ -26,7 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="V2\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

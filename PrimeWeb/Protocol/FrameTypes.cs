@@ -20,19 +20,25 @@ namespace PrimeWeb.Protocol
 
 	public interface IFrame
 	{
-		public byte[] GetBytes();
+		public byte[] GetFrameBytes();
+		public byte[] GetPayloadBytes();
+
 		public bool IsValid { get; }
 		public FrameType Type { get; }
+
+		
 	}
 
 	public class AckFrame : IFrame
 	{
-		byte Byte254; // Packet ID: out of bounds: 254
-		byte NewProtocolCommand;// command at 0: nack, 1: ack
-		byte SequenceToResend;  // no meaning for ack...
+		public byte Byte254 { get; private set; } // Packet ID: out of bounds: 254
+		public byte NewProtocolCommand { get; private set; }// command at 0: nack, 1: ack
+		public byte SequenceToResend { get; private set; }  // no meaning for ack...
 		byte unused_0;
-		uint BlockPosition;   // Position associated with first bit in this packet
-		uint IOMessageID;   // id of the IO Message beeing acked here...
+		public uint BlockPosition { get; private set; }   // Position associated with first bit in this packet
+		public uint IOMessageID { get; private set; }   // id of the IO Message beeing acked here...
+
+		public bool IsAck { get { return NewProtocolCommand == 0x01; } }
 
 		public FrameType Type { get { return FrameType.Ack; } }
 		public bool IsValid { get { return (Byte254 == 0xFE && unused_0 == 0x00 && SequenceToResend != 0xFF && IOMessageID != 0); } }
@@ -47,17 +53,17 @@ namespace PrimeWeb.Protocol
 			IOMessageID = (uint)data[8] | (uint)data[9] << 8 | (uint)data[10] << 16 | (uint)data[11] << 24;
 		}
 
-		public AckFrame(bool ack, int sequence, int messagenumber, int blockposition)
+		public AckFrame(bool ack, int sequence, uint messagenumber, uint blockposition)
 		{
 			Byte254 = 0xFE;
 			NewProtocolCommand = ack ? (byte)0x01 : (byte)0x00;
 			SequenceToResend = (byte)sequence;
 			unused_0 = (byte)0x00;
-			BlockPosition = (uint)blockposition;
-			IOMessageID = (uint)messagenumber;
+			BlockPosition = blockposition;
+			IOMessageID = messagenumber;
 		}
 
-		public byte[] GetBytes()
+		public byte[] GetFrameBytes()
 		{
 			var data = new byte[12];
 			data[0] = Byte254;
@@ -77,25 +83,32 @@ namespace PrimeWeb.Protocol
 			return data;
 		}
 
+		public byte[] GetPayloadBytes()
+		{
+			return new byte[0];
+		}
+
 	}
 
 	public class ContentFrame : IFrame
 	{
-		public bool IsStartOfMessage { get { return (Sequence == 0x01); } }
+		public bool IsStartFrame { get { return (Sequence == 0x01); } }
 
 		public int BlockLength { get { return Data.Length; } }
 
-		byte Sequence; // Packet ID: out of bounds: 254
+		public byte Sequence { get; private set; } // Packet ID: out of bounds: 254
 
-		uint IOMessageCounter;   // Position associated with first bit in this packet
+		public uint IOMessageCounter { get; private set; }   // Position associated with first bit in this packet
 
-		uint IOMessageSize;   // id of the IO Message beeing acked here...
+		public uint IOMessageSize { get; private set; }   // id of the IO Message beeing acked here...
 
-		byte[] Data;
+		public byte[] Data { get; private set; }
 
 		public FrameType Type { get { return FrameType.Content; } }
 
-		public bool IsValid { get { return (Sequence != 0xFE && IsStartOfMessage ? (IOMessageSize < ((240 * 1023) - 8) && IOMessageCounter < 25000000 && IOMessageCounter != 0) : (Sequence > 0x00 && Sequence < 0xFE)); } }
+		public bool IsValid { get { return (Sequence != 0xFE && IsStartFrame ? (IOMessageSize < ((240 * 1023) - 8) && IOMessageCounter < 25000000 && IOMessageCounter != 0) : (Sequence > 0x00 && Sequence < 0xFE)); } }
+
+		public int PayloadSize { get { return IsStartFrame ? (int) IOMessageSize : -1; } }
 
 		public ContentFrame(byte[] data)
 		{
@@ -119,25 +132,22 @@ namespace PrimeWeb.Protocol
 		public ContentFrame(int sequence, byte[] data, int messagenumber = 0)
 		{
 			Sequence = (byte)sequence;
-
+			Data = data;
 			if (Sequence == 0x01)
 			{
 				IOMessageCounter = (uint)data[1] | (uint)data[2] << 8 | (uint)data[3] << 16 | (uint)data[4] << 24;
 				IOMessageSize = (uint)data[5] | (uint)data[6] << 8 | (uint)data[7] << 16 | (uint)data[8] << 24;
-
-				Data = data;
 			}
 			else
 			{
 				IOMessageCounter = 0;
-				IOMessageSize = 0;
-				Data = data.SubArray(1);
+				IOMessageSize = 0;		
 			}
 		}
 
-		public byte[] GetBytes()
+		public byte[] GetFrameBytes()
 		{
-			if (this.IsStartOfMessage)
+			if (this.IsStartFrame)
 				return BytesLargeHeader();
 			else
 				return BytesSmallHeader();
@@ -169,11 +179,19 @@ namespace PrimeWeb.Protocol
 			return payload;
 		}
 
+		public byte[] GetPayloadBytes()
+		{
+			return Data;
+		}
+
 	}
 
 	public class LegacyFrame : IFrame
 	{
 		public FrameType Type { get { return FrameType.Legacy; } }
+
+		public bool IsStartMessage { get { return (Data[1] == 0x00); } }
+
 		public bool IsValid { get { return true; } }
 
 		private byte[] Data;
@@ -183,7 +201,12 @@ namespace PrimeWeb.Protocol
 			Data = data;
 		}
 
-		public byte[] GetBytes()
+		public byte[] GetFrameBytes()
+		{
+			return new byte[0];
+		}
+
+		public byte[] GetPayloadBytes()
 		{
 			return new byte[0];
 		}

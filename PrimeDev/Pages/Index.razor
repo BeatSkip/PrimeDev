@@ -1,5 +1,5 @@
 ﻿@page "/"
-@using PrimeWeb.HpTypes
+@using PrimeWeb.Types
 @inject PrimeManager manager
 
 <MudGrid Spacing="5" Justify="Justify.Center">
@@ -114,12 +114,7 @@ else
         Console.WriteLine(tet);
     }
 
-    void CurrentPrime_Message(object? sender, PrimeWeb.MessageReceivedEventArgs e)
-    {
-        messages.Add((DateTime.Now.ToShortTimeString() + "\t-\t" +  e.Message));
-
-        StateHasChanged();
-    }
+    
 
     private void ManagerChanged()
     {

@@ -13,7 +13,7 @@ namespace PrimeWeb.Protocol
 
 		private IHidDevice device;
 
-		private PrimeCalculator prime;
+		private uint CurrentMessage = 1;
 
 		public uint MessageCount { get; private set; } = 1;
 
@@ -23,9 +23,9 @@ namespace PrimeWeb.Protocol
 		private V2MessageOut CurrentMessageOut { get; set; }
 
 
-		private FrameReceiver Receiver;
-		
-		private FrameTransmitter Sender;
+		private Dictionary<int, PrimePacket> SendBuffer = new Dictionary<int, PrimePacket>();
+
+		private Dictionary<int, PrimePacket> ReceiveBuffer = new Dictionary<int, PrimePacket>();
 
 
 
@@ -59,16 +59,19 @@ namespace PrimeWeb.Protocol
 
 		#region USB Input/Output
 
-		public async Task SendFrame(IFrame payload)
+		public async Task SendFrame(IFrame frame)
 		{
-			await device.SendReportAsync(0x00, payload.GetBytes());
+			await device.SendReportAsync(0x00, frame.GetFrameBytes());
 		}
 
 		private void Prime_ReportReceived(object? sender, OnInputReportArgs e)
 		{
 			var data = e.Data;
+			var type = IdentifyReport(data.AsSpan().Slice(0, 13));
 
-			switch (IdentifyReport(data.AsSpan().Slice(0, 13))){
+			Console.WriteLine($"[Frameworker] - Report received! type: {type}");
+			
+			switch (type){
 				case (FrameType.Legacy):
 					HandleReport_Legacy(data);
 					break;
@@ -85,6 +88,9 @@ namespace PrimeWeb.Protocol
 					Console.WriteLine("[PacketWorker] - Received report with unknown header!");
 					DbgTools.PrintPacket(data);
 					break;
+				default:
+					Console.WriteLine("Unkown report error!");
+				break;
 			}
 		}
 
@@ -92,24 +98,7 @@ namespace PrimeWeb.Protocol
 		#endregion
 
 
-		#region Protocol Handling
-
-		
-
-		public void HandleReport_Legacy(byte[] data)
-		{
-			if(this.Protocol != ProtocolVersion.Old)
-			{
-				this.Protocol = ProtocolVersion.Old;
-				Console.WriteLine("Received Old protocol message while not in old protocol mode!");
-				Console.WriteLine("Switching back to old protocol mode....");
-			}
-
-			var Frame = new LegacyFrame(data);
-
-				
-
-		}
+		#region Protocol Handling	
 
 		public void HandleReport_Content(byte[] data)
 		{
@@ -131,12 +120,47 @@ namespace PrimeWeb.Protocol
 				Console.WriteLine("Received Ack Frame not valid!");
 			}
 
-
-
 		}
 
 		public void HandleReport_OutOfBand(byte[] data)
 		{
+
+		}
+
+		public void HandleReport_Legacy(byte[] data)
+		{
+			if (this.Protocol != ProtocolVersion.Old)
+			{
+				this.Protocol = ProtocolVersion.Old;
+				Console.WriteLine("Received Old protocol message while not in old protocol mode!");
+				Console.WriteLine("Switching back to old protocol mode....");
+			}
+
+			var cmd = (PrimeCMD)data[1];
+			var BodyLength = BitConverter.ToInt32(data.SubArray(3, 4).Reverse().ToArray());
+			var Body = data.SubArray(7, BodyLength);
+
+			var Bodyhex = BitConverter.ToString(Body).Replace("-", " ");
+			var Bodystr = Encoding.UTF8.GetString(Body);
+
+
+			switch (cmd)
+			{
+				case (PrimeCMD.GET_INFOS):
+					ProcessHpInfos(Body);
+					return;
+
+				default:
+					break;
+			}
+
+			Console.WriteLine("### Unknown V1 Packet ###");
+			Console.WriteLine($"Command: {cmd.ToString()}  - {data[1].ToString("X2")}");
+			Console.WriteLine($"Body length: {BodyLength} Bytes");
+			Console.WriteLine($"Body [HEX]:\n {Bodyhex}");
+			Console.WriteLine($"Body [UTF8]:\n {Bodystr}");
+			Console.WriteLine("### END ###");
+			Console.WriteLine("");
 
 		}
 
@@ -159,6 +183,15 @@ namespace PrimeWeb.Protocol
 
 			return FrameType.Error;
 		}
+
+		public static PacketType IdentifyPacket(ContentFrame frame)
+		{
+			if (frame.IsStartFrame)
+				throw new Exception("Can't identify packet if frame is not the primary frame!");
+
+			return (PacketType)frame.GetPayloadBytes()[0];
+		}
+
 
 		#endregion
 
@@ -198,7 +231,80 @@ namespace PrimeWeb.Protocol
 
 		}
 
+		private async Task ProcessHpInfos(byte[] data)
+		{
+			var result = new HpInfos(data);
 
+			Console.WriteLine($"Info | {result.Product} | Serialnumber: {result.Serial} | Version: {result.Version} | Build: {result.Build} ");
+
+			if (result.Build < 10591)
+			{
+				Console.WriteLine("Sorry Calculator not supported! please update!");
+				OnUnsupportedCalcConnected();
+				return;
+			}
+
+			if (ProtocolNegotiated)
+				return;
+
+			var pkt_prot = MessageUtils.Misc.GetPacketSetProtocolV2();
+			await device.SendReportAsync(pkt_prot.id, pkt_prot.data);
+
+			Console.WriteLine("Sent protocol V2 request");
+
+			ProtocolNegotiated = true;
+			result.Product = ProductIdToProductString(device.ProductId);
+			this.Protocol = ProtocolVersion.V2;
+			OnInfoReceived(result);
+		}
+
+		private string ProductIdToProductString(ushort? pid)
+		{
+			switch (pid)
+			{
+				case (0x0441):
+				case (0x1541):
+					return "HP Prime G1";
+				case (0x2441):
+					return "HP Prime G2";
+				default:
+					return "Unrecognized Calculator";
+
+			}
+		}
+		
+
+		#endregion
+
+		
+
+		#region Events
+
+		public event EventHandler UnsupportedCalcConnected;
+
+		protected virtual void OnUnsupportedCalcConnected()
+		{
+
+			var handler = UnsupportedCalcConnected;
+			if (handler != null) handler(this, EventArgs.Empty);
+		}
+
+		public event EventHandler<CommsInitEventArgs> CalcInitialized;
+
+		protected virtual void OnInfoReceived(HpInfos info)
+		{
+
+			var handler = CalcInitialized;
+			if (handler != null) handler(this, new CommsInitEventArgs() { Info = info, Version = ProtocolVersion.V2});
+		}
+
+
+
+		#endregion
+
+		#region Legacy code
+
+		/*
 		private void ParseReportV2Protocol(byte[] data)
 		{
 
@@ -221,7 +327,7 @@ namespace PrimeWeb.Protocol
 						OnV2MessageReceived(new V2MessageEventArgs() { Data = CurrentMessageIn.GetData() });
 						device.SendReportAsync(0x00, CurrentMessageIn.GetAckMessage());
 					}
-						
+
 
 					break;
 				case (NewPacketType.Message):
@@ -232,9 +338,9 @@ namespace PrimeWeb.Protocol
 					if (CurrentMessageIn.Completed)
 					{
 						OnV2MessageReceived(new V2MessageEventArgs() { Data = CurrentMessageIn.GetData() });
-						
+
 					}
-						
+
 
 					Console.WriteLine($"Added slice {status.slicenumber} to message {CurrentMessageIn.MessageNumber}! {status.BytesToGo} Bytes to go");
 					break;
@@ -246,7 +352,7 @@ namespace PrimeWeb.Protocol
 
 		private void HandleOutOfBounds(byte[] data)
 		{
-			if(data[1] == 0x00)
+			if (data[1] == 0x00)
 			{
 				Console.WriteLine($"NACK Received! Sequence: {data[2]}");
 				if (CurrentMessageOut != null)
@@ -255,7 +361,7 @@ namespace PrimeWeb.Protocol
 				return;
 			}
 
-			if(data[1] == 0x01 && data[2] == 0xFF)
+			if (data[1] == 0x01 && data[2] == 0xFF)
 			{
 				Console.WriteLine("heartbeat..");
 				return;
@@ -274,87 +380,13 @@ namespace PrimeWeb.Protocol
 					}
 
 				}
-					
+
 
 				return;
 			}
 
 
 		}
-
-		private void ParseReportOldProtocol(byte[] data)
-		{
-			var cmd = (PrimeCMD)data[1];
-			var BodyLength = BitConverter.ToInt32(data.SubArray(3, 4).Reverse().ToArray());
-			var Body = data.SubArray(7, BodyLength);
-
-			var Bodyhex = BitConverter.ToString(Body).Replace("-", " ");
-			var Bodystr = Encoding.UTF8.GetString(Body);	
-
-			switch (cmd)
-			{
-				case (PrimeCMD.GET_INFOS):
-					ProcessHpInfos(Body);
-					return;
-		
-				default:
-					break;
-			}
-
-			Console.WriteLine("### Unknown V1 Packet ###");
-			Console.WriteLine($"Command: {cmd.ToString()}  - {data[1].ToString("X2")}");
-			Console.WriteLine($"Body length: {BodyLength} Bytes");
-			Console.WriteLine($"Body [HEX]:\n {Bodyhex}");
-			Console.WriteLine($"Body [UTF8]:\n {Bodystr}");
-			Console.WriteLine("### END ###");
-			Console.WriteLine("");
-
-		}
-
-		private async Task ProcessHpInfos(byte[] data)
-		{
-			prime.DeviceInfo = new HpInfos(data);
-
-			Console.WriteLine($"Prime Info | Serialnumber: {prime.DeviceInfo.Serial} | Version: {prime.DeviceInfo.Version} | Build: {prime.DeviceInfo.Build} ");
-
-			if (prime.DeviceInfo.Build < 10591)
-			{
-				Console.WriteLine("Sorry Calculator not supported! please update!");
-				OnUnsupportedCalcConnected();
-				return;
-			}
-
-			if (ProtocolNegotiated)
-				return;
-
-			var pkt_prot = MessageUtils.Misc.GetPacketSetProtocolV2();
-			await device.SendReportAsync(pkt_prot.id, pkt_prot.data);
-
-			Console.WriteLine("Sent protocol V2 request");
-
-			ProtocolNegotiated = true;
-			
-			prime.InfoChanged();
-			prime.ConnectionInitDone();
-		}
-
-		
-
-		#endregion
-
-		
-
-		#region Events
-
-		public event EventHandler UnsupportedCalcConnected;
-
-		protected virtual void OnUnsupportedCalcConnected()
-		{
-
-			var handler = UnsupportedCalcConnected;
-			if (handler != null) handler(this, EventArgs.Empty);
-		}
-
 
 		public event EventHandler<V2MessageEventArgs> V2MessageReceived;
 
@@ -364,14 +396,15 @@ namespace PrimeWeb.Protocol
 			var handler = V2MessageReceived;
 			if (handler != null) handler(this, e);
 		}
-
+		*/
 		#endregion
 	}
 
 
-	public class V2MessageEventArgs : EventArgs
+	public class CommsInitEventArgs : EventArgs
 	{
-		public byte[] Data { get; set; }
+		public ProtocolVersion Version { get; set; }
+		public HpInfos Info { get; set; }
 	}
 
 

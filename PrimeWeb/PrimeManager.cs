@@ -28,7 +28,7 @@ namespace PrimeWeb
 		{
 			navigator = nav;
 			System.Diagnostics.Debug.WriteLine("Started Prime manager!");
-			filters = new List<IHidFilter> { new PrimeG2HidFilter(), new PrimeHidFilter()};
+			filters = new List<IHidFilter> { new PrimeG2HidFilter(), new PrimeRevAHidFilter(), new PrimeRevCHidFilter() };
 			
 		}
 

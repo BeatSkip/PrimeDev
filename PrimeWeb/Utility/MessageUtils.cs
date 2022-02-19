@@ -5,32 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using PrimeWeb.Utility;
 using PrimeWeb.Calculator;
+using PrimeWeb.Types;
 
 namespace PrimeWeb.Utility
 {
 	public static class MessageUtils
 	{
-		public static class Debug
-        {
-			private static byte getsequenceNumber(int sendcounter)
-			{
-				return (byte)((sendcounter % 252) + 2);
-
-			}
-
-			public static void TestSequence()
-			{
-				List<byte> tmp = new List<byte>();
-
-                for (int i = 0; i < 1280; i++)
-                {
-					tmp.Add(getsequenceNumber(i));
-				}
-
-				Console.WriteLine("debugging sequence counter!");
-				DbgTools.PrintPacket(tmp.ToArray());
-			}
-		}
 		internal static class Misc
         {
 			internal static (byte id, byte[] data) GetPacketRequestScreen(ScreenFormat format)
@@ -66,7 +46,7 @@ namespace PrimeWeb.Utility
 
 			internal static (byte id, byte[] data) GetPacketAck(long packet)
 			{
-				byte[] content = { 0xFE, (byte)ResponseStatus.ACK, 0, 0, 0, 0, 0, 0 };
+				byte[] content = { 0xFE, (byte)0x01, 0, 0, 0, 0, 0, 0 };
 				return (0, content);
 			}
 

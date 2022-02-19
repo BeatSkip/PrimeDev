@@ -16,6 +16,8 @@ namespace PrimeWeb.Types
 
 		public int Build { get; init; }
 
+		public string Product { get; set; }
+
 		public HpInfos(byte[] data)
 		{
 			this.Data = data;
@@ -31,6 +33,7 @@ namespace PrimeWeb.Types
 			Serial = Encoding.UTF8.GetString(BytesSerial);
 			Version = Encoding.UTF8.GetString(BytesVersion);
 			Build = version;
+			Product = "";
 		}
 	}
 

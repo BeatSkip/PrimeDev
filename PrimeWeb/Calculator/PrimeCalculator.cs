@@ -16,34 +16,41 @@ namespace PrimeWeb
     {
         private Action<string> screenshotCallback; 
 
-        public string ProductName { get { return prime.ProductName; } }
+        public string ProductName { get { return DeviceInfo.Product; } }
 
-        private HidDevice prime;
+        private IHidDevice prime;
 
         private FrameWorker packetWorker;
 
-        public PrimeCalculator(HidDevice device, string Title = "")
+        public PrimeCalculator(IHidDevice device, string Title = "")
         {
             prime = device;
             packetWorker = new FrameWorker(device);
-			packetWorker.V2MessageReceived += PacketWorker_V2MessageReceived;
+			packetWorker.CalcInitialized += PacketWorker_CalcInitialized;
         }
 
-		private void PacketWorker_V2MessageReceived(object? sender, V2MessageEventArgs e)
+		private void PacketWorker_CalcInitialized(object? sender, CommsInitEventArgs e)
+		{
+            this.DeviceInfo = e.Info;
+            this.InfoChanged();
+            ConnectionInitDone();
+        }
+
+		private void PacketWorker_V2MessageReceived(byte[] data)
 		{
 			
-            var header = e.Data.SubArray(0, 64);
+            var header = data.SubArray(0, 64);
             DbgTools.PrintPacket(header);
 
-			switch ((PrimeCMD)e.Data[0])
+			switch ((PrimeCMD)data[0])
 			{
                 case (PrimeCMD.RECV_SCREEN):
                     Console.WriteLine("Received Screenshot!!");
-                    ProcessScreenshot(e.Data);
+                    ProcessScreenshot(data);
                     break;
                 case (PrimeCMD.RECV_FILE):
                     Console.WriteLine("Received File!!");
-                    ProcessFileInput(e.Data);
+                    ProcessFileInput(data);
                     break;
             }
 		}
@@ -206,7 +213,7 @@ namespace PrimeWeb
         /// <summary>
         /// Reports message from the USB
         /// </summary>
-        public event EventHandler<MessageReceivedEventArgs> ChatMessageReceived;
+        
 
         #endregion
 
@@ -249,15 +256,7 @@ namespace PrimeWeb
             if (handler != null) handler(this, new EventArgs());
         }
 
-        /// <summary>
-        /// Chat message has been received!
-        /// </summary>
-        /// <param name="e">Chat message received</param>
-        protected virtual void OnMessageReceived(MessageReceivedEventArgs e)
-        {
-            var handler = ChatMessageReceived;
-            if (handler != null) handler(this, e);
-        }
+        
 
         /// <summary>
         /// First compatible device was found and it is connected
@@ -279,14 +278,20 @@ namespace PrimeWeb
 
         #endregion
 
-        #region Enumeration and HID
-
+        #region LegacyCode
+        /*
+         /// <summary>
+        /// Chat message has been received!
+        /// </summary>
+        /// <param name="e">Chat message received</param>
+        protected virtual void OnMessageReceived(MessageReceivedEventArgs e)
+        {
+            var handler = ChatMessageReceived;
+            if (handler != null) handler(this, e);
+        }
+         */
 
         #endregion
     }
 
-	public class MessageReceivedEventArgs : EventArgs{
-        public string Message { get; set; }
-        public PrimeChunk Source { get; set; }
-    }
 }
