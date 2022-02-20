@@ -216,7 +216,7 @@ namespace PrimeWeb.Protocol
 			if (frame.IsStartFrame)
 				throw new Exception("Can't identify packet if frame is not the primary frame!");
 
-			return (PacketType)frame.GetPayloadBytes()[0];
+			return (PacketType)frame.GetContentBytes()[0];
 		}
 
 

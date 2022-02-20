@@ -21,7 +21,7 @@ namespace PrimeWeb.Protocol
 	public interface IFrame
 	{
 		public byte[] GetFrameBytes();
-		public byte[] GetPayloadBytes();
+		public byte[] GetContentBytes();
 
 		public bool IsValid { get; }
 		public FrameType Type { get; }
@@ -83,7 +83,7 @@ namespace PrimeWeb.Protocol
 			return data;
 		}
 
-		public byte[] GetPayloadBytes()
+		public byte[] GetContentBytes()
 		{
 			return new byte[0];
 		}
@@ -181,7 +181,7 @@ namespace PrimeWeb.Protocol
 			return payload;
 		}
 
-		public byte[] GetPayloadBytes()
+		public byte[] GetContentBytes()
 		{
 			return Data;
 		}
@@ -208,7 +208,7 @@ namespace PrimeWeb.Protocol
 			return new byte[0];
 		}
 
-		public byte[] GetPayloadBytes()
+		public byte[] GetContentBytes()
 		{
 			return new byte[0];
 		}

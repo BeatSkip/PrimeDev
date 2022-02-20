@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PrimeWeb.Protocol;
 using PrimeWeb.Types;
+using PrimeWeb.Utility;
 
 namespace PrimeWeb.Packets
 {
@@ -86,6 +87,9 @@ namespace PrimeWeb.Packets
 
 				Frames.Add((uint)block.sequence, frame);
 			}
+
+			var bytesfirst = Frames[1].GetFrameBytes();
+			DbgTools.PrintPacket(bytesfirst);
 		}
 
 		protected List<(int sequence, int blockposition, byte[] block)> SplitDataBlocks(byte[] data)
@@ -146,19 +150,28 @@ namespace PrimeWeb.Packets
 
 			if (firstframe == null)
 				Console.WriteLine("ERROR while reversing Frames!");
-
-			var buffersize = firstframe.PayloadSize;
-
-			var bufferpos = 0;
+			
+			var buffersize = firstframe.IOMessageSize;
+			Console.WriteLine($"Reversing frames from: {firstframe.IOMessageSize} bytes");
+			uint bufferpos = 0;
 
 			var completebuffer = new byte[buffersize];
+			var first = true;
+
+			int index = 0;
 
 			foreach (var block in Frames)
 			{
-				var slice = block.Value.GetFrameBytes();
-				Array.Copy(slice, 0, completebuffer, bufferpos, slice.Length);
-				bufferpos += slice.Length;
+				var slice = block.Value.GetContentBytes();
+				var slicelen = first ? (buffersize < 1015 ? buffersize : 1015) : (buffersize < 1023 ? buffersize : 1023);
+				Array.Copy(slice, 0, completebuffer, bufferpos, slicelen);
+				bufferpos += slicelen;
+				buffersize -= slicelen;
+				Console.WriteLine($"reversed slice {index++}; bufferpos: {bufferpos} ; bytestogo: {buffersize}");
+				first = false;
 			}
+
+			DbgTools.PrintPacket(completebuffer);
 
 			payload.ReversePayload(completebuffer);
 
@@ -213,6 +226,7 @@ namespace PrimeWeb.Packets
 			if (packet.Type == FrameType.Content)
 			{
 				var ack = ReceiveContentFrame(packet as ContentFrame);
+				Console.WriteLine($"Acking frame: {ack.SequenceToResend} as { (ack.NewProtocolCommand == 0x01 ? ("ACK") : ("NACK"))} from message: {ack.IOMessageID}");
 				await worker.SendFrame(ack);
 
 				
