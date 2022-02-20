@@ -1,9 +1,8 @@
 ﻿using Blazm.Hid;
-using PrimeWeb.Types;
 using PrimeWeb.Packets;
-using System.Text;
-using PrimeWeb.Calculator;
+using PrimeWeb.Types;
 using PrimeWeb.Utility;
+using System.Text;
 
 namespace PrimeWeb.Protocol
 {
@@ -21,7 +20,7 @@ namespace PrimeWeb.Protocol
 
 		private PrimePacket ReceivePacket { get; set; }
 
-
+		public List<PrimeFilePayload> FileList { get; set; } = new List<PrimeFilePayload>();
 
 		public FrameWorker(IHidDevice hid)
 		{
@@ -96,7 +95,6 @@ namespace PrimeWeb.Protocol
 
 		#endregion
 
-
 		#region Protocol Handling	
 
 		public async Task HandleReport_Content(byte[] data)
@@ -108,8 +106,17 @@ namespace PrimeWeb.Protocol
 				ReceivePacket = PayloadFactory.CreateFromFrame(frame, out IPacketPayload result);
 				ReceivePacket.OnPayloadCompleted += ReceivePacket_OnPayloadCompleted;
 				Console.WriteLine($"Created new Packet! of type: {(PrimeCMD)frame.Data[0]}");
+				if (result.Type == typeof(PrimeFilePayload))
+				{
+					var tmp = result as PrimeFilePayload;
+
+
+					tmp.ContentReceived += Tmp_ContentReceived; ;
+
+				}
+
 			}
-				
+
 
 			await ReceivePacket.ReceiveNextFrame(this, frame);
 
@@ -120,6 +127,16 @@ namespace PrimeWeb.Protocol
 
 
 
+		}
+
+		private void Tmp_ContentReceived(object? sender, FilePacketEventArgs e)
+		{
+			Console.WriteLine("triggered frameworker app received");
+			if(e.FileType == PrimeFileType.APP)
+			{
+				Console.WriteLine("is app!");
+				this.OnContentReceived(e);
+			}
 		}
 
 		private void ReceivePacket_OnPayloadCompleted(object? sender, TransmissionEventArgs e)
@@ -222,12 +239,6 @@ namespace PrimeWeb.Protocol
 
 		#endregion
 
-
-
-		
-
-	
-
 		#region Packet input
 
 		public async Task Send(IPacketPayload payload)
@@ -299,55 +310,30 @@ namespace PrimeWeb.Protocol
 
 		#endregion
 
-
-
 		#region Events
 
-
 		/// <summary>
-			/// Event to indicate Description
-			/// </summary>
-		public event EventHandler<ChatEventArgs> ChatReceived;
+		/// Event to indicate Description
+		/// </summary>
+		public event EventHandler<FilePacketEventArgs> ContentReceived;
+
+
 		/// <summary>
 		/// Called to signal to subscribers that Description
 		/// </summary>
 		/// <param name="e"></param>
-		protected virtual void OnChatReceived(ChatEventArgs e)
+		protected virtual void OnContentReceived(FilePacketEventArgs e)
 		{
-			EventHandler<ChatEventArgs> eh = ChatReceived;
-			if (eh != null)
-			{
-				eh(this, e);
-			}
+			var handler = ContentReceived;
+			if (handler != null) handler(this, e);
 		}
 
+
+
+
 		/// <summary>
-			/// Event to indicate Back
-			/// </summary>
-		public event EventHandler<BackupEventArgs> BackupReceived;
-		/// <summary>
-		/// Called to signal to subscribers that Back
+		/// Error event triggered when an unsupported calculator is connected.
 		/// </summary>
-		/// <param name="e"></param>
-		protected virtual void OnBackupReceived(BackupEventArgs e)
-		{
-			EventHandler<BackupEventArgs> eh = BackupReceived;
-			if (eh != null)
-			{
-				eh(this, e);
-			}
-		}
-
-		public event EventHandler<FileReceivedEventArgs> FileReceived;
-
-		protected virtual void OnFileReceived()
-		{
-
-			var handler = FileReceived;
-			if (handler != null) handler(this, new FileReceivedEventArgs());
-		}
-
-
 		public event EventHandler UnsupportedCalcConnected;
 
 		protected virtual void OnUnsupportedCalcConnected()
@@ -357,7 +343,16 @@ namespace PrimeWeb.Protocol
 			if (handler != null) handler(this, EventArgs.Empty);
 		}
 
+
+
+		/// <summary>
+		/// event indicating the calculator communication has been 
+		/// initialized, calculator info has been received and 
+		/// protocol has been negotiated
+		/// </summary>
 		public event EventHandler<CommsInitEventArgs> CalcInitialized;
+
+
 
 		protected virtual void OnInfoReceived(HpInfos info)
 		{

@@ -2,6 +2,7 @@
 
 @inject IDialogService DialogService
 @inject PrimeManager manager
+@inject PrimeFileService primefiles
 
 <MudThemeProvider Theme="mytheme"/>
 <MudDialogProvider />
@@ -78,13 +79,15 @@
             await prime.Initialize();
             var options = new DialogOptions { CloseButton = true };
             DialogService.Show<ConnectSuccessDialog>("Connected!", options);
-           
+            primefiles.RegisterCalculator(prime);
+            primefiles.AppsChanged += Prime_Changed;
 
         }
     }
 
     void Prime_Changed(object? sender, EventArgs e)
 	{
+        Console.WriteLine("!##@@# - reveived prime app!!!");
         StateHasChanged();
 	}
 }

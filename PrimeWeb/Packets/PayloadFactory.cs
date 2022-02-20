@@ -34,5 +34,10 @@ namespace PrimeWeb.Packets
 
 		}
 
+		public static HpApp GenerateHpApp(FilePacketEventArgs e)
+		{
+			return new HpApp(e.Filename, e.PacketContent);
+		}
+
 	}
 }

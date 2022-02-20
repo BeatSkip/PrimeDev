@@ -33,13 +33,7 @@ Very very alpha, and currently working on the initial communication between the 
 
 
 
-![screenshot](https://github.com/BeatSkip/PrimeDev/blob/master/img/img_multipartcompressedtransfer.png?raw=true)
 
-![screenshot](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_screenshot_received.png?raw=true)
-
-![initial proof](https://github.com/BeatSkip/PrimeDev/blob/master/img/photo_poc.jpg?raw=true)
-
-![msg received](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_msgevent.png?raw=true)
 
 ## Screenshots
 
@@ -49,6 +43,14 @@ Very very alpha, and currently working on the initial communication between the 
 
 ![return data](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_received.png?raw=true)
 
+
+![screenshot](https://github.com/BeatSkip/PrimeDev/blob/master/img/img_multipartcompressedtransfer.png?raw=true)
+
+![screenshot](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_screenshot_received.png?raw=true)
+
+![initial proof](https://github.com/BeatSkip/PrimeDev/blob/master/img/photo_poc.jpg?raw=true)
+
+![msg received](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_msgevent.png?raw=true)
 
 
 ## Dependencies

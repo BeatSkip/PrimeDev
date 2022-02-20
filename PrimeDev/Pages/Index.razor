@@ -1,131 +1,170 @@
 ﻿@page "/"
+
 @using PrimeWeb.Types
 @inject PrimeManager manager
+@inject PrimeFileService primefiles
 
 <MudGrid Spacing="5" Justify="Justify.Center">
-   
-@if (!manager.IsInitialized)
-{
-    <MudItem>
-        <MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
-                    <MudText Typo="Typo.h6" Align="Align.Center">It seems you haven't connected your HP Prime Yet!</MudText>
-                    <MudText Typo="Typo.subtitle1" Align="Align.Center">Click the connection button at the top right corner of this page to start the discovery and connection.</MudText>
-                     </MudPaper>
-    </MudItem>
-}
-else
-{
-    <MudItem xs=4>
-        <MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
-            <MudText Typo="Typo.h6" Align="Align.Center">Initialized!</MudText>
-            <MudText Typo="Typo.subtitle1" Align="Align.Center">Press the following button to initialize a connection test</MudText>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="SendTest" Style="margin-top: 15pt;">Send Test!</MudButton>
-        </MudPaper>
-    </MudItem>
 
-    <MudItem xs=4>
-        <MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
-            <MudText Typo="Typo.h6" Align="Align.Center">Request Screenshot</MudText>
-            <MudText Typo="Typo.subtitle1" Align="Align.Center">Press the following button to request a screenshot</MudText>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="GetScreenshot" Style="margin-top: 15pt;">Capture Screen</MudButton>
-        </MudPaper>
-    </MudItem>
+	@if (!manager.IsInitialized)
+	{
+		<MudItem>
+			<MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
+				<MudText Typo="Typo.h6" Align="Align.Center">It seems you haven't connected your HP Prime Yet!</MudText>
+				<MudText Typo="Typo.subtitle1" Align="Align.Center">Click the connection button at the top right corner of this page to start the discovery and connection.</MudText>
+			</MudPaper>
+		</MudItem>
+	}
+	else
+	{
+		<MudItem xs=4>
+			<MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
+				<MudText Typo="Typo.h6" Align="Align.Center">Initialized!</MudText>
+				<MudText Typo="Typo.subtitle1" Align="Align.Center">Press the following button to initialize a connection test</MudText>
+				<MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="SendTest" Style="margin-top: 15pt;">Send Test!</MudButton>
+			</MudPaper>
+		</MudItem>
 
-        @if (screenshotreceived)
-        {
-             <MudItem xs=4>
-        <MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
-            <img width="320" height="240" src="@screenshot">
-        </MudPaper>
-    </MudItem>
-        }
+		<MudItem xs=4>
+			<MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
+				<MudText Typo="Typo.h6" Align="Align.Center">Request Screenshot</MudText>
+				<MudText Typo="Typo.subtitle1" Align="Align.Center">Press the following button to request a screenshot</MudText>
+				<MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="GetScreenshot" Style="margin-top: 15pt;">Capture Screen</MudButton>
+			</MudPaper>
+		</MudItem>
 
-    }
-       
-    
-    <MudItem xs=12>
-        @foreach(var msg in messages)
-        {
-            <MudText Typo="Typo.subtitle1" Align="Align.Left">Message: @msg</MudText>
-        }
-    </MudItem>
+		@if (screenshotreceived)
+		{
+			<MudItem xs=4>
+				<MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
+					<img width="320" height="240" src="@screenshot">
+				</MudPaper>
+			</MudItem>
+		}
 
-   
+		<MudItem xs="12">
+			<MudGrid Justify="Justify.FlexStart">
+			   @foreach(var app in primefiles.Applist)
+			    {
+			        <MudItem xs="2">
+			            <MudPaper Class="d-flex flex-column align-center justify-center mud-width-full py-8">
+			                <MudText Typo="Typo.h6" Align="Align.Center">@app.Value.Name</MudText>
+			                <MudText Typo="Typo.h6" Align="Align.Center">@app.Value.Appsize Bytes</MudText>
+			            </MudPaper>
+			        </MudItem>
+			     }
+			</MudGrid>
+		</MudItem>
+
+
+		
+
+	}
+
+
+	<MudItem xs=12>
+		@foreach (var msg in messages)
+		{
+			<MudText Typo="Typo.subtitle1" Align="Align.Left">Message: @msg</MudText>
+		}
+	</MudItem>
+
+
 </MudGrid>
 
-@code{
-    private PrimeCalculator prime;
-    bool screenshotreceived = false;
-    string screenshot = "";
-    private List<string> messages = new List<string>();
+@code {
 
-    public async Task SendTest()
-    {
-        Console.WriteLine("Sending Test packet!");
-        //await prime.SendChatMessage("Duis malesuada pulvinar nisl hendrerit vulputate. Ut suscipit diam enim, sed vehicula quam ultricies eget. Donec tempus lectus scelerisque ante sodales, finibus tincidunt metus tincidunt. Proin eu placerat purus. Sed dapibus nisi faucibus, gravida justo ac, elementum odio. Cras eget ipsum turpis. Nulla eu turpis maximus, maximus quam nec, vulputate libero. Aliquam dolor dui, tempus laoreet dolor id, auctor posuere nunc. Fusce lectus nibh, egestas at porttitor sed, placerat vitae elit.Aenean sit amet accumsan nulla. Nullam lobortis enim non nunc dignissim facilisis. Ut nisi ex, imperdiet id accumsan sed, maximus nec arcu. Maecenas eu massa ante. Vivamus ut lectus nec felis feugiat placerat ut eget neque. Donec ut sem metus. Sed nec nibh feugiat, gravida mi eget, semper orci. Morbi semper tortor lectus, quis maximus dui malesuada et. Donec at hendrerit risus. Nulla facilisi. Vivamus tellus leo, rhoncus a consequat ut, iaculis et orci.Aliquam lobortis accumsan ligula. Suspendisse sollicitudin lacus id odio viverra lacinia. Curabitur dignissim feugiat urna, vestibulum lacinia ipsum aliquet sed. Ut eu sem ultrices, interdum nisl vehicula, mattis urna. Etiam eleifend et dui ut tristique. Vestibulum euismod augue condimentum efficitur dapibus. Pellentesque hendrerit dolor vitae justo sagittis interdum. Phasellus non cursus nunc, et tristique mi. Nunc eu ultrices mi, id ornare sem.Etiam ornare congue accumsan. Mauris aliquam pretium justo quis iaculis. Suspendisse potenti. Nullam sodales lacus orci, vel placerat lacus consequat quis. Maecenas a interdum sapien. Nam quis orci nulla. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam consectetur tellus a vulputate convallis. Vivamus placerat, tortor sed lobortis porta, urna tortor rhoncus ligula, quis efficitur risus nulla eu sapien. Vivamus posuere, justo et venenatis volutpat, lorem ex rhoncus augue, quis suscipit dui arcu in erat. Donec faucibus erat augue, vel mollis leo fermentum non. Nunc in nisl tellus.Pellentesque et dignissim mauris, quis ultrices urna. Integer cursus ante et erat venenatis laoreet. Duis id elit fermentum, dignissim odio eget, semper ipsum. Sed sit amet libero congue, placerat velit nec, sagittis magna. Aliquam imperdiet mollis ex non ultrices. Nulla placerat id arcu a eleifend. Mauris vitae faucibus magna, vel dapibus neque. Etiam odio nisi, porttitor eu velit at, feugiat venenatis purus. Nulla sagittis metus at magna metus.");
-        await prime.RequestBackup();
-        await prime.SendChatMessage("Testinggg!");
+	[Inject]
+	public IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 
-    }
+	private PrimeCalculator prime;
+	bool screenshotreceived = false;
+	string screenshot = "";
+	private List<string> messages = new List<string>();
 
-    public async Task GetScreenshot()
-    {
-        Console.WriteLine("[Index.rzr] - Getting screenshot");
-        if (prime == null)
-        {
-            Console.WriteLine("prime=null!");
-            return;   
-        }
+	int filecounter = 0;
 
 
-        await prime.GetScreenshot(ShowScreenshot);
+	public async Task SendTest()
+	{
+		Console.WriteLine("Sending Test packet!");
+		//await prime.SendChatMessage("Duis malesuada pulvinar nisl hendrerit vulputate. Ut suscipit diam enim, sed vehicula quam ultricies eget. Donec tempus lectus scelerisque ante sodales, finibus tincidunt metus tincidunt. Proin eu placerat purus. Sed dapibus nisi faucibus, gravida justo ac, elementum odio. Cras eget ipsum turpis. Nulla eu turpis maximus, maximus quam nec, vulputate libero. Aliquam dolor dui, tempus laoreet dolor id, auctor posuere nunc. Fusce lectus nibh, egestas at porttitor sed, placerat vitae elit.Aenean sit amet accumsan nulla. Nullam lobortis enim non nunc dignissim facilisis. Ut nisi ex, imperdiet id accumsan sed, maximus nec arcu. Maecenas eu massa ante. Vivamus ut lectus nec felis feugiat placerat ut eget neque. Donec ut sem metus. Sed nec nibh feugiat, gravida mi eget, semper orci. Morbi semper tortor lectus, quis maximus dui malesuada et. Donec at hendrerit risus. Nulla facilisi. Vivamus tellus leo, rhoncus a consequat ut, iaculis et orci.Aliquam lobortis accumsan ligula. Suspendisse sollicitudin lacus id odio viverra lacinia. Curabitur dignissim feugiat urna, vestibulum lacinia ipsum aliquet sed. Ut eu sem ultrices, interdum nisl vehicula, mattis urna. Etiam eleifend et dui ut tristique. Vestibulum euismod augue condimentum efficitur dapibus. Pellentesque hendrerit dolor vitae justo sagittis interdum. Phasellus non cursus nunc, et tristique mi. Nunc eu ultrices mi, id ornare sem.Etiam ornare congue accumsan. Mauris aliquam pretium justo quis iaculis. Suspendisse potenti. Nullam sodales lacus orci, vel placerat lacus consequat quis. Maecenas a interdum sapien. Nam quis orci nulla. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam consectetur tellus a vulputate convallis. Vivamus placerat, tortor sed lobortis porta, urna tortor rhoncus ligula, quis efficitur risus nulla eu sapien. Vivamus posuere, justo et venenatis volutpat, lorem ex rhoncus augue, quis suscipit dui arcu in erat. Donec faucibus erat augue, vel mollis leo fermentum non. Nunc in nisl tellus.Pellentesque et dignissim mauris, quis ultrices urna. Integer cursus ante et erat venenatis laoreet. Duis id elit fermentum, dignissim odio eget, semper ipsum. Sed sit amet libero congue, placerat velit nec, sagittis magna. Aliquam imperdiet mollis ex non ultrices. Nulla placerat id arcu a eleifend. Mauris vitae faucibus magna, vel dapibus neque. Etiam odio nisi, porttitor eu velit at, feugiat venenatis purus. Nulla sagittis metus at magna metus.");
+		await prime.RequestBackup();
+		//await prime.SendChatMessage("Testinggg!");
 
-        //prime.Connected += CurrentPrime_Connected;
-        //prime.DataReceived += CurrentPrime_Received;
-        //prime.ChatMessageReceived += CurrentPrime_Message;
-    }
+	}
+
+	public async Task GetScreenshot()
+	{
+		Console.WriteLine("[Index.rzr] - Getting screenshot");
+		if (prime == null)
+		{
+			Console.WriteLine("prime=null!");
+			return;
+		}
 
 
-    private void ShowScreenshot(string base64img){
-        screenshot = "data:image/png;base64," + base64img; // base64 string  
-        screenshotreceived = true;
-        StateHasChanged();
-    }
+		await prime.GetScreenshot(ShowScreenshot);
 
-    async void CurrentPrime_Connected(object? sender, EventArgs e)
-    {
-        Console.WriteLine("[Index.rzr] - Prime is connected!");
-        
-        //await prime.RequestBackup();
-        //Console.WriteLine("Sent message!");
-    }
+		//prime.Connected += CurrentPrime_Connected;
+		//prime.DataReceived += CurrentPrime_Received;
+		//prime.ChatMessageReceived += CurrentPrime_Message;
+	}
 
-    void CurrentPrime_Received(object? sender, PrimeWeb.DataReceivedEventArgs e)
-    {
-        Console.WriteLine("Prime is received data!");
-        var tet = new PrimeUsbData(e.Data);
 
-        Console.WriteLine(tet);
-    }
+	private void ShowScreenshot(string base64img)
+	{
+		screenshot = "data:image/png;base64," + base64img; // base64 string
+		screenshotreceived = true;
+		StateHasChanged();
+	}
 
-    
+	async void CurrentPrime_Connected(object? sender, EventArgs e)
+	{
+		Console.WriteLine("[Index.rzr] - Prime is connected!");
 
-    private void ManagerChanged()
-    {
-        this.prime = manager.GetCalculator();
-        this.prime.Connected += CurrentPrime_Connected;
-        StateHasChanged();
-    }
+		//await prime.RequestBackup();
+		//Console.WriteLine("Sent message!");
+	}
 
-    
-    protected override void OnInitialized()
-    {
-         manager.OnChange += ManagerChanged;
-    }
+	void CurrentPrime_Received(object? sender, PrimeWeb.DataReceivedEventArgs e)
+	{
+		Console.WriteLine("Prime is received data!");
+		var tet = new PrimeUsbData(e.Data);
 
-    public void Dispose()
-    {
-        manager.OnChange -= ManagerChanged;
-    }
+		Console.WriteLine(tet);
+	}
+
+	void CalcFilesChanged(object? sender, EventArgs e)
+	{
+		StateHasChanged();
+	}
+
+	private void ManagerChanged()
+	{
+		this.prime = manager.GetCalculator();
+		this.prime.Connected += CurrentPrime_Connected;
+		
+		StateHasChanged();
+	}
+
+	private async void PacketWorker_RawContentReceived(object? sender, RawContentEventArgs e)
+	{
+		string filename = $"BackupContent_File_{(filecounter < 100 ? "0" : "")}{(filecounter < 10 ? "0" : "")}{filecounter}.bin";
+		Console.WriteLine("Raw content received into blazor! file: " + filename);
+		await BlazorDownloadFileService.DownloadFileAsync(filename, e.RawData);
+	}
+
+	protected override void OnInitialized()
+	{
+		manager.OnChange += ManagerChanged;
+		primefiles.AppsChanged += CalcFilesChanged;
+	}
+
+	public void Dispose()
+	{
+		manager.OnChange -= ManagerChanged;
+		primefiles.AppsChanged -= CalcFilesChanged;
+	}
 
 }

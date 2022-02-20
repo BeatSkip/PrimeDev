@@ -49,6 +49,8 @@ namespace PrimeWeb.Packets
 
 		protected int bytestogo = 0;
 
+		private bool isreversed = false;
+
 		public Dictionary<uint, ContentFrame> Frames { get; protected set; } = new Dictionary<uint, ContentFrame>();
 
 		public void Initialize(uint Messagenumber)
@@ -89,7 +91,7 @@ namespace PrimeWeb.Packets
 			}
 
 			var bytesfirst = Frames[1].GetFrameBytes();
-			DbgTools.PrintPacket(bytesfirst);
+			//DbgTools.PrintPacket(bytesfirst);
 		}
 
 		protected List<(int sequence, int blockposition, byte[] block)> SplitDataBlocks(byte[] data)
@@ -146,6 +148,9 @@ namespace PrimeWeb.Packets
 
 		protected void ReverseFrames()
 		{
+			if (isreversed)
+				return;
+
 			var firstframe = Frames[1] as ContentFrame;
 
 			if (firstframe == null)
@@ -171,11 +176,12 @@ namespace PrimeWeb.Packets
 				first = false;
 			}
 
-			DbgTools.PrintPacket(completebuffer);
+			DbgTools.PrintPacket(completebuffer, msg: (int)this.MessageNumber);
 
 			payload.ReversePayload(completebuffer);
 
 			PayloadCompleted(this.payload, ConversionStatus.Success);
+			this.isreversed = true;
 		}
 
 		protected AckFrame ReceiveContentFrame(ContentFrame frame)

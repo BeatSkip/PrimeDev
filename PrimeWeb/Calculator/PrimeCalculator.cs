@@ -27,7 +27,19 @@ namespace PrimeWeb
             prime = device;
             packetWorker = new FrameWorker(device);
 			packetWorker.CalcInitialized += PacketWorker_CalcInitialized;
+			packetWorker.ContentReceived += PacketWorker_ContentReceived;
         }
+
+		private void PacketWorker_ContentReceived(object? sender, FilePacketEventArgs e)
+		{
+			Console.WriteLine("received app in calc!");
+            this.OnAppReceived(e);
+		}
+
+		private void PacketWorker_RawContentReceived(object? sender, RawContentEventArgs e)
+		{
+			this.OnRawContentReceived(e);
+		}
 
 		private void PacketWorker_CalcInitialized(object? sender, CommsInitEventArgs e)
 		{
@@ -167,7 +179,58 @@ namespace PrimeWeb
         /// <summary>
         /// Reports message from the USB
         /// </summary>
-        
+
+
+        #endregion
+
+        #region reception events
+
+        /// <summary>
+        /// Chat message received event
+        /// </summary>
+        public event EventHandler<ChatEventArgs> ChatReceived;
+
+        /// <summary>
+        /// Called to indicate the reception of a new message
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void OnChatReceived(ChatEventArgs e)
+        {
+            EventHandler<ChatEventArgs> eh = ChatReceived;
+            if (eh != null)
+            {
+                eh(this, e);
+            }
+        }
+
+        /// <summary>
+        /// Is called after the Backup Summary is received
+        /// </summary>
+        public event EventHandler<BackupEventArgs> BackupReceived;
+
+        /// <summary>
+        /// Triggers 'BackupReceived' event
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void OnBackupReceived(BackupEventArgs e)
+        {
+            EventHandler<BackupEventArgs> eh = BackupReceived;
+            if (eh != null)
+            {
+                eh(this, e);
+            }
+        }
+
+        /// <summary>
+        /// Event indicating a file has been received
+        /// </summary>
+        public event EventHandler<AppReceivedEventArgs> AppReceived;
+
+        protected virtual void OnAppReceived(FilePacketEventArgs e)
+        {
+            var handler = AppReceived;
+            if (handler != null) handler(this, new AppReceivedEventArgs() { App = PayloadFactory.GenerateHpApp(e)});
+        }
 
         #endregion
 
@@ -230,6 +293,23 @@ namespace PrimeWeb
             if (handler != null) handler(this, EventArgs.Empty);
         }
 
+
+        /// <summary>
+        /// Event to indicate Description
+        /// </summary>
+        public event EventHandler<RawContentEventArgs> RawContentReceived;
+
+
+        /// <summary>
+        /// Called to signal to subscribers that Description
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void OnRawContentReceived(RawContentEventArgs e)
+        {
+            var handler = RawContentReceived;
+            if (handler != null) handler(this, e);
+        }
+
         #endregion
 
         #region LegacyCode
@@ -247,5 +327,10 @@ namespace PrimeWeb
 
         #endregion
     }
+
+    public class AppReceivedEventArgs : EventArgs
+	{
+        public HpApp App { get; set; }
+	}
 
 }
