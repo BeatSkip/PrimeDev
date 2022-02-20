@@ -14,22 +14,23 @@ python and PPL programs.
 
 Very very alpha, and currently working on the initial communication between the SPA and the prime itself..
 
--  [x] Initial bring-up
--  [x] Scan and discover USB HID devices
--  [x] Connect to single HP Prime via HID
--  [x] Send initial test message to actual hardware
--  [x] Receive data back from actual hardware
--  [x] Receive message, parse content and fire message received event
--  [x] Initial work done to reverse engineer V2 protocol
--  [x] Multipart compressed message transfer via V2 protocol!!
--  [ ] Discover files on Prime
-
 **Latest achievements**
+- Initial bring-up
+- Scan and discover USB HID devices
+- Connect to single HP Prime via HID
+- Send initial test message to actual hardware
+- Receive data back from actual hardware
+- Receive message, parse content and fire message received event
+- Initial work done to reverse engineer V2 protocol
+- Multipart compressed message transfer via V2 protocol!!
+- Discover files on Prime
 - Request calculator information and display on top bar
 - Change protocol to undocumented V2 protocol
 - Set up basics for completely reworked comms library
 - receiving Screenshot from calculator with V2 Protocol working!
-- Sending multipart compressed messages!!!
+- ~~Sending multipart compressed messages!!!~~ (need to check back, compression seems to be broken again)
+- 20/02/2022 - Started protocol Documentation [Prime protocol docs](https://github.com/BeatSkip/PrimeDev/wiki/HP-Prime---USB-HID-Packetizing-protocol)
+
 
 
 ![screenshot](https://github.com/BeatSkip/PrimeDev/blob/master/img/img_multipartcompressedtransfer.png?raw=true)
