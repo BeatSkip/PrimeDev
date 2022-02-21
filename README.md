@@ -1,17 +1,12 @@
 
 # PrimeDev
 
-  
-
 **Description**: 
 This is my attempt at re-imagining the development process for the HP Prime
 the goal is to make an easy web-based Connectivity kit and development IDE for both
 python and PPL programs. 
 
- 
-
 ## Status
-
 Very very alpha, and currently working on the initial communication between the SPA and the prime itself..
 
 **Latest changes**
@@ -39,18 +34,11 @@ Very very alpha, and currently working on the initial communication between the 
 
 ![intro](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_intro.png?raw=true)
 
-![discovery](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_discovery.png?raw=true)
 
 ![return data](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_received.png?raw=true)
 
 
 ![screenshot](https://github.com/BeatSkip/PrimeDev/blob/master/img/img_multipartcompressedtransfer.png?raw=true)
-
-![screenshot](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_screenshot_received.png?raw=true)
-
-![initial proof](https://github.com/BeatSkip/PrimeDev/blob/master/img/photo_poc.jpg?raw=true)
-
-![msg received](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_msgevent.png?raw=true)
 
 
 ## Dependencies
@@ -70,22 +58,12 @@ for now just open and run, nothing too much interesting until i get the protocol
 ## Getting help
 
 Feel free to post issues or to directly contact me, altough for the time being, everything is development in progress and is provided 'As-is'
-
-
 If you have questions, concerns, bug reports, etc, please file an issue in this repository's Issue Tracker. or pitch it into the discussions
 
   
 
 ## Getting involved
-
-
 If you want to get involved, great! please contact me and we'll think of something as there's still tonnes to be done
-
-
-  
-  
-
-----
 
   
 
