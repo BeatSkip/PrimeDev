@@ -14,7 +14,7 @@ python and PPL programs.
 
 Very very alpha, and currently working on the initial communication between the SPA and the prime itself..
 
-**Latest achievements**
+**Latest changes**
 - Initial bring-up
 - Scan and discover USB HID devices
 - Connect to single HP Prime via HID
@@ -30,7 +30,7 @@ Very very alpha, and currently working on the initial communication between the 
 - receiving Screenshot from calculator with V2 Protocol working!
 - ~~Sending multipart compressed messages!!!~~ (need to check back, compression seems to be broken again)
 - 20/02/2022 - Started protocol Documentation [Prime protocol docs](https://github.com/BeatSkip/PrimeDev/wiki/HP-Prime---USB-HID-Packetizing-protocol)
-
+- 20/2/2022 - Protocol handling refinements, intial design of SVG Icons, App discovery and enumeration
 
 
 

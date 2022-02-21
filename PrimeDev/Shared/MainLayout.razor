@@ -23,7 +23,7 @@
         @if (!manager.IsInitialized)
         {
             <MudSpacer />
-            <MudChip Icon="@Icons.Material.Filled.PrivateConnectivity" Color="Color.Secondary" @onclick="Initialize">Connect to Prime!</MudChip>
+            <MudChip Icon="@Icons.Material.Filled.PrivateConnectivity" Color="Color.Secondary" OnClick="Initialize">Connect to Prime!</MudChip>
             <MudSpacer />
         }
     </MudAppBar>
@@ -39,6 +39,7 @@
         </MudContainer>
     </MudMainContent>
 </MudLayout>
+
 
 @code {
 

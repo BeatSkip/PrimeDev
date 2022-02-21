@@ -1,29 +1,38 @@
-﻿<MudTreeView Color="Color" T="string" Hover="true" @bind-SelectedValue="SelectedValue">
-        
-        <MudTreeViewItem Value='"HP Prime"' Icon="@Icons.Filled.Calculate">
-            <MudTreeViewItem Value='"Applications"' Icon="@Icons.Filled.Apps">
+﻿
 
-            </MudTreeViewItem>
-            <MudTreeViewItem Value='"Settings"' Icon="@Icons.Filled.Settings" />
-            <MudTreeViewItem Value='"Info"' Icon="@Icons.Filled.Info" />
-            <MudTreeViewItem Value='"Programs"' Icon="@Icons.Filled.Pages" />
-        </MudTreeViewItem>
-
-        <MudTreeViewItem Value='"HP Prime [Virtual]"' Icon="@Icons.Filled.Calculate">
-            <MudTreeViewItem Value='"Applications"' Icon="@Icons.Filled.Apps">
-
-            </MudTreeViewItem>
-            <MudTreeViewItem Value='"Settings"' Icon="@Icons.Filled.Settings" />
-            <MudTreeViewItem Value='"Info"' Icon="@Icons.Filled.Info" />
-            <MudTreeViewItem Value='"Programs"' Icon="@Icons.Filled.Pages" />
-        </MudTreeViewItem>
-        
- </MudTreeView>
+<MudNavMenu Margin="Margin.Dense" Color="Color.Warning">
+        <MudNavLink Href="/" Icon="@Icons.Filled.Dashboard">Dashboard</MudNavLink>
+        <MudNavLink Href="/codeeditor" Icon="@Icons.Filled.Code">Programming IDE</MudNavLink>
+        <MudNavLink Href="/debug" Icon="@Icons.Filled.DeveloperBoard">Debugging</MudNavLink>
+</MudNavMenu>
 
 
+<MudNavMenu Class="mudblazor-navmenu">
+    <div class="docs-nav-fader"></div>
 
- @code{
-    public string SelectedValue { get; set; }
+    <MudNavGroup Title="Getting Started"
+                 Icon="@Icons.Material.Filled.School"
+                 ExpandIcon="@Icons.Material.Filled.ExpandMore" Style="margin-top: 40px;">
+        <MudNavLink Href="/">Home</MudNavLink>
+        <MudNavLink Href="/Counter">Counter</MudNavLink>
+        <MudNavLink Href="/FetchData">Fetch Data</MudNavLink>
+    </MudNavGroup>
+    <MudNavGroup Title="Demo Pages"
+                 Icon="@Icons.Material.Filled.Pages"
+                 ExpandIcon="@Icons.Material.Filled.ExpandMore">
+        <MudNavLink Href="/Login">Login</MudNavLink>
+    </MudNavGroup>
+</MudNavMenu>
 
-    public Color Color { get; set; }
- }
+
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

@@ -1,6 +1,5 @@
 ﻿@page "/"
 
-@using PrimeWeb.Types
 @inject PrimeManager manager
 @inject PrimeFileService primefiles
 
@@ -21,7 +20,7 @@
 			<MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
 				<MudText Typo="Typo.h6" Align="Align.Center">Initialized!</MudText>
 				<MudText Typo="Typo.subtitle1" Align="Align.Center">Press the following button to initialize a connection test</MudText>
-				<MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="SendTest" Style="margin-top: 15pt;">Send Test!</MudButton>
+				<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SendTest" Style="margin-top: 15pt;">Send Test!</MudButton>
 			</MudPaper>
 		</MudItem>
 
@@ -29,7 +28,7 @@
 			<MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
 				<MudText Typo="Typo.h6" Align="Align.Center">Request Screenshot</MudText>
 				<MudText Typo="Typo.subtitle1" Align="Align.Center">Press the following button to request a screenshot</MudText>
-				<MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="GetScreenshot" Style="margin-top: 15pt;">Capture Screen</MudButton>
+				<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="GetScreenshot" Style="margin-top: 15pt;">Capture Screen</MudButton>
 			</MudPaper>
 		</MudItem>
 
@@ -48,8 +47,9 @@
 			    {
 			        <MudItem xs="2">
 			            <MudPaper Class="d-flex flex-column align-center justify-center mud-width-full py-8">
-			                <MudText Typo="Typo.h6" Align="Align.Center">@app.Value.Name</MudText>
-			                <MudText Typo="Typo.h6" Align="Align.Center">@app.Value.Appsize Bytes</MudText>
+							<MudIcon Icon="@app.Value.SvgIcon" ViewBox="0 0 80 80" Style="font-size: 7rem;margin:4px;" />
+			                <MudText Typo="Typo.body2" Align="Align.Center">@app.Value.Name</MudText>
+			                <MudText Typo="Typo.caption" Align="Align.Center">@app.Value.Appsize Bytes</MudText>
 			            </MudPaper>
 			        </MudItem>
 			     }

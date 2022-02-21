@@ -1,0 +1,21 @@
+<svg width="800" height="800" xmlns="http://www.w3.org/2000/svg">
+
+ <g>
+  <title>Layer 1</title>
+  <rect stroke-width="0" rx="100" id="svg_2" height="750" width="750" y="25" x="24" stroke="#000" fill="#3d85e7"/>
+  <line stroke-width="10" id="svg_13" y2="440" x2="190" y1="440" x1="130" stroke="#000000" fill="none"/>
+  <line stroke-width="10" id="svg_14" y2="140" x2="193" y1="140" x1="133" stroke="#000" fill="none"/>
+  <line stroke-width="11" id="svg_15" y2="240" x2="190" y1="240" x1="130" stroke="#000" fill="none"/>
+  <line stroke-width="11" id="svg_16" y2="340" x2="190" y1="340" x1="130" stroke="#000" fill="none"/>
+  <line id="svg_18" y2="610" x2="360" y1="670" x1="360" stroke-width="10" stroke="#000" fill="none"/>
+  <line id="svg_19" y2="610" x2="460" y1="670" x1="460" stroke-width="10" stroke="#000" fill="none"/>
+  <line id="svg_20" y2="610" x2="660" y1="670" x1="660" stroke-width="10" stroke="#000" fill="none"/>
+  <path id="svg_23" d="m158,180c100.07997,0 439,49.984 439,175c0,125.016 -323.12839,183 -436,183" opacity="NaN" stroke-width="20" stroke="#ffffff" fill="none"/>
+  <line id="svg_21" y2="610" x2="560" y1="670" x1="560" stroke-width="10" stroke="#000" fill="none"/>
+  <line id="svg_24" y2="116" x2="585" y1="640" x1="238" stroke-width="20" stroke="#baecf3" fill="none"/>
+  <line stroke-width="20" id="svg_3" y2="680" x2="160" y1="120" x1="160" stroke="#000" fill="none"/>
+  <line stroke-width="10" id="svg_12" y2="540" x2="190" y1="540" x1="130" stroke="#000000" fill="none"/>
+  <line id="svg_17" y2="610" x2="260" y1="670" x1="260" stroke-width="10" stroke="#000" fill="none"/>
+  <line stroke-width="20" id="svg_4" y2="640" x2="680" y1="640" x1="105" stroke="#000" fill="none"/>
+ </g>
+</svg>
