@@ -1,10 +1,10 @@
 
 # PrimeDev
 
-**Description**: 
-This is my attempt at re-imagining the development process for the HP Prime
-the goal is to make an easy web-based Connectivity kit and development IDE for both
-python and PPL programs. 
+This is my attempt at re-imagining the development process for the HP Prime.
+the goal is an easy web-based Connectivity kit and development IDE for both
+python and PPL programs. Later on optimization for mobile and a program sharing 
+feature would be nice.
 
 ## Status
 Very very alpha, and currently working on the initial communication between the SPA and the prime itself..
@@ -53,25 +53,16 @@ for now just open and run, nothing too much interesting until i get the protocol
 
 ## Known issues
 
--
-
 ## Getting help
-
 Feel free to post issues or to directly contact me, altough for the time being, everything is development in progress and is provided 'As-is'
 If you have questions, concerns, bug reports, etc, please file an issue in this repository's Issue Tracker. or pitch it into the discussions
-
-  
 
 ## Getting involved
 If you want to get involved, great! please contact me and we'll think of something as there's still tonnes to be done
 
-  
+## Credits and references 
 
-## Credits and references
-
-  
-
-1. Thanks to the dev's whose libraries i generously based this off of.
+1. Thanks to the dev's whose libraries I generously based this code off of.
 
 https://github.com/EngstromJimmy/Blazm.HID
 
