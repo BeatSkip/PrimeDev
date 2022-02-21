@@ -1,0 +1,23 @@
+<svg width="800" height="800" xmlns="http://www.w3.org/2000/svg">
+ <g>
+  <title>Layer 1</title>
+  <rect fill="#ae3314" stroke="#000" x="24" y="25" width="750" height="750" id="svg_2" rx="100" stroke-width="0"/>
+  <rect stroke="#ffffff" id="svg_47" height="115" width="200" y="101.5" x="300" stroke-width="16" fill="#590b01"/>
+  <rect stroke="#ffffff" id="svg_49" height="115" width="200" y="222.5" x="300" stroke-width="16" fill="#ae3314"/>
+  <rect stroke="#ffffff" id="svg_50" height="115" width="200" y="342" x="300" stroke-width="16" fill="#ae3314"/>
+  <rect stroke="#ffffff" id="svg_51" height="115" width="200" y="462.5" x="300" stroke-width="16" fill="#ae3314"/>
+  <rect stroke="#ffffff" id="svg_52" height="115" width="200" y="583.5" x="300" stroke-width="16" fill="#ae3314"/>
+  <g id="svg_53"/>
+  <rect stroke="#ffffff" id="svg_62" height="115" width="200" y="101.5" x="500" stroke-width="16" fill="#590b01"/>
+  <rect stroke="#ffffff" id="svg_63" height="115" width="200" y="222.5" x="500" stroke-width="16" fill="#ae3314"/>
+  <rect stroke="#ffffff" id="svg_64" height="115" width="200" y="342" x="500" stroke-width="16" fill="#ae3314"/>
+  <rect stroke="#ffffff" id="svg_65" height="115" width="200" y="462.5" x="500" stroke-width="16" fill="#ae3314"/>
+  <rect stroke="#ffffff" id="svg_66" height="115" width="200" y="582.5" x="500" stroke-width="16" fill="#ae3314"/>
+  <rect stroke="#ffffff" id="svg_68" height="115" width="200" y="101.5" x="101" stroke-width="16" fill="#f1998f"/>
+  <rect stroke="#ffffff" id="svg_69" height="115" width="200" y="223.5" x="101" stroke-width="16" fill="#590b01"/>
+  <rect stroke="#ffffff" id="svg_70" height="115" width="200" y="343" x="101" stroke-width="16" fill="#590b01"/>
+  <rect stroke="#ffffff" id="svg_71" height="115" width="200" y="463.5" x="101" stroke-width="16" fill="#590b01"/>
+  <rect stroke="#ffffff" id="svg_72" height="115" width="200" y="583.5" x="101" stroke-width="16" fill="#590b01"/>
+ </g>
+
+</svg>

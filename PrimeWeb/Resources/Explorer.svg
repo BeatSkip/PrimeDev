@@ -4,32 +4,10 @@
    height="800"
    version="1.0"
    id="svg141"
-   sodipodi:docname="Explorer.svg"
-   inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <defs
      id="defs145" />
-  <sodipodi:namedview
-     id="namedview143"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     showgrid="false"
-     inkscape:zoom="0.5"
-     inkscape:cx="694"
-     inkscape:cy="829"
-     inkscape:window-width="1927"
-     inkscape:window-height="1124"
-     inkscape:window-x="104"
-     inkscape:window-y="104"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="g139" />
   <rect
      fill="#5aa620"
      stroke="#000000"
@@ -39,11 +17,9 @@
      height="750"
      id="svg_15"
      rx="100"
-     stroke-width="0"
-     inkscape:label="Achtergrond" />
+     stroke-width="0" />
   <g
-     id="g139"
-     inkscape:label="g139">
+     id="g139">
     <title
        id="title78">Layer 1</title>
     <g
@@ -189,8 +165,7 @@
        fill="#5aa620" />
     <g
        id="g1927"
-       style="display:none"
-       inkscape:label="parabool">
+       style="display:none">
       <path
          style="fill:none;stroke:#ffffff;stroke-width:21.3333;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          d="M 401,119 C 195.06394,118.989 97.53197,694.42762 97.53197,694.42762"
@@ -198,14 +173,12 @@
       <path
          style="display:inline;fill:none;stroke:#ffffff;stroke-width:21.3333;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          d="m 401,119 c 205.93606,-0.011 303.46803,575.42762 303.46803,575.42762"
-         id="path1923"
-         inkscape:label="curve1" />
+         id="path1923" />
     </g>
     <path
        d="M 97.452726,694.31136 Q 246.21098,122.24765 401.10366,122.24765 q 154.89261,0 303.65087,572.06371"
        style="display:inline;fill:none;stroke:#ffffff;stroke-width:21.3333;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="path1932"
-       inkscape:label="Parabool NIEUW" />
+       id="path1932" />
     <ellipse
        ry="87.5"
        rx="81"
@@ -216,9 +189,7 @@
        fill="#5aa620" />
     <g
        stroke="null"
-       id="g137"
-       inkscape:label="verrekijker"
-       sodipodi:insensitive="true">
+       id="g137">
       <g
          stroke="null"
          id="g105">

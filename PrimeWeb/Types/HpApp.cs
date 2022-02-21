@@ -39,6 +39,17 @@ namespace PrimeWeb.Types
 				this.SvgIcon = HpIcons.Parametric;
 			else if (this.Name.Contains("&Advanced"))
 				this.SvgIcon = HpIcons.AdvancedGraphing;
+			else if (this.Name.Contains("Python"))
+				this.SvgIcon = HpIcons.Python;
+			else if (this.Name.Contains("Statistics 2Var"))
+				this.SvgIcon = HpIcons.Statistics2Var;
+			else if (this.Name.Contains("Statistics 1Var"))
+				this.SvgIcon = HpIcons.Statistics1Var;
+			else if (this.Name.Contains("Spreadsheet"))
+				this.SvgIcon = HpIcons.Spreadsheets;
+			else if (this.Name.Contains("Geometry"))
+				this.SvgIcon = HpIcons.Geometry;
+
 		}
 	}
 }

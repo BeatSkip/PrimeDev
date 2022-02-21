@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="400" height="242" id="parabola">
-<desc>Parabola</desc>
-<path d="M 2,0 Q 99,482 200,482 T 398,0" style="stroke:#000000; stroke-width:4px; fill:none" transform="scale(0.9,-0.45) translate(20,-504)" />
-</svg>
