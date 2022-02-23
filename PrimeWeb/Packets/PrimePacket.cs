@@ -9,29 +9,35 @@ using PrimeWeb.Utility;
 
 namespace PrimeWeb.Packets
 {
-	public interface IPacketPayload
-	{
-		public void ReversePayload(byte[] payload);
-		public byte[] GeneratePayload();
-		public Type Type { get; }
-
-	}
+	
 
 	public class PrimePacket : IDisposable
 	{
-		public PrimePacket(IPacketPayload parent, TransferType dir = TransferType.Tx) {
+		public PrimePacket(IPayloadGenerator src, TransferType dir = TransferType.Tx) {
 
-			payload = parent;
+			data_input = src;
 			this.Direction = dir;
-
 		}
 
-		public IPacketPayload GetPayload()
+		public PrimePacket(IPayloadParser parser, TransferType dir = TransferType.Rx)
 		{
-			return this.payload;
+			this.data_output = parser;
+			this.Direction = dir;
 		}
 
-		private IPacketPayload payload;
+		public IPayloadGenerator GetSource()
+		{
+			return this.data_input;
+		}
+
+		public IPayloadParser GetParser()
+		{
+			return this.data_output;
+		}
+
+		private IPayloadGenerator data_input;
+
+		private IPayloadParser data_output;
 
 		public TransferType Direction { get; set; }
 
@@ -73,7 +79,10 @@ namespace PrimeWeb.Packets
 		{
 			Frames = new Dictionary<uint, ContentFrame>();
 
-			var datad = payload.GeneratePayload();
+			if (Direction == TransferType.Rx)
+				throw new Exception("This packet is receiving, generating frames should not be done!");
+
+			var datad = data_input.Generate();
 
 			var blocks = SplitDataBlocks(datad);
 
@@ -131,7 +140,7 @@ namespace PrimeWeb.Packets
 
 			if(Frames.Count < sequencecounter)
 			{
-				Console.WriteLine("Last Frame is transmitted!");
+				//Console.WriteLine("Last Frame is transmitted!");
 				//TODO: handle transmission done event handling
 				//TransmissionComplete = true;
 				return true;
@@ -157,7 +166,7 @@ namespace PrimeWeb.Packets
 				Console.WriteLine("ERROR while reversing Frames!");
 			
 			var buffersize = firstframe.IOMessageSize;
-			Console.WriteLine($"Reversing frames from: {firstframe.IOMessageSize} bytes");
+			//Console.WriteLine($"Reversing frames from: {firstframe.IOMessageSize} bytes");
 			uint bufferpos = 0;
 
 			var completebuffer = new byte[buffersize];
@@ -172,15 +181,15 @@ namespace PrimeWeb.Packets
 				Array.Copy(slice, 0, completebuffer, bufferpos, slicelen);
 				bufferpos += slicelen;
 				buffersize -= slicelen;
-				Console.WriteLine($"reversed slice {index++}; bufferpos: {bufferpos} ; bytestogo: {buffersize}");
+				//Console.WriteLine($"reversed slice {index++}; bufferpos: {bufferpos} ; bytestogo: {buffersize}");
 				first = false;
 			}
 
-			DbgTools.PrintPacket(completebuffer, msg: (int)this.MessageNumber);
+			//DbgTools.PrintPacket(completebuffer, msg: (int)this.MessageNumber);
 
-			payload.ReversePayload(completebuffer);
+			data_output.ParsePayload(completebuffer);
 
-			PayloadCompleted(this.payload, ConversionStatus.Success);
+			//PayloadCompleted(this.payload, ConversionStatus.Success);
 			this.isreversed = true;
 		}
 
@@ -213,11 +222,11 @@ namespace PrimeWeb.Packets
 
 				sequencecounter++;
 
-				Console.WriteLine($"added content to packet! bytestogo: {bytestogo}");
+				//Console.WriteLine($"added content to packet! bytestogo: {bytestogo}");
 
 				if (bytestogo == 0)
 				{
-					Console.WriteLine("Message Transfer done!");
+					//Console.WriteLine("Message Transfer done!");
 					//TODO: message transfer done event handling!
 					TransmissionComplete = true;
 				}
@@ -232,7 +241,7 @@ namespace PrimeWeb.Packets
 			if (packet.Type == FrameType.Content)
 			{
 				var ack = ReceiveContentFrame(packet as ContentFrame);
-				Console.WriteLine($"Acking frame: {ack.SequenceToResend} as { (ack.NewProtocolCommand == 0x01 ? ("ACK") : ("NACK"))} from message: {ack.IOMessageID}");
+				//Console.WriteLine($"Acking frame: {ack.SequenceToResend} as { (ack.NewProtocolCommand == 0x01 ? ("ACK") : ("NACK"))} from message: {ack.IOMessageID}");
 				await worker.SendFrame(ack);
 
 				
@@ -265,13 +274,12 @@ namespace PrimeWeb.Packets
 		#region Events
 
 
-		public event EventHandler<TransmissionEventArgs> OnPayloadCompleted;
+		public event EventHandler OnPayloadCompleted;
 
-		protected virtual void PayloadCompleted(IPacketPayload data, ConversionStatus stat )
+		protected virtual void PayloadCompleted()
 		{
-
 			var handler = OnPayloadCompleted;
-			if (handler != null) handler(this, new TransmissionEventArgs() { result = data, status = stat });
+			if (handler != null) handler(this, EventArgs.Empty);
 		}
 
 

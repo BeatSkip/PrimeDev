@@ -9,7 +9,7 @@ using PrimeWeb.Types;
 
 namespace PrimeWeb.Packets
 {
-	public class PrimeChatPayload : IPacketPayload
+	public class PrimeChatPayload : IPayloadGenerator,IPayloadParser
 	{
 		public Type Type { get { return typeof(PrimeChatPayload);} }
 		public string Message { get; set; }
@@ -30,7 +30,7 @@ namespace PrimeWeb.Packets
 
 		#region Packet Conversion
 
-		public void ReversePayload(byte[] content)
+		public void ParsePayload(byte[] content)
 		{
 			Console.WriteLine("PrimeChatPacket - Reversing content!");
 
@@ -44,7 +44,7 @@ namespace PrimeWeb.Packets
 			OnTransferFinalized();
 		}
 
-		public byte[] GeneratePayload()
+		public byte[] Generate()
 		{
 			if (Message.Length > 100 && _autocompress)
 			{

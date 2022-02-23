@@ -14,13 +14,6 @@ namespace PrimeWeb.Types
 		V3 = 2,
 	}
 
-	public enum NewPacketType : byte
-	{
-		MessageStart,
-		Message,
-		OutOfBounds
-	}
-
 	public enum PrimeCMD : byte
 	{
 		//CMD_PRIME_CHECK_READY (0xFF)
@@ -41,7 +34,8 @@ namespace PrimeWeb.Types
 		SEND_KEY = 0xEC,
 		//CMD_PRIME_SET_DATE_TIME (0xE7)
 		SET_DATETIME = 0xE7,
-
+		//Request max protocol version
+		REQ_MAX_PROT_REV = 0xFD,
 		UNKNOWN = 0x00
 	}
 
@@ -49,27 +43,39 @@ namespace PrimeWeb.Types
 	{
 		//#define PRIME_TYPE_SETTINGS (0x00)
 		SETTINGS = 0x00,
+
 		// 0x01 ?
+
 		//#define PRIME_TYPE_APP (0x02)
 		APP = 0x02,
+
 		//#define PRIME_TYPE_LIST (0x03) // variables L0-L9, for instance
 		LIST = 0x03,
+
 		//#define PRIME_TYPE_MATRIX (0x04) // variables M0-M9, for instance
 		MATRIX = 0x04,
+
 		//#define PRIME_TYPE_NOTE (0x05)
 		NOTE = 0x05,
+
 		//#define PRIME_TYPE_PRGM (0x06) // programs with identical data are sent twice during backup ??
 		PRGM = 0x06,
+
 		//#define PRIME_TYPE_APPNOTE (0x07) // XXX Tentative
 		APPNOTE = 0x07,
+
 		//#define PRIME_TYPE_APPPRGM (0x08) // XXX Tentative
 		APPPRGM = 0x08,
+
 		//#define PRIME_TYPE_COMPLEX (0x09) // variables Z0-Z9, for instance
 		COMPLEX = 0x09,
+
 		//#define PRIME_TYPE_REAL (0x0A) // variables A-Z, 0x3B8 (theta), for instance
 		REAL = 0x0A,
+
 		//#define PRIME_TYPE_TESTMODECONFIG (0x0B)
 		TESTMODECONFIG = 0x0B,
+
 		//#define PRIME_TYPE_UNKNOWN (0xFF)
 		UNKNOWN = 0xFF,
 	}
@@ -113,5 +119,12 @@ namespace PrimeWeb.Types
 	{
 		Tx,
 		Rx,
+	}
+
+	public enum CmdType: byte
+	{
+		Zero = 0x00,
+		One = 0x01,
+		Three = 0x03
 	}
 }

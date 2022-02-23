@@ -4,9 +4,8 @@ using PrimeWeb.Utility;
 namespace PrimeWeb.Packets
 {
 
-	public class PrimeFilePayload : IPacketPayload
+	public class PrimeFilePayload : IPayloadParser, IPayloadGenerator
 	{
-		public Type Type { get { return typeof(PrimeFilePayload); } }
 
 		public uint FileSize { get; private set; }
 
@@ -22,7 +21,7 @@ namespace PrimeWeb.Packets
 
 		#region Packet Conversion
 
-		public void ReversePayload(byte[] content)
+		public void ParsePayload(byte[] content)
 		{
 			Console.WriteLine("File Received!");
 			FileSize = ((uint)content[2]) << 24 | ((uint)content[3]) << 16 | ((uint)content[4]) << 8 | (uint)content[5];
@@ -36,7 +35,7 @@ namespace PrimeWeb.Packets
 			OnTransferFinalized();
 		}
 
-		public byte[] GeneratePayload()
+		public byte[] Generate()
 		{
 			//var content = Conversion.EncodeTextData("calc.hpsettings");
 			//var size = BitConverter.GetBytes((uint)(10 - 6 + content.Length));

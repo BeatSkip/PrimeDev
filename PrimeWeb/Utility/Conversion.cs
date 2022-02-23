@@ -91,5 +91,28 @@ namespace PrimeWeb.Utility
 				return ms.ToArray();
 			}
 		}
+		
+
+		public static byte[] GetLittleEndianBytes(uint number)
+		{
+			byte[] data = new byte[4];
+			data[0] = (byte)(number & (uint)0x000000FF);
+			data[1] = (byte)((number & (uint)0x0000FF00) >> 8);
+			data[2] = (byte)((number & (uint)0x00FF0000) >> 16);
+			data[3] = (byte)((number & (uint)0xFF000000) >> 24);
+
+			return data;
+		}
+
+		public static byte[] GetBigEndianBytes(uint number)
+		{
+			byte[] data = new byte[4];
+			data[3] = (byte)(number & (uint)0x000000FF);
+			data[2] = (byte)((number & (uint)0x0000FF00) >> 8);
+			data[1] = (byte)((number & (uint)0x00FF0000) >> 16);
+			data[0] = (byte)((number & (uint)0xFF000000) >> 24);
+
+			return data;
+		}
 	}
 }

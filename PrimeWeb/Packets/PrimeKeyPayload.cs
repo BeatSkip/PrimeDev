@@ -11,6 +11,7 @@ using PrimeWeb.Utility;
 
 namespace PrimeWeb.Packets
 {
+	//TODO: Phasing out type - PrimeKeyPayload
 	public class PrimeKeyPayload : IPacketPayload
 	{
 		public uint Key { get; set; }

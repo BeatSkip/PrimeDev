@@ -89,7 +89,8 @@
 	{
 		Console.WriteLine("Sending Test packet!");
 		//await prime.SendChatMessage("Duis malesuada pulvinar nisl hendrerit vulputate. Ut suscipit diam enim, sed vehicula quam ultricies eget. Donec tempus lectus scelerisque ante sodales, finibus tincidunt metus tincidunt. Proin eu placerat purus. Sed dapibus nisi faucibus, gravida justo ac, elementum odio. Cras eget ipsum turpis. Nulla eu turpis maximus, maximus quam nec, vulputate libero. Aliquam dolor dui, tempus laoreet dolor id, auctor posuere nunc. Fusce lectus nibh, egestas at porttitor sed, placerat vitae elit.Aenean sit amet accumsan nulla. Nullam lobortis enim non nunc dignissim facilisis. Ut nisi ex, imperdiet id accumsan sed, maximus nec arcu. Maecenas eu massa ante. Vivamus ut lectus nec felis feugiat placerat ut eget neque. Donec ut sem metus. Sed nec nibh feugiat, gravida mi eget, semper orci. Morbi semper tortor lectus, quis maximus dui malesuada et. Donec at hendrerit risus. Nulla facilisi. Vivamus tellus leo, rhoncus a consequat ut, iaculis et orci.Aliquam lobortis accumsan ligula. Suspendisse sollicitudin lacus id odio viverra lacinia. Curabitur dignissim feugiat urna, vestibulum lacinia ipsum aliquet sed. Ut eu sem ultrices, interdum nisl vehicula, mattis urna. Etiam eleifend et dui ut tristique. Vestibulum euismod augue condimentum efficitur dapibus. Pellentesque hendrerit dolor vitae justo sagittis interdum. Phasellus non cursus nunc, et tristique mi. Nunc eu ultrices mi, id ornare sem.Etiam ornare congue accumsan. Mauris aliquam pretium justo quis iaculis. Suspendisse potenti. Nullam sodales lacus orci, vel placerat lacus consequat quis. Maecenas a interdum sapien. Nam quis orci nulla. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam consectetur tellus a vulputate convallis. Vivamus placerat, tortor sed lobortis porta, urna tortor rhoncus ligula, quis efficitur risus nulla eu sapien. Vivamus posuere, justo et venenatis volutpat, lorem ex rhoncus augue, quis suscipit dui arcu in erat. Donec faucibus erat augue, vel mollis leo fermentum non. Nunc in nisl tellus.Pellentesque et dignissim mauris, quis ultrices urna. Integer cursus ante et erat venenatis laoreet. Duis id elit fermentum, dignissim odio eget, semper ipsum. Sed sit amet libero congue, placerat velit nec, sagittis magna. Aliquam imperdiet mollis ex non ultrices. Nulla placerat id arcu a eleifend. Mauris vitae faucibus magna, vel dapibus neque. Etiam odio nisi, porttitor eu velit at, feugiat venenatis purus. Nulla sagittis metus at magna metus.");
-		await prime.RequestBackup();
+
+		
 		//await prime.SendChatMessage("Testinggg!");
 
 	}
@@ -123,6 +124,7 @@
 	{
 		Console.WriteLine("[Index.rzr] - Prime is connected!");
 
+		await prime.SendRequest(PrimeCommands.BACKUP);
 		//await prime.RequestBackup();
 		//Console.WriteLine("Sent message!");
 	}

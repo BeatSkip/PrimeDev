@@ -1,4 +1,6 @@
-﻿using Blazm.Hid;
+﻿//#define DBG_ACK
+
+using Blazm.Hid;
 using PrimeWeb.Packets;
 using PrimeWeb.Types;
 using PrimeWeb.Utility;
@@ -6,6 +8,9 @@ using System.Text;
 
 namespace PrimeWeb.Protocol
 {
+
+
+
 	public class FrameWorker
 	{
 		private bool ProtocolNegotiated = false;
@@ -17,13 +22,15 @@ namespace PrimeWeb.Protocol
 		public ProtocolVersion Protocol { get; private set; } = ProtocolVersion.Unknown;
 
 		private PrimePacket TransmissionPacket { get; set; }
-
 		private PrimePacket ReceivePacket { get; set; }
 
-		public List<PrimeFilePayload> FileList { get; set; } = new List<PrimeFilePayload>();
+		private PayloadFactory factory;
 
-		public FrameWorker(IHidDevice hid)
+		private uint MessageID_Backup = uint.MaxValue;
+
+		public FrameWorker(IHidDevice hid, PayloadFactory pfactory)
 		{
+			factory = pfactory;
 			this.device = hid;
 			this.device.ReportReceived += Prime_ReportReceived;
 			this.device.Connected += Device_Connected;
@@ -66,7 +73,8 @@ namespace PrimeWeb.Protocol
 			var data = e.Data;
 			var type = IdentifyReport(data.SubArray(0, 13));
 
-			Console.WriteLine($"[Frameworker] - Report received! type: {type}");
+
+			logpacket($"Report received! type: {type}");
 
 			switch (type)
 			{
@@ -100,49 +108,17 @@ namespace PrimeWeb.Protocol
 		public async Task HandleReport_Content(byte[] data)
 		{
 			var frame = new ContentFrame(data);
-
+			
 			if (frame.IsStartFrame)
 			{
-				ReceivePacket = PayloadFactory.CreateFromFrame(frame, out IPacketPayload result);
-				ReceivePacket.OnPayloadCompleted += ReceivePacket_OnPayloadCompleted;
-				Console.WriteLine($"Created new Packet! of type: {(PrimeCMD)frame.Data[0]}");
-				if (result.Type == typeof(PrimeFilePayload))
-				{
-					var tmp = result as PrimeFilePayload;
+				ReceivePacket = new PrimePacket(factory);
 
-
-					tmp.ContentReceived += Tmp_ContentReceived; ;
-
-				}
-
+				logpacket($"Created new Packet! of type: {(PrimeCMD)frame.Data[0]}");
 			}
-
 
 			await ReceivePacket.ReceiveNextFrame(this, frame);
 
-			if (!frame.IsValid)
-			{
-				Console.WriteLine("Received Content Frame not valid!");
-			}
-
-
-
-		}
-
-		private void Tmp_ContentReceived(object? sender, FilePacketEventArgs e)
-		{
-			Console.WriteLine("triggered frameworker app received");
-			if(e.FileType == PrimeFileType.APP)
-			{
-				Console.WriteLine("is app!");
-				this.OnContentReceived(e);
-			}
-		}
-
-		private void ReceivePacket_OnPayloadCompleted(object? sender, TransmissionEventArgs e)
-		{
-			ReceivePacket.OnPayloadCompleted -= ReceivePacket_OnPayloadCompleted;
-
+			
 		}
 
 		public async Task HandleReport_Ack(byte[] data)
@@ -158,9 +134,19 @@ namespace PrimeWeb.Protocol
 			}
 			else
 			{
+
+				if(frame.IOMessageID == MessageID_Backup)
+				{
+					this.factory.StartBackup();
+				}
+
+#if (DBG_ACK)
+				frame.printdebug();
 				Console.WriteLine("Received ACK!");
+#endif
 				//DbgTools.PrintPacket(data);
 				//await TransmissionPacket.ReceiveNextFrame(this, frame);
+
 			}
 
 
@@ -241,16 +227,27 @@ namespace PrimeWeb.Protocol
 
 		#region Packet input
 
-		public async Task Send(IPacketPayload payload)
+		public async Task Send(IPayloadGenerator data,bool isbackup)
 		{
-			await this.Send(new PrimePacket(payload));
+			await this.Send(new PrimePacket(data),isbackup);
 		}
 
-		public async Task Send(PrimePacket packet)
+		public async Task Send(IPayloadGenerator data)
+		{
+			await this.Send(new PrimePacket(data));
+		}
+
+		public async Task Send(PrimePacket packet, bool isbackup = false)
 		{
 			packet.Direction = TransferType.Tx;
-			packet.Initialize(MessageCount++);
 
+			if (isbackup)
+			{
+				this.MessageID_Backup = MessageCount;
+			}
+				
+
+			packet.Initialize(MessageCount++);
 
 			TransmissionPacket = packet;
 
@@ -261,9 +258,9 @@ namespace PrimeWeb.Protocol
 			} while (!allsent);
 		}
 
-		#endregion
+#endregion
 
-		#region legacy
+#region legacy
 
 		private async Task ProcessHpInfos(byte[] data)
 		{
@@ -308,9 +305,9 @@ namespace PrimeWeb.Protocol
 		}
 
 
-		#endregion
+#endregion
 
-		#region Events
+#region Events
 
 		/// <summary>
 		/// Event to indicate Description
@@ -363,9 +360,9 @@ namespace PrimeWeb.Protocol
 
 
 
-		#endregion
+#endregion
 
-		#region Legacy code
+#region Legacy code
 
 		/*
 		private void ParseReportV2Protocol(byte[] data)
@@ -460,7 +457,16 @@ namespace PrimeWeb.Protocol
 			if (handler != null) handler(this, e);
 		}
 		*/
-		#endregion
+#endregion
+
+		private void logpacket(string line)
+		{
+#if (DBG_PACKETS)
+			Console.WriteLine($"[PacketWorker - packets] {line}");
+#endif
+		}
+
+
 	}
 
 
@@ -470,21 +476,7 @@ namespace PrimeWeb.Protocol
 		public HpInfos Info { get; set; }
 	}
 
-	public class FileReceivedEventArgs : EventArgs
-	{
-		//TODO: Actual File Received args
-	}
-
-	public class BackupEventArgs : EventArgs
-	{
-		//TODO: Actual Backup Received args
-	}
-
-	public class ChatEventArgs : EventArgs
-	{
-		public DateTime Date { get; set; }
-		public string Message { get; set; }
-	}
+	
 
 
 

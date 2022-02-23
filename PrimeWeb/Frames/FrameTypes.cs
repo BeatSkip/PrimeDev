@@ -88,6 +88,11 @@ namespace PrimeWeb.Protocol
 			return new byte[0];
 		}
 
+		public void printdebug()
+		{
+			Console.WriteLine($"{(NewProtocolCommand == 0x01 ? "ACK" : "NACK")} - seq. no: {(int)SequenceToResend} / {SequenceToResend.ToString("X2")} - Blockpos: {BlockPosition} - IOMessageID: {IOMessageID}");
+		}
+
 	}
 
 	public class ContentFrame : IFrame

@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PrimeWeb.Types
+namespace PrimeWeb.HpTypes
 {
-	internal class HpCalcSummary
+	public class HpProgram
 	{
+		//TODO: Type implementation - OTPrograms
 	}
 }

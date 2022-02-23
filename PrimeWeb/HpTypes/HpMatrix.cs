@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PrimeWeb.Protocol
+namespace PrimeWeb.HpTypes
 {
-	public class FrameReceiver
+	public class HpMatrix
 	{
-
+		//TODO: Type implementation - OTMatrices
 	}
 }
