@@ -3,7 +3,7 @@ using PrimeWeb.Utility;
 
 namespace PrimeWeb.Packets
 {
-
+	//TODO: find alternate implementation with new HpApp format etc
 	public class PrimeFilePayload : IPayloadParser, IPayloadGenerator
 	{
 
@@ -55,21 +55,6 @@ namespace PrimeWeb.Packets
 			//Console.WriteLine($"Content: {Message}");
 		}
 
-		/// <summary>
-		/// Event to indicate Description
-		/// </summary>
-		public event EventHandler<RawContentEventArgs> RawContentReceived;
-
-
-		/// <summary>
-		/// Called to signal to subscribers that Description
-		/// </summary>
-		/// <param name="e"></param>
-		protected virtual void OnRawContentReceived(byte[] data)
-		{
-			var handler = RawContentReceived;
-			if (handler != null) handler(this, new RawContentEventArgs() { RawData = data });
-		}
 
 		/// <summary>
 		/// Event to indicate Description

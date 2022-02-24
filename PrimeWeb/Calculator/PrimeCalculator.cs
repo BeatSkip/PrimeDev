@@ -7,7 +7,6 @@ namespace PrimeWeb.Calculator;
 /// </summary>
 public class PrimeCalculator
 {
-	private Action<string> screenshotCallback;
 
 	public string ProductName { get { return DeviceInfo.Product; } }
 
@@ -24,12 +23,17 @@ public class PrimeCalculator
 		frameWorker = new FrameWorker(device, dataFactory);
 		frameWorker.CalcInitialized += PacketWorker_CalcInitialized;
 		frameWorker.ContentReceived += PacketWorker_ContentReceived;
+		
+	}
+
+	private void DataFactory_BackupReceived(object? sender, BackupReceivedEventArgs e)
+	{
+		throw new NotImplementedException();
 	}
 
 	private void PacketWorker_ContentReceived(object? sender, FilePacketEventArgs e)
 	{
-		Console.WriteLine("received app in calc!");
-		this.OnAppReceived(e);
+		
 	}
 
 	private void PacketWorker_RawContentReceived(object? sender, RawContentEventArgs e)
@@ -142,17 +146,6 @@ public class PrimeCalculator
 
 	#endregion
 
-	#region Data Processing
-
-	private string ParseCommandScreenshot(byte[] data)
-	{
-		return Convert.ToBase64String(data);
-	}
-
-
-
-	#endregion
-
 	#region eventhandlers
 
 	/// <summary>
@@ -192,16 +185,13 @@ public class PrimeCalculator
 		}
 	}
 
-	/// <summary>
-	/// Event indicating a file has been received
-	/// </summary>
-	public event EventHandler<AppReceivedEventArgs> AppReceived;
 
-	protected virtual void OnAppReceived(FilePacketEventArgs e)
+	public event EventHandler<BackupReceivedEventArgs> BackupReceived
 	{
-		var handler = AppReceived;
-		if (handler != null) handler(this, new AppReceivedEventArgs() { App = PayloadFactory.GenerateHpApp(e) });
+		add { dataFactory.BackupReceived += value; }
+		remove { dataFactory.BackupReceived -= value; }
 	}
+
 
 	#endregion
 

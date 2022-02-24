@@ -79,7 +79,7 @@ namespace PrimeWeb.Utility
 		}
 
 
-		public static byte[] decompress(byte[] input)
+		public static byte[] decompress_old(byte[] input)
 		{
 			using (MemoryStream ms = new MemoryStream())
 			{
@@ -91,7 +91,23 @@ namespace PrimeWeb.Utility
 				return ms.ToArray();
 			}
 		}
-		
+
+		public static byte[] decompress(byte[] input)
+		{
+			using (MemoryStream compressed = new MemoryStream())
+			{
+				compressed.Write(input, 0, input.Length);
+				using (MemoryStream decompressedFileStream = new MemoryStream())
+				{
+					using (ZLibStream decompressionStream = new ZLibStream(compressed, CompressionMode.Decompress))
+					{
+						
+						decompressionStream.CopyTo(decompressedFileStream);
+						return decompressedFileStream.ToArray();
+					}
+				}
+			}
+		}
 
 		public static byte[] GetLittleEndianBytes(uint number)
 		{

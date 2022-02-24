@@ -12,3 +12,4 @@ global using PrimeWeb.Types;
 global using PrimeWeb.HpTypes;
 global using PrimeWeb.Protocol;
 global using PrimeWeb.Utility;
+global using PrimeWeb.Frames;

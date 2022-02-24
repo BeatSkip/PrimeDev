@@ -28,7 +28,7 @@
 			{CHECK_READY	   , 0x01},
 			{INFOS			   , 0x01},
 			{SCREEN			   , 0x08},
-			{BACKUP			   , 0x03},
+			{BACKUP			   , 0x01},
 			{REQ_FILE		   , 0x01},
 			{FILE			   , 0x03},
 			{CHAT			   , 0x03},

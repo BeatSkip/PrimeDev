@@ -6,7 +6,7 @@ using PrimeWeb.Types;
 using PrimeWeb.Utility;
 using System.Text;
 
-namespace PrimeWeb.Protocol
+namespace PrimeWeb.Frames
 {
 
 
@@ -124,10 +124,6 @@ namespace PrimeWeb.Protocol
 		public async Task HandleReport_Ack(byte[] data)
 		{
 			var frame = new AckFrame(data);
-
-			//Console.WriteLine("Received ACK!");
-			//DbgTools.PrintPacket(data);
-
 			if (!frame.IsValid)
 			{
 				Console.WriteLine("Received Ack Frame not valid!");
@@ -225,7 +221,7 @@ namespace PrimeWeb.Protocol
 
 		#endregion
 
-		#region Packet input
+		#region Packet Sending
 
 		public async Task Send(IPayloadGenerator data,bool isbackup)
 		{
@@ -260,7 +256,7 @@ namespace PrimeWeb.Protocol
 
 #endregion
 
-#region legacy
+		#region legacy
 
 		private async Task ProcessHpInfos(byte[] data)
 		{
@@ -307,7 +303,7 @@ namespace PrimeWeb.Protocol
 
 #endregion
 
-#region Events
+		#region Events
 
 		/// <summary>
 		/// Event to indicate Description
@@ -362,7 +358,7 @@ namespace PrimeWeb.Protocol
 
 #endregion
 
-#region Legacy code
+		#region Legacy code
 
 		/*
 		private void ParseReportV2Protocol(byte[] data)

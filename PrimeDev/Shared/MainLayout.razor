@@ -3,6 +3,7 @@
 @inject IDialogService DialogService
 @inject PrimeManager manager
 @inject PrimeFileService primefiles
+@inject ISnackbar Snackbar
 
 <MudThemeProvider Theme="mytheme"/>
 <MudDialogProvider />
@@ -27,14 +28,14 @@
             <MudSpacer />
         }
     </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
+    <MudDrawer @bind-Open="_drawerOpen" Variant="@DrawerVariant.Persistent" Elevation="1">
         <MudDrawerHeader>
             <MudText Typo="Typo.h6">PrimeDev</MudText>
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
     <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.Large" Class="my-16 pt-16">
+        <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" >
             @Body
         </MudContainer>
     </MudMainContent>
@@ -54,7 +55,7 @@
             SecondaryDarken = Colors.DeepOrange.Darken2,
             SecondaryLighten = Colors.DeepOrange.Default,
             AppbarBackground = Colors.Blue.Darken1,
-            
+
         }
     };
 
@@ -81,13 +82,26 @@
             var options = new DialogOptions { CloseButton = true };
             primefiles.RegisterCalculator(prime);
             primefiles.AppsChanged += Prime_Changed;
-            
+            prime.Connected += Prime_connected;
+            prime.BackupReceived += Prime_Received_backup;
+
 
         }
     }
 
+    void Prime_connected(object? sender, EventArgs e)
+    {
+        Snackbar.Add("Connection successful!", Severity.Success, config => { config.ShowCloseIcon = true; config.VisibleStateDuration = 2000; });
+    }
+
+    void Prime_Received_backup(object? sender, BackupReceivedEventArgs e)
+	{
+        Snackbar.Add("Received Backup data", Severity.Info, config => { config.ShowCloseIcon = true; config.VisibleStateDuration = 2000; });
+	}
+
     void Prime_Changed(object? sender, EventArgs e)
 	{
+        //Snackbar.Add("Re", Severity.Info, config => { config.ShowCloseIcon = true; config.VisibleStateDuration = 1000; });
         //Console.WriteLine("!##@@# - reveived prime app!!!");
         StateHasChanged();
 	}

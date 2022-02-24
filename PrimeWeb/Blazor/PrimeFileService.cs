@@ -7,8 +7,9 @@ namespace PrimeWeb.Blazor
 
 		private PrimeCalculator prime;
 
+		public HpBackup PrimeData { get; set; }
 
-		public Dictionary<string, HpApp> Applist { get; private set; } = new Dictionary<string, HpApp>();
+		public bool HasBackup { get { return PrimeData != null; } }
 
 		public PrimeFileService()
 		{
@@ -18,25 +19,16 @@ namespace PrimeWeb.Blazor
 		public void RegisterCalculator(PrimeCalculator calc)
 		{
 			this.prime = calc;
-			this.prime.AppReceived += Prime_AppReceived;
+			this.prime.BackupReceived += Prime_BackupReceived;
 
 		}
 
-		private void Prime_AppReceived(object? sender, AppReceivedEventArgs e)
+		private void Prime_BackupReceived(object? sender, BackupReceivedEventArgs e)
 		{
-			var app = e.App;
-
-			if (Applist.ContainsKey(app.Name))
-			{
-				Console.WriteLine("[PrimeFileService] - Received existing app! dumping new...");
-			}
-			else
-			{
-				Console.WriteLine("Added app to list!");
-				Applist.Add(app.Name, app);
-				this.OnAppsChanged(EventArgs.Empty);
-			}
+			this.PrimeData = e.Content;
+			this.OnAppsChanged();
 		}
+
 
 		/// <summary>
 		/// Event to indicate Description
@@ -46,12 +38,12 @@ namespace PrimeWeb.Blazor
 		/// Called to signal to subscribers that Description
 		/// </summary>
 		/// <param name="e"></param>
-		protected virtual void OnAppsChanged(EventArgs e)
+		protected virtual void OnAppsChanged()
 		{
 			EventHandler eh = AppsChanged;
 			if (eh != null)
 			{
-				eh(this, e);
+				eh(this, EventArgs.Empty);
 			}
 		}
 

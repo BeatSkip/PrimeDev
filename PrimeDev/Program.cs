@@ -15,6 +15,17 @@ builder.Services.AddBlazorDownloadFile();
 builder.Services.AddScoped<HidNavigator>();
 builder.Services.AddScoped<PrimeManager>();
 builder.Services.AddScoped<PrimeFileService>();
-builder.Services.AddMudServices();
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
+
+    config.SnackbarConfiguration.PreventDuplicates = true;
+    config.SnackbarConfiguration.NewestOnTop = false;
+    config.SnackbarConfiguration.ShowCloseIcon = true;
+    config.SnackbarConfiguration.VisibleStateDuration = 2500;
+    config.SnackbarConfiguration.HideTransitionDuration = 250;
+    config.SnackbarConfiguration.ShowTransitionDuration = 250;
+    config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
+});
 
 await builder.Build().RunAsync();

@@ -1,4 +1,5 @@
 ﻿@page "/"
+@page "/index"
 
 @inject PrimeManager manager
 @inject PrimeFileService primefiles
@@ -43,16 +44,19 @@
 
 		<MudItem xs="12">
 			<MudGrid Justify="Justify.FlexStart">
-			   @foreach(var app in primefiles.Applist)
-			    {
-			        <MudItem xs="2">
-			            <MudPaper Class="d-flex flex-column align-center justify-center mud-width-full py-8">
-							<MudIcon Icon="@app.Value.SvgIcon" ViewBox="0 0 80 80" Style="font-size: 7rem;margin:4px;" />
-			                <MudText Typo="Typo.body2" Align="Align.Center">@app.Value.Name</MudText>
-			                <MudText Typo="Typo.caption" Align="Align.Center">@app.Value.Appsize Bytes</MudText>
-			            </MudPaper>
-			        </MudItem>
-			     }
+				@if (primefiles.HasBackup)
+				{
+					@foreach(var app in primefiles.PrimeData.Apps)
+					{
+					    <MudItem xs="2">
+					        <MudPaper Class="d-flex flex-column align-center justify-center mud-width-full py-8">
+								<MudIcon Icon="@app.SvgIcon" ViewBox="0 0 80 80" Style="font-size: 7rem;margin:4px;" />
+					            <MudText Typo="Typo.body2" Align="Align.Center">@app.Name</MudText>
+					            <MudText Typo="Typo.caption" Align="Align.Center">@app.Appsize Bytes</MudText>
+					        </MudPaper>
+					    </MudItem>
+					 }
+				}	
 			</MudGrid>
 		</MudItem>
 

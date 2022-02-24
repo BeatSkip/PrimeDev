@@ -1,49 +1,52 @@
-﻿
+﻿using System.Reflection;
+using System.Runtime;
+
 namespace PrimeWeb.Types;
 
 public class HpApp
 {
 	public string Name { get; set; }
-	public int Appsize { get { return sourcedata.Length; } }
+	public int Appsize { get; private set; }
 	public Dictionary<string, string> Files { get; set; }
-	private byte[] sourcedata;
+
+	private byte[] contents;
 
 	public string SvgIcon { get; private set; }
-	public HpApp(string name, byte[] data)
+
+	public HpApp(byte[] data)
 	{
-		Name = name;
-		sourcedata = data;
+		ParseByteData(data);
 		FindIcon();
 	}
 
-	private void ParseByteData()
+	private void ParseByteData(byte[] sourcedata)
 	{
+		var header = HpFileParser.ParseFileHeader(sourcedata);
+		this.contents = header.Contents;
+		this.Name = header.Name;
+		this.Appsize = (int)header.Size;
 
 	}
 
 	private void FindIcon()
 	{
-		if (this.Name.Contains("Explorer"))
-			this.SvgIcon = HpIcons.Explorer;
-		else if (this.Name.Contains("Function"))//Parametric
-			this.SvgIcon = HpIcons.Function;
-		else if (this.Name.Contains("Inference"))
-			this.SvgIcon = HpIcons.Inference;
-		else if (this.Name.Contains("Parametric"))
-			this.SvgIcon = HpIcons.Parametric;
-		else if (this.Name.Contains("&Advanced"))
-			this.SvgIcon = HpIcons.AdvancedGraphing;
-		else if (this.Name.Contains("Python"))
-			this.SvgIcon = HpIcons.Python;
-		else if (this.Name.Contains("Statistics 2Var"))
-			this.SvgIcon = HpIcons.Statistics2Var;
-		else if (this.Name.Contains("Statistics 1Var"))
-			this.SvgIcon = HpIcons.Statistics1Var;
-		else if (this.Name.Contains("Spreadsheet"))
-			this.SvgIcon = HpIcons.Spreadsheets;
-		else if (this.Name.Contains("Geometry"))
-			this.SvgIcon = HpIcons.Geometry;
+		if (HpIcons.AppTitles.ContainsKey(Name))
+		{
+			try
+			{
+				// Get the Type object corresponding to MyClass.
+				Type myType = typeof(HpIcons);
+				// Get the PropertyInfo object by passing the property name.
+				PropertyInfo myPropInfo = myType.GetProperty(HpIcons.AppTitles[Name]);
+				this.SvgIcon = (string)myPropInfo.GetValue(null, null);
+			}
+			catch (NullReferenceException e)
+			{
+				Console.WriteLine("The property does not exist in MyClass." + e.Message);
+			}
 
+
+		}
 	}
 }
 

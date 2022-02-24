@@ -27,6 +27,7 @@ Very very alpha, and currently working on the initial communication between the 
 - 20/02/2022 - Started protocol Documentation [Prime protocol docs](https://github.com/BeatSkip/PrimeDev/wiki/HP-Prime---USB-HID-Packetizing-protocol)
 - 20/02/2022 - Protocol handling refinements, intial design of SVG Icons, App discovery and enumeration
 - 23/02/2022 - Fixed up Backup procedure and added all required data types with help from @Cyrille-de-Brebisson, slimmed down protocol code (again) removed connection success message
+- 23/02/2022 - Designed all standard prime icons in SVG format. Fixed decompression. 
 
 
 

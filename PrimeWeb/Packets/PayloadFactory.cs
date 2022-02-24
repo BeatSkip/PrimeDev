@@ -18,21 +18,12 @@ public class PayloadFactory : IPayloadParser
 
 	public void StartBackup()
 	{
-
-
 		if (!IsRunningBackup)
 		{
 			backup = new HpBackup();
 			logline("Starting new Calculator backup");
 		}
-			
-
 		IsRunningBackup = true;
-	}
-
-	public static HpApp GenerateHpApp(FilePacketEventArgs e)
-	{
-		return new HpApp(e.Filename, e.PacketContent);
 	}
 
 	public void ParsePayload(byte[] payload)
@@ -66,53 +57,114 @@ public class PayloadFactory : IPayloadParser
 
 	private void HandleINFOS(byte[] payload)
 	{
-		
+
 	}
 
 	private void HandleBACKUP(byte[] payload)
 	{
 		logline("End of Backup received");
 		IsRunningBackup = false;
+		OnBackupReceived(new BackupReceivedEventArgs() { Content = backup });
+
 	}
 
 	private void HandleFILE(byte[] payload)
 	{
-		logline($"received file, type: {((PrimeFileType)payload[6]).ToString()}!!");
 
-		switch ((PrimeFileType)payload[6])
+		bool iscompressed = (payload[8] == 0x00 && payload[9] == 0x00 && payload[10] == 0x78);
+
+		byte[] data;
+
+		if (iscompressed)
+			data = HpFileParser.DecompressFileStream(payload.SubArray(10));
+		else
+			data = payload;
+
+
+		logline($"received file, type: {((PrimeFileType)data[6]).ToString()}!!");
+		//DbgTools.PrintPacket(data, maxlines: 5);
+		(bool backup, PrimeFileType Type) handlestate = (IsRunningBackup, (PrimeFileType)data[6]);
+
+		switch (handlestate)
 		{
-			case PrimeFileType.APP:
+
+			case (true, PrimeFileType.APP): //App backup
+				backup.Apps.Add(new HpApp(data));
 				break;
-			case PrimeFileType.APPNOTE:
+			case (false, PrimeFileType.APP):
 				break;
-			case PrimeFileType.APPPRGM:
+			case (true, PrimeFileType.APPNOTE)://appnote  backup
 				break;
-			case PrimeFileType.COMPLEX:
+			case (false, PrimeFileType.APPNOTE):
 				break;
-			case PrimeFileType.LIST:
+			case (true, PrimeFileType.APPPRGM)://Appprogram backup
 				break;
-			case PrimeFileType.MATRIX:
+			case (false, PrimeFileType.APPPRGM):
 				break;
-			case PrimeFileType.NOTE:
+			case (true, PrimeFileType.COMPLEX)://Complex backup
 				break;
-			case PrimeFileType.PRGM:
+			case (false, PrimeFileType.COMPLEX):
 				break;
-			case PrimeFileType.REAL:
+			case (true, PrimeFileType.LIST)://List backup
+				backup.Lists.Add(new HpList(data));
 				break;
-			case PrimeFileType.SETTINGS:		
+			case (false, PrimeFileType.LIST):
 				break;
-			case PrimeFileType.TESTMODECONFIG:
+			case (true, PrimeFileType.MATRIX)://Matrix backup
 				break;
-			case PrimeFileType.UNKNOWN:
-				
+			case (false, PrimeFileType.MATRIX):
+				break;
+			case (true, PrimeFileType.NOTE)://Note backup
+				break;
+			case (false, PrimeFileType.NOTE):
+				break;
+			case (true, PrimeFileType.PRGM)://Program backup
+				break;
+			case (false, PrimeFileType.PRGM):
+				break;
+			case (true, PrimeFileType.REAL)://REAL backup
+				break;
+			case (false, PrimeFileType.REAL):
+				break;
+			case (true, PrimeFileType.SETTINGS)://SETTINGS backup
+				break;
+			case (false, PrimeFileType.SETTINGS):
+				break;
+			case (true, PrimeFileType.TESTMODECONFIG)://TESTMODECONFIG backup
+				break;
+			case (false, PrimeFileType.TESTMODECONFIG):
+				break;
+			case (true, PrimeFileType.UNKNOWN)://unknown backup
+				break;
+			case (false, PrimeFileType.UNKNOWN):
 				break;
 		}
+
 	}
 
 	private void HandleCHAT(byte[] payload)
 	{
 
 	}
+
+	/// <summary>
+	/// Event to indicate Description
+	/// </summary>
+	public event EventHandler<BackupReceivedEventArgs> BackupReceived;
+	/// <summary>
+	/// Called to signal to subscribers that Description
+	/// </summary>
+	/// <param name="e"></param>
+	protected virtual void OnBackupReceived(BackupReceivedEventArgs e)
+	{
+		var eh = BackupReceived;
+		if (eh != null)
+		{
+			eh(this, e);
+		}
+	}
+
+
 
 	/// <summary>
 	/// Event to indicate Description
