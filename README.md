@@ -10,34 +10,17 @@ feature would be nice.
 Very very alpha, and currently working on the initial communication between the SPA and the prime itself..
 
 **Latest changes**
-- Initial bring-up
-- Scan and discover USB HID devices
-- Connect to single HP Prime via HID
-- Send initial test message to actual hardware
-- Receive data back from actual hardware
-- Receive message, parse content and fire message received event
-- Initial work done to reverse engineer V2 protocol
-- Multipart compressed message transfer via V2 protocol!!
-- Discover files on Prime
-- Request calculator information and display on top bar
-- Change protocol to undocumented V2 protocol
-- Set up basics for completely reworked comms library
-- receiving Screenshot from calculator with V2 Protocol working!
-- ~~Sending multipart compressed messages!!!~~ (need to check back, compression seems to be broken again)
-- 20/02/2022 - Started protocol Documentation [Prime protocol docs](https://github.com/BeatSkip/PrimeDev/wiki/HP-Prime---USB-HID-Packetizing-protocol)
-- 20/02/2022 - Protocol handling refinements, intial design of SVG Icons, App discovery and enumeration
-- 23/02/2022 - Fixed up Backup procedure and added all required data types with help from @Cyrille-de-Brebisson, slimmed down protocol code (again) removed connection success message
-- 23/02/2022 - Designed all standard prime icons in SVG format. Fixed decompression. 
 
-
-
+*25/02/2022* - Code editor fully implemented, hpapp file parsing partially done. enough to actually read text files from prime. added changelog (https://github.com/BeatSkip/PrimeDev/blob/master/Changelog.md)
+*23/02/2022* - Designed all standard prime icons in SVG format. Fixed decompression.
+*23/02/2022* - Fixed up Backup procedure and added all required data types with help from @Cyrille-de-Brebisson, slimmed down protocol code (again) removed connection success message
 
 ## Screenshots
 
 ![intro](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_intro.png?raw=true)
 
 
-![return data](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_received.png?raw=true)
+![ide](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_ide1.png?raw=true)
 
 
 ![screenshot](https://github.com/BeatSkip/PrimeDev/blob/master/img/img_multipartcompressedtransfer.png?raw=true)

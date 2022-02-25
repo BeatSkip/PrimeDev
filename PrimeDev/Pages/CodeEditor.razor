@@ -16,13 +16,22 @@
 		<MudDrawer @bind-Open="@openEnd" Fixed="false" Anchor="Anchor.Right" Elevation="0" Variant="@DrawerVariant.Persistent" ClipMode="DrawerClipMode.Always">
 
 				<MudDrawerHeader>
-					<MudText Typo="Typo.h6">Testing</MudText>
+					@if (CurrentApp != null)
+					{
+						<MudText Typo="Typo.h6">@CurrentApp.Name</MudText>
+					}else{
+						<MudText Typo="Typo.h6">Testing</MudText>
+					}
 				</MudDrawerHeader>
 				<MudTreeView T="string" Dense="true" Hover="true">
 					<MudTreeViewItem Value="@("Files")">
-
-					
-
+					@if(CurrentApp != null && CurrentApp.Files.Count > 0)
+					{
+					@foreach(var file in CurrentApp.Files)
+					{
+						<MudTreeViewItem Value="@(file.Key)" OnClick="(() => SelectFile(file.Key))" />
+					}
+				}
 				</MudTreeViewItem>
 				<MudTreeViewItem Value="@("Variables")">
 				</MudTreeViewItem>

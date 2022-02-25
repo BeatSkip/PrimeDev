@@ -16,6 +16,8 @@ namespace PrimeDev.Pages
 
         public HpApp CurrentApp { get; private set; }
 
+        public string currentFile { get; set; }
+
 		#region blazor main management
 
 		protected override void OnInitialized()
@@ -28,8 +30,8 @@ namespace PrimeDev.Pages
 
 		private void Primefiles_AppsChanged(object? sender, EventArgs e)
 		{
-			
-		}
+            StateHasChanged();
+        }
 
 		private void Manager_OnChange()
 		{
@@ -79,8 +81,9 @@ namespace PrimeDev.Pages
             Debug.WriteLine($"[IDE] - Swtiching to {app.Name}");
 
             int counter = 0;
-            var tmp = HpFileParser.SplitHpAppDir(app.Content);
-
+            //var tmp = HpFileParser.SplitHpAppDir(app.Content);
+            //DbgTools.PrintPacket(app.Content);
+            /*
             Console.WriteLine("Hp Appdir contents:\n");
 
             foreach (var item in tmp)
@@ -92,14 +95,18 @@ namespace PrimeDev.Pages
                 DbgTools.PrintPacket(item.content);
                 Console.WriteLine("----- end section ---\n\n\n");
             }
+            */
             this.CurrentApp = app;
+            StateHasChanged();
         }
 
-        void SelectFile(string Filename)
+        async void SelectFile(string Filename)
         {
             Debug.WriteLine($"[IDE] - Swtiching to file {Filename} from app: {this.CurrentApp.Name}");
             //TODO: open file in Monaco
-           
+            this.currentFile = Filename;
+            this.ValueToSet = CurrentApp.Files[Filename];
+            await SetValue();
         }
 
         #endregion
@@ -113,7 +120,7 @@ namespace PrimeDev.Pages
         {
             return new StandaloneEditorConstructionOptions
             {
-                Language = "javascript",
+                Language = "python",
                 GlyphMargin = true,
                 Value = "\"use strict\";\n" +
                         "function Person(age) {\n" +

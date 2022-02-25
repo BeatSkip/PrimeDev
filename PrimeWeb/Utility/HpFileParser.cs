@@ -38,14 +38,15 @@ namespace PrimeWeb.Utility
 		}
 
 
-		public static List<(uint length, uint type, byte[] content)> SplitHpAppDir(byte[] data)
+		public static List<(uint length, bool isfile, byte[] content)> SplitHpAppDir(byte[] data)
 		{
 			int index = 0;
-			var split = new List<(uint length, uint type, byte[] content)>();
+			var split = new List<(uint length, bool isfile, byte[] content)>();
 
 			uint sectionlength;
 			byte[] sectionContent;
 			uint sectionType;
+			bool headerdone = false;
 
 			using (var ms = new MemoryStream(data))
 			using (var reader = new BinaryReader(ms))
@@ -54,12 +55,13 @@ namespace PrimeWeb.Utility
 				{
 					sectionlength = Conversion.ReadBigEndianBytes(reader.ReadBytes(4));
 					sectionContent = reader.ReadBytes((int)sectionlength);
-					if (sectionContent.Length > 2)
-						sectionType = (uint)sectionContent[0] << 8 | (uint)sectionContent[1];
-					else
-						sectionType = 0;
+					
 
-					split.Add((sectionlength, sectionType, sectionContent));
+
+					split.Add((sectionlength, headerdone, sectionContent));
+
+					if (sectionlength == 2 && sectionContent[0] == 0x00 && sectionContent[1] == 0x00)
+						headerdone = true;
 				}
 			}
 
@@ -67,7 +69,37 @@ namespace PrimeWeb.Utility
 
 		}
 
+		public static (string filename, byte[] data, bool istext) parseHpAppSubfile(byte[] content)
+		{
+			var length = Search(content, new byte[]{ 0x00, 0x00 });
+			string name = Conversion.DecodeTextData(content.SubArray(0, length+1));
+			var contents = content.SubArray(length + (content.Length > length + 3 ? 3 : 1));
 
+			Console.WriteLine($"parsed filename: {name}");
+			if (name.ToLower().EndsWith(".py") || name.ToLower().EndsWith(".txt") || name.ToLower().EndsWith(".ppl"))
+				return (name, contents, true);
+			else
+				return (name, contents, false);
+		} 
+
+
+		private static int Search(byte[] src, byte[] pattern)
+		{
+			int maxFirstCharSlot = src.Length - pattern.Length + 1;
+			for (int i = 0; i < maxFirstCharSlot; i++)
+			{
+				if (src[i] != pattern[0]) // compare only first byte
+					continue;
+
+				// found a match on first byte, now try to match rest of the pattern
+				for (int j = pattern.Length - 1; j >= 1; j--)
+				{
+					if (src[i + j] != pattern[j]) break;
+					if (j == 1) return i;
+				}
+			}
+			return -1;
+		}
 
 		public enum contentids : uint
 		{

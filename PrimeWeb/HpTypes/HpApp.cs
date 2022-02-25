@@ -9,7 +9,8 @@ public class HpApp
 
 	public string Name { get; set; }
 	public int Appsize { get; private set; }
-	public Dictionary<string, string> Files { get; set; }
+	public Dictionary<string, string> Files { get; set; } = new Dictionary<string, string>();
+	public List<byte[]> sections { get; set; } = new List<byte[]>();
 
 	private byte[] contents;
 
@@ -39,6 +40,31 @@ public class HpApp
 		this.Appsize = (int)header.Size;
 
 
+		var split = HpFileParser.SplitHpAppDir(contents);
+
+		foreach (var item in split)
+		{
+			Console.WriteLine($"item! - length: {item.length} bytes - headerdone: {(item.isfile ? "true" : "false")}");
+		}
+		foreach (var item in split)
+		{
+			if (item.isfile)
+			{
+				var file = HpFileParser.parseHpAppSubfile(item.content);
+				if (file.istext)
+				{
+					this.Files.Add(file.filename, Encoding.UTF8.GetString(file.data));
+				}
+					
+			}
+			else
+			{
+				this.sections.Add(item.content);
+			}
+
+		}
+		//DbgTools.PrintPacket(contents);
+		Console.WriteLine($"file parsing done! result is: {Files.Count}");
 	}
 
 	private void FindIcon()
