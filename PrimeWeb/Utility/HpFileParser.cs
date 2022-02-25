@@ -38,5 +38,42 @@ namespace PrimeWeb.Utility
 		}
 
 
+		public static List<(uint length, uint type, byte[] content)> SplitHpAppDir(byte[] data)
+		{
+			int index = 0;
+			var split = new List<(uint length, uint type, byte[] content)>();
+
+			uint sectionlength;
+			byte[] sectionContent;
+			uint sectionType;
+
+			using (var ms = new MemoryStream(data))
+			using (var reader = new BinaryReader(ms))
+			{
+				while (reader.BaseStream.Position != reader.BaseStream.Length)
+				{
+					sectionlength = Conversion.ReadBigEndianBytes(reader.ReadBytes(4));
+					sectionContent = reader.ReadBytes((int)sectionlength);
+					if (sectionContent.Length > 2)
+						sectionType = (uint)sectionContent[0] << 8 | (uint)sectionContent[1];
+					else
+						sectionType = 0;
+
+					split.Add((sectionlength, sectionType, sectionContent));
+				}
+			}
+
+			return split;
+
+		}
+
+
+
+		public enum contentids : uint
+		{
+			HpApp = 0x7C61,
+			unknown,
+		}
+
 	}
 }

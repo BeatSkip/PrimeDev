@@ -28,7 +28,7 @@ namespace PrimeWeb.Utility
 
 				line = Convert.ToHexString(buffer);
 				line += "\t|\t";
-				line += Encoding.UTF8.GetString(buffer);
+				line += Encoding.UTF8.GetString(buffer).Replace("\r", " ").Replace("\n", " ");
 				index+= linesize;
 				Console.WriteLine(line);
 				linecounter++;

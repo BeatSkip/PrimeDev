@@ -1,5 +1,48 @@
 ﻿@page "/Codeeditor"
 
-<h3>CodeEditor</h3>
+	<MudDrawerContainer Class="mud-height-full mud-ide-container" Style="overflow:hidden; position:relative;">
+		<MudDrawer @bind-Open="@open" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini" OpenMiniOnHover="true" ClipMode="DrawerClipMode.Always" Breakpoint="Breakpoint.Lg">
+			<MudNavMenu>
+				@if (primefiles.HasBackup)
+				{
+					@foreach (var app in primefiles.PrimeData.Apps)
+					{
+
+						<MudNavLink OnClick="(() => SelectApplication(app))" Icon="@app.SvgIcon">@app.Name</MudNavLink>
+					}
+				}
+			</MudNavMenu>
+		</MudDrawer>
+		<MudDrawer @bind-Open="@openEnd" Fixed="false" Anchor="Anchor.Right" Elevation="0" Variant="@DrawerVariant.Persistent" ClipMode="DrawerClipMode.Always">
+
+				<MudDrawerHeader>
+					<MudText Typo="Typo.h6">Testing</MudText>
+				</MudDrawerHeader>
+				<MudTreeView T="string" Dense="true" Hover="true">
+					<MudTreeViewItem Value="@("Files")">
+
+					
+
+				</MudTreeViewItem>
+				<MudTreeViewItem Value="@("Variables")">
+				</MudTreeViewItem>
+			</MudTreeView>
+
+		</MudDrawer>
 
 
+		<MonacoEditor @ref="_editor" Id="ide-anim" ConstructionOptions="EditorConstructionOptions" OnDidInit="EditorOnDidInit" OnContextMenu="OnContextMenu" />
+
+		
+
+		<div class="file-floater rotated-left">
+			<MudButton Variant="Variant.Filled" StartIcon="@filebrowsericon" Color="Color.Primary" Class="rounded-b-xl" OnClick="ToggleDrawerRight">Program Files</MudButton>
+		</div>
+
+	</MudDrawerContainer>
+
+
+
+@code {
+
+}

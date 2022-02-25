@@ -28,14 +28,14 @@
             <MudSpacer />
         }
     </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" Variant="@DrawerVariant.Persistent" Elevation="1">
+    <MudDrawer @bind-Open="drawerOpen" Variant="@DrawerVariant.Temporary"  Elevation="1">
         <MudDrawerHeader>
             <MudText Typo="Typo.h6">PrimeDev</MudText>
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
     <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" >
+         <MudContainer MaxWidth="MaxWidth.False" Class="px-0 pt-0 my-0 mx-0 ">
             @Body
         </MudContainer>
     </MudMainContent>
@@ -61,12 +61,14 @@
 
     private PrimeCalculator prime;
 
-    bool _drawerOpen = false;
+    public bool drawerOpen { get; set; } = false;
 
     void DrawerToggle()
     {
         if(manager.IsInitialized)
-            _drawerOpen = !_drawerOpen;
+            drawerOpen = !drawerOpen;
+
+
     }
 
     private List<PrimeCalculator> calcs = new List<PrimeCalculator>();

@@ -10,6 +10,7 @@ global using Microsoft.AspNetCore.Components.Web.Virtualization;
 
 
 
+global using BlazorMonaco;
 global using MudBlazor;
 global using PrimeDev;
 global using PrimeDev.Shared;

@@ -130,5 +130,29 @@ namespace PrimeWeb.Utility
 
 			return data;
 		}
+
+		public static uint ReadLittleEndianBytes(byte[] number, int startindex = 0)
+		{
+			return ((uint)number[startindex + 3]) << 24 | ((uint)number[startindex + 2]) << 16 | ((uint)number[startindex + 1]) << 8 | (uint)number[startindex];
+		}
+
+		public static uint ReadBigEndianBytes(byte[] number, int startindex = 0)
+		{
+			return ((uint)number[startindex]) << 24 | ((uint)number[startindex + 1]) << 16 | ((uint)number[startindex + 2]) << 8 | (uint)number[startindex + 3];
+		}
+
+		public static uint ReadBytesAsUint(byte[] number, Endianness type = Endianness.Big, int startindex = 0)
+		{
+			if (type == Endianness.Big)
+				return ReadBigEndianBytes(number, startindex);
+			else
+				return ReadLittleEndianBytes(number, startindex);
+		}
+
+		public enum Endianness
+		{
+			Big,
+			Little
+		}
 	}
 }

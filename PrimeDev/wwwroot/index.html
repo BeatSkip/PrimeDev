@@ -8,6 +8,7 @@
     <base href="/" />
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <link href="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -18,8 +19,63 @@
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
+
+    <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
+    <script>require.config({ paths: { 'vs': '_content/BlazorMonaco/lib/monaco-editor/min/vs' } });</script>
+    <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
+    <script src="_content/BlazorMonaco/jsInterop.js"></script>
+  
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    
+
+    <style>
+
+
+		.mud-main-content {
+			overflow-x: hidden;
+            overflow-y: hidden;
+		}
+
+		.mud-ide-container {
+			height: calc(100vh - var(--mud-appbar-height));
+			display: block;
+		}
+
+		.ide-fillparent {
+			
+			
+		}
+
+		#ide-anim {
+			width: 100%;
+			max-width: 100%;
+			height: 100%;
+			display: flex;
+			position: absolute;
+			overflow-x: hidden;
+			overflow-y: hidden;
+		}
+
+		.file-floater {
+			bottom: 1rem;
+			right: 0px;
+			position: absolute;
+		}
+
+		.rotated-left {
+			transform: rotate(90deg);
+			transform-origin: top right;
+		}
+
+		.flipped-over {
+			transform: rotate(180deg);
+			transform-origin: center;
+		}
+		.monaco-editor-container {
+			width: 100%;
+		}
+    </style>
 </body>
 
 </html>
