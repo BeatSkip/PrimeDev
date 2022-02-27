@@ -32,6 +32,12 @@ public class HpApp
 		var header = HpFileParser.ParseFileHeader(sourcedata);
 		this.contents = header.Contents;
 		this.Name = header.Name;
+
+		if(this.Name[0] == '&')
+		{
+			this.IsSystemApp = true;
+			Name = Name.Substring(1);
+		}
 		this.Appsize = (int)header.Size;
 
 
