@@ -37,56 +37,13 @@ namespace PrimeWeb.Utility
 			return result.ToArray();
 		}
 
-
-		public static List<(uint length, bool isfile, byte[] content)> SplitHpAppDir(byte[] data)
-		{
-			int index = 0;
-			var split = new List<(uint length, bool isfile, byte[] content)>();
-
-			uint sectionlength;
-			byte[] sectionContent;
-			uint sectionType;
-			bool headerdone = false;
-
-			using (var ms = new MemoryStream(data))
-			using (var reader = new BinaryReader(ms))
-			{
-				while (reader.BaseStream.Position != reader.BaseStream.Length)
-				{
-					sectionlength = Conversion.ReadBigEndianBytes(reader.ReadBytes(4));
-					sectionContent = reader.ReadBytes((int)sectionlength);
-					
+		
 
 
-					split.Add((sectionlength, headerdone, sectionContent));
-
-					if (sectionlength == 2 && sectionContent[0] == 0x00 && sectionContent[1] == 0x00)
-						headerdone = true;
-				}
-			}
-
-			return split;
-
-		}
-
-		public static (string filename, byte[] data, bool istext) parseHpAppSubfile(byte[] content)
-		{
-			var length = Search(content, new byte[]{ 0x00, 0x00 });
-			string name = Conversion.DecodeTextData(content.SubArray(0, length+1));
-			var contents = content.SubArray(length + (content.Length > length + 3 ? 3 : 1));
-
-			Console.WriteLine($"parsed filename: {name}");
-			if (name.ToLower().EndsWith(".py") || name.ToLower().EndsWith(".txt") || name.ToLower().EndsWith(".ppl"))
-				return (name, contents, true);
-			else
-				return (name, contents, false);
-		} 
-
-
-		private static int Search(byte[] src, byte[] pattern)
+		private static int Search(byte[] src, byte[] pattern, int startindex = 0)
 		{
 			int maxFirstCharSlot = src.Length - pattern.Length + 1;
-			for (int i = 0; i < maxFirstCharSlot; i++)
+			for (int i = startindex; i < maxFirstCharSlot; i++)
 			{
 				if (src[i] != pattern[0]) // compare only first byte
 					continue;

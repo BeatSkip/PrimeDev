@@ -7,9 +7,10 @@ python and PPL programs. Later on optimization for mobile and a program sharing
 feature would be nice.
 
 ## Status
-Very very alpha, and currently working on the initial communication between the SPA and the prime itself..
+Very alpha, right now you can connect to your prime and read the contents. note: this 'only' works for HP Prime G2 for now. G1 users, sorry, if i get more traction i might add support later on. although Connectivity kit 2022 is in the works, so let's see what the HP has in store for us.
 
 **Latest changes**
+*27/02/2022* - Code editor layout, UI design, internal optimization, debugging
 
 *25/02/2022* - Code editor fully implemented, hpapp file parsing partially done. enough to actually read text files from prime. added changelog (https://github.com/BeatSkip/PrimeDev/blob/master/Changelog.md)
 

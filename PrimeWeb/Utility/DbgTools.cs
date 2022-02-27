@@ -8,14 +8,14 @@ namespace PrimeWeb.Utility
 {
 	public static class DbgTools
 	{
-		public static void PrintPacket(ReadOnlySpan<byte> data, int linesize = 32, int maxlines = int.MaxValue, int msg = -1)
+		public static void PrintPacket(ReadOnlySpan<byte> data, int linesize = 32, int maxlines = int.MaxValue, int msg = -1, string title = "")
 		{
 			int index = 0;
 			int linecounter = 0;
 
 			string id = msg > 0 ? $"message id: {msg}" : $"";
 
-			Console.WriteLine($"# -- # {id}");
+			Console.WriteLine($"# -- # {id} {(title.Equals("") ? "" : $" - {title}")}");
 			while (index < data.Length && linecounter < maxlines)
 			{
 

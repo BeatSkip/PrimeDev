@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.Components.Web;
+using System.Text;
 
 namespace PrimeDev.Pages
 {
@@ -57,14 +58,24 @@ namespace PrimeDev.Pages
         bool _openEnd = false;
         public bool openEnd { get { return _openEnd; } set { _openEnd = value; } }
 
+
+        int drawerrightwidth = 0;
+
         void ToggleDrawerRight()
         {
             openEnd = !openEnd;
 
-            if(openEnd)
+            if (openEnd)
+			{
+                drawerrightwidth = 350;
                 filebrowsericon = Icons.Material.Filled.ArrowUpward;
-            else
+			}
+			else
+			{
+                drawerrightwidth = 0;
                 filebrowsericon = Icons.Material.Filled.ArrowDownward;
+            }
+				
 
             StateHasChanged();
 
@@ -72,6 +83,15 @@ namespace PrimeDev.Pages
         }
 
         string filebrowsericon = Icons.Material.Filled.ArrowDropDown;
+
+        string getFileIcon(string filename)
+		{
+            if (filename.EndsWith(".png"))
+                return Icons.Custom.FileFormats.FileImage;
+
+            return Icons.Custom.FileFormats.FileDocument;
+
+		}
         #endregion
 
         #region Prime Code editor
@@ -81,31 +101,20 @@ namespace PrimeDev.Pages
             Debug.WriteLine($"[IDE] - Swtiching to {app.Name}");
 
             int counter = 0;
-            //var tmp = HpFileParser.SplitHpAppDir(app.Content);
-            //DbgTools.PrintPacket(app.Content);
-            /*
-            Console.WriteLine("Hp Appdir contents:\n");
 
-            foreach (var item in tmp)
-            {
-                Console.WriteLine($"\n----- start section {counter++} ---\n");
-                Console.WriteLine($"Section Length: {item.length}");
-                Console.WriteLine($"Section type: {(item.type.ToString("X"))}");
-                Console.WriteLine($"Section content:");
-                DbgTools.PrintPacket(item.content);
-                Console.WriteLine("----- end section ---\n\n\n");
-            }
-            */
+            if (CurrentApp == null)
+                this.openEnd = true;
+
             this.CurrentApp = app;
-            StateHasChanged();
-        }
+			StateHasChanged();
 
-        async void SelectFile(string Filename)
+		}
+
+		async void SelectFile(string Filename)
         {
             Debug.WriteLine($"[IDE] - Swtiching to file {Filename} from app: {this.CurrentApp.Name}");
-            //TODO: open file in Monaco
             this.currentFile = Filename;
-            this.ValueToSet = CurrentApp.Files[Filename];
+            this.ValueToSet = Encoding.UTF8.GetString(CurrentApp.Files[Filename]);
             await SetValue();
         }
 

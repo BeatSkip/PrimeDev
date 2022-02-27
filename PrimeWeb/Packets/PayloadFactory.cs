@@ -119,6 +119,7 @@ public class PayloadFactory : IPayloadParser
 			case (false, PrimeFileType.NOTE):
 				break;
 			case (true, PrimeFileType.PRGM)://Program backup
+				backup.Programs.Add(new HpProgram(data));
 				break;
 			case (false, PrimeFileType.PRGM):
 				break;

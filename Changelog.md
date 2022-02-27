@@ -1,7 +1,10 @@
-**25/02/2022**
-Code editor fully implemented, hpapp file parsing partially done. enough to actually read text files from prime
+**27/02/2022** 
+Code editor layout, UI design, internal optimization, debugging. Next step is saving edited data to prime!!
 
 ![ide](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_ide1.png?raw=true)
+
+**25/02/2022**
+Code editor fully implemented, hpapp file parsing partially done. enough to actually read text files from prime
 
 ![ide expanded](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_ide2.png?raw=true)
 
