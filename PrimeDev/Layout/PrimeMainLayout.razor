@@ -1,0 +1,35 @@
+﻿
+ <div class="main-container">
+
+    <div class="leftpanel mud-elevation-0">
+         <div class="menupanel">
+            @Menu
+        </div>
+       
+
+        <div class="statusbar">
+            <MudText Typo="Typo.caption" Align=Align.Left>@StatusText</MudText>
+        </div>
+    </div>
+
+    <div class="rightpanel mud-elevation-5">
+        @MainPanel
+    </div>
+
+</div>
+
+
+
+
+@code {
+
+	[Parameter]
+    public RenderFragment Menu { get; set; }
+
+    [Parameter]
+    public RenderFragment MainPanel { get; set; }
+
+     [Parameter]
+    public string StatusText { get; set; }
+
+}

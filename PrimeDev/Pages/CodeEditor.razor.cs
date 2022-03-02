@@ -90,8 +90,18 @@ namespace PrimeDev.Pages
                 return Icons.Custom.FileFormats.FileImage;
 
             return Icons.Custom.FileFormats.FileDocument;
+		}
+
+        async Task DeleteSelectedFile()
+		{
 
 		}
+
+        async Task CreateNewFile()
+		{
+
+		}
+
         #endregion
 
         #region Prime Code editor

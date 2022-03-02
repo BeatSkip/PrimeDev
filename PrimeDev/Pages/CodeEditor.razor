@@ -37,7 +37,10 @@
 						<MudListItem Text="@(file.Key)" OnClick="(() => SelectFile(file.Key))" Icon="@(getFileIcon(file.Key))" Class="narrow-icons"/>
 					}
 				}     
-            </MudList>		
+            </MudList>
+			<MudTreeViewItem Value="@("Add new File")" OnClick="(async () => await DeleteSelectedFile())"/>
+			<MudTreeViewItem Value="@("Delete file")" OnClick="(async () => await CreateNewFile())"/>
+			
 			<MudDivider />
 			
 			<MudTreeViewItem Value="@("Variables")" Style="padding-top: 1rem;">

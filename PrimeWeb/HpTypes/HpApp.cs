@@ -38,6 +38,7 @@ public class HpApp
 			this.IsSystemApp = true;
 			Name = Name.Substring(1);
 		}
+
 		this.Appsize = (int)header.Size;
 
 
@@ -66,6 +67,12 @@ public class HpApp
 					sections.Add(section);
 			}
 
+		}
+
+		if ((BaseHpApp)HpAppcontent[20] == BaseHpApp.Finance)
+		{
+			Console.WriteLine("Finance app dump!");
+			DbgTools.PrintPacket(contents);
 		}
 
 		Console.WriteLine($"finalized {this.Name} app files, reading files");

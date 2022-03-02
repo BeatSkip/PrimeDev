@@ -1,10 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
+	<PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	  <TypeScriptTarget>ES2021</TypeScriptTarget>
+	  <TypeScriptNoImplicitAny>True</TypeScriptNoImplicitAny>
+	</PropertyGroup>
+
+	<PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <TypeScriptTarget>ES2021</TypeScriptTarget>
+	  <TypeScriptNoImplicitAny>True</TypeScriptNoImplicitAny>
+	</PropertyGroup>
+
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<TypeScriptModuleKind>system</TypeScriptModuleKind>
 	</PropertyGroup>
+
+	
+	<ItemGroup>
+	  <Page Include="Layout\PrimeMainLayout.razor.css" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="BlazorDownloadFileFast" Version="0.2.0" />
@@ -19,6 +35,10 @@
 	  <ProjectReference Include="..\Blazm.HID\Blazm.Hid\Blazm.Hid\Blazm.Hid.csproj" />
 	  <ProjectReference Include="..\PrimeWeb\PrimeWeb.csproj" />
 	</ItemGroup>
-	
+
+	<ItemGroup>
+	  <Folder Include="Panels\" />
+	</ItemGroup>
+
 	
 </Project>

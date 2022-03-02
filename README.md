@@ -11,6 +11,8 @@ Very alpha, right now you can connect to your prime and read the contents. note:
 
 **Latest changes**
 
+*01/03/2022* - complete rework of ui, see screenshot for result.
+
 *27/02/2022* - Code editor layout, UI design, internal optimization, debugging
 
 *25/02/2022* - Code editor fully implemented, hpapp file parsing partially done. enough to actually read text files from prime. added changelog (https://github.com/BeatSkip/PrimeDev/blob/master/Changelog.md)
@@ -20,6 +22,8 @@ Very alpha, right now you can connect to your prime and read the contents. note:
 *23/02/2022* - Fixed up Backup procedure and added all required data types with help from @Cyrille-de-Brebisson, slimmed down protocol code (again) removed connection success message
 
 ## Screenshots
+
+![newui](https://github.com/BeatSkip/PrimeDev/blob/master/img/rework_ui.png?raw=true)
 
 ![intro](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_intro.png?raw=true)
 

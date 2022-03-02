@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PrimeDev;
+using PrimeDev.Layout;
 using Blazm.Hid;
 using MudBlazor.Services;
 using PrimeWeb;
