@@ -2,7 +2,7 @@
 
 public class HpApp
 {
-	private bool IsSystemApp;
+	public bool IsSystemApp { get; set; }
 
 	public byte[] HpAppcontent { get; set; }
 	public string HpAppnote { get; set; }

@@ -1,0 +1,93 @@
+﻿@inject IJSRuntime js
+
+<MudItem xs="@(Expanded ? 12 : 3)">
+
+	<MudPaper Elevation="@(isElevated ? 3 : 0)" Outlined="false" Width="100%" Class="@((Expanded ? "mx-2 my-0" : "mx-1 my-0"))" Style="background-color: transparent; height: 100%; padding: 0.25rem 0 rem;" @onmouseenter="MouseEntered" @onmouseleave="MouseLeft" onclick="@OnClickHandler">
+
+		@if (!ShowContent)
+		{
+			<div class="d-flex flex-column align-center justify-center mud-width-full">
+				<MudIcon Icon="@App.SvgIcon" ViewBox="0 0 80 80" Style="font-size: 3.5rem;margin:4px;" Size="Size.Large" />
+				<MudText Typo="Typo.body2" Align="Align.Center">@App.Name</MudText>
+			</div>
+		}
+		else
+		{
+			<div class="d-flex flex-grow-1 justify-space-between gap-4">
+				<div class="d-flex flex-column align-center justify-center mud-width-full" style="width:90px;margin-left:1rem; margin-right:1rem;">
+					<MudIcon Icon="@App.SvgIcon" ViewBox="0 0 80 80" Style="font-size: 3.5rem;margin:4px;" Size="Size.Large" />
+					<MudText Typo="Typo.body2" Align="Align.Center">@App.Name</MudText>
+				</div>
+				<div class="text-content" style="background-color: lightblue; width:100%; height:100%; position:relative; ">
+				</div>
+				<MudButtonGroup Color="Color.Primary" Variant="Variant.Text" VerticalAlign="true" Style="object-position: right;">
+					<MudButton>Properties</MudButton>
+					<MudButton OnClick="OnIdeStartHandler">Programming</MudButton>
+					<MudButton OnClick="DeleteApp" Disabled="@(Deleteable)">Delete</MudButton>
+				</MudButtonGroup>
+			</div>
+		}
+
+
+	</MudPaper>
+</MudItem>
+
+
+@code {
+
+	private bool Deleteable { get { return this.App.IsSystemApp; } }
+
+	private bool mouseisover = false;
+
+	internal bool isElevated { get { return Expanded ? true : mouseisover; } }
+
+	internal bool ShowIcon { get { return !Expanded; } }
+
+	internal bool ShowContent { get { return Expanded; } }
+
+	void MouseEntered(EventArgs e)
+	{
+		mouseisover = true;
+		StateHasChanged();
+	}
+
+	void MouseLeft(EventArgs e)
+	{
+		mouseisover = false;
+		StateHasChanged();
+	}
+
+	private bool _expanded = false;
+
+	[Parameter]
+	public HpApp App { get; set; }
+
+	[Parameter]
+	public bool Expanded { get { return _expanded; } set { _expanded = value; mouseisover = _expanded; StateHasChanged(); } }
+
+	[Parameter]
+	public EventCallback<string> OnAppExpanded { get; set; }
+
+	[Parameter]
+	public EventCallback<string> StartProgrammingIDE { get; set; }
+
+	[Parameter]
+	public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+	protected async void OnClickHandler()
+	{
+		await OnAppExpanded.InvokeAsync(App.Name);
+		StateHasChanged();
+	}
+
+	protected async void OnIdeStartHandler()
+	{
+		await StartProgrammingIDE.InvokeAsync(App.Name);
+	}
+
+	private void DeleteApp()
+	{
+		Console.WriteLine($"Request to delete {this.App.Name}!");
+	}
+
+}

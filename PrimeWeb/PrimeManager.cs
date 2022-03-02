@@ -55,7 +55,14 @@ namespace PrimeWeb
 				
 		}
 
+		public void UpdateStatus(string text)
+		{
+			var prepend = CurrentPrime != null ? (CurrentPrime.IsConnected ? "Connected!" : "Disconected...") : "Idle..";
+			Status = $"{prepend} | {text}";
+			NotifyStatusUpdate();
+		}
 
+		public string Status { get; private set; }
         //public List<HidDevice> Calculators { get { return devices ?? new List<HidDevice>(); } }
 
         
@@ -75,6 +82,9 @@ namespace PrimeWeb
 
 		public event Action OnChange;
 		private void NotifyStateChanged() => OnChange?.Invoke();
+
+		public event Action OnStatusUpdate;
+		private void NotifyStatusUpdate() => OnStatusUpdate?.Invoke();
 
 		#endregion
 

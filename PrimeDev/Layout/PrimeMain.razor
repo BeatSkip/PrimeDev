@@ -9,23 +9,62 @@
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-<PrimeMainLayout StatusText="Disconnected...">
+<PrimeMainLayout StatusText="@statustext">
 	<Menu>
 		<MudTabs Elevation="1" Rounded="false" Centered="true" Outlined="true">
-			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Cable" Text="USB" />
-			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Apps" Text="Apps"/>
-			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Note" Text="Notes"/>
-			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Settings" Text="Settings" />
+			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Cable" Text="USB">
+				<PrimePanelConnection />
+			</MudTabPanel>
+			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Apps" Text="Apps" Disabled="@disabletabs">
+				<PrimePanelApps/>
+			</MudTabPanel>
+			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Note" Text="Notes" Disabled="@disabletabs">
+
+			</MudTabPanel>
+			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Settings" Text="Settings" Disabled="@disabletabs">
+
+			</MudTabPanel>
 		</MudTabs>
 	</Menu>
 
 
 	<MainPanel>
-		
+		@if (disabletabs)
+		{
+			<MudGrid Justify="Justify.Center" Class="align-center" Style="height: 100%;">
+				<MudItem>
+					<MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
+						<MudText Typo="Typo.h6" Align="Align.Center">It seems you haven't connected your HP Prime Yet!</MudText>
+						<MudText Typo="Typo.subtitle1" Align="Align.Center">Click the connection button at the top right corner of this page to start the discovery and connection.</MudText>
+					</MudPaper>
+				</MudItem>
+			</MudGrid>
+
+		}
+		else
+		{
+
+		}
 	</MainPanel>
 </PrimeMainLayout>
 
 @code {
+
+	private PrimeCalculator prime;
+
+	public bool disabletabs { get { return (this.prime == null ? true : !(this.prime.IsConnected)); } }
+
+	private string statustext;
+
+	public bool drawerOpen { get; set; } = false;
+
+	void DrawerToggle()
+	{
+		if (manager.IsInitialized)
+			drawerOpen = !drawerOpen;
+
+
+	}
 
 	MudTheme mytheme = new MudTheme()
 		{
@@ -42,52 +81,51 @@
 			}
 		};
 
-	private PrimeCalculator prime;
-
-	public bool drawerOpen { get; set; } = false;
-
-	void DrawerToggle()
-	{
-		if (manager.IsInitialized)
-			drawerOpen = !drawerOpen;
-
-
-	}
-
-	private List<PrimeCalculator> calcs = new List<PrimeCalculator>();
-
-	public async Task Initialize()
-	{
-		var success = await manager.InitializeAsync();
-		if (success)
-		{
-			prime = manager.GetCalculator();
-			prime.Changed += Prime_Changed;
-			await prime.Initialize();
-			var options = new DialogOptions { CloseButton = true };
-			primefiles.RegisterCalculator(prime);
-			primefiles.AppsChanged += Prime_Changed;
-			prime.Connected += Prime_connected;
-			prime.BackupReceived += Prime_Received_backup;
-
-
-		}
-	}
-
 	void Prime_connected(object? sender, EventArgs e)
 	{
 		Snackbar.Add("Connection successful!", Severity.Success, config => { config.ShowCloseIcon = true; config.VisibleStateDuration = 2000; });
+
+		StateHasChanged();
 	}
 
 	void Prime_Received_backup(object? sender, BackupReceivedEventArgs e)
 	{
 		Snackbar.Add("Received Backup data", Severity.Info, config => { config.ShowCloseIcon = true; config.VisibleStateDuration = 2000; });
-	}
 
-	void Prime_Changed(object? sender, EventArgs e)
-	{
-		//Snackbar.Add("Re", Severity.Info, config => { config.ShowCloseIcon = true; config.VisibleStateDuration = 1000; });
-		//Console.WriteLine("!##@@# - reveived prime app!!!");
+		manager.UpdateStatus($"Received backup! {e.Content.Apps.Count} Apps, {e.Content.Notes.Count} Notes");
 		StateHasChanged();
 	}
+
+	private void ManagerChanged()
+	{
+
+		this.prime = manager.GetCalculator();
+		this.prime.Connected += Prime_connected;
+		this.prime.BackupReceived += Prime_Received_backup;
+
+		StateHasChanged();
+	}
+
+	private void StatusTextUpdated()
+	{
+		statustext = manager.Status;
+		StateHasChanged();
+	}
+
+
+	protected override void OnInitialized()
+	{
+		manager.OnStatusUpdate += StatusTextUpdated;
+		manager.OnChange += ManagerChanged;
+	}
+
+	public void Dispose()
+	{
+		this.prime.BackupReceived -= Prime_Received_backup;
+		this.prime.Connected -= Prime_connected;
+		manager.OnChange -= ManagerChanged;
+		//primefiles.AppsChanged -= CalcFilesChanged;
+	}
+
+
 }

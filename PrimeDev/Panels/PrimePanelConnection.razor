@@ -1,0 +1,99 @@
+﻿@inject IDialogService DialogService
+@inject PrimeManager manager
+@inject PrimeFileService primefiles
+@inject ISnackbar Snackbar
+
+<div style="width: 100%;">
+	<MudList Clickable="true">
+		<MudListSubheader>
+			Connection status
+			<MudChip Color="@StatusColor" Class="mx-2">
+				@(ConnectionStatus)
+			</MudChip>
+		</MudListSubheader>
+		@if (!hideconnect)
+		{
+			<MudListItem Text="Connect" OnClick="Initialize" />
+		}
+		
+	</MudList>
+	<MudList Clickable="false">
+		<MudDivider />
+		<MudListItem Text="@("Model:\t\t" + (prime != null ? prime.DeviceInfo.Product : ""))" />
+		<MudListItem Text="@("Serial:\t\t" + (prime != null ? prime.DeviceInfo.Serial : ""))" />
+		<MudListItem Text="@("Version:\t\t" + (prime != null ? prime.DeviceInfo.Version : ""))" />
+		<MudListItem Text="@("Build:\t\t" + (prime != null ? prime.DeviceInfo.Build : ""))" />
+	</MudList>
+</div>
+
+@code {
+	public string ConnectionStatus { get { return (prime != null ? (prime.IsConnected ? "Connected!" : "Disconnected...") : "Disconnected..."); } }
+
+	public MudBlazor.Color StatusColor { get { return (prime != null ? (prime.IsConnected ? Color.Success : Color.Error) : Color.Error); } }
+
+	public string calcModel { get; set; }
+	public string calcSerial { get; set; }
+	public string calcSoftVersion { get; set; }
+
+	public bool hideconnect { get { return !(this.prime == null ? true : !(this.prime.IsConnected)); } }
+
+	private PrimeCalculator prime;
+
+	private List<PrimeCalculator> calcs = new List<PrimeCalculator>();
+
+	public async Task Initialize()
+	{
+		var success = await manager.InitializeAsync();
+		if (success)
+		{
+			prime = manager.GetCalculator();
+			prime.Changed += Prime_Changed;
+			await prime.Initialize();
+			var options = new DialogOptions { CloseButton = true };
+			primefiles.RegisterCalculator(prime);
+			primefiles.AppsChanged += Prime_Changed;
+			prime.Connected += CurrentPrime_Connected;
+			
+
+
+		}
+	}
+
+	
+
+	void Prime_Changed(object? sender, EventArgs e)
+	{
+		//Snackbar.Add("Re", Severity.Info, config => { config.ShowCloseIcon = true; config.VisibleStateDuration = 1000; });
+		//Console.WriteLine("!##@@# - reveived prime app!!!");
+		StateHasChanged();
+	}
+
+	protected override void OnInitialized()
+	{
+		if (manager.IsInitialized)
+		{
+			this.prime = manager.GetCalculator();
+		}
+	}
+
+	private void ManagerChanged()
+	{
+	
+		StateHasChanged();
+	}
+
+	public void Dispose()
+	{
+		manager.OnChange -= ManagerChanged;
+	}
+
+	async void CurrentPrime_Connected(object? sender, EventArgs e)
+	{
+		Console.WriteLine("[PrimeMain] - Prime is connected!");
+	
+		await prime.SendRequest(PrimeCommands.BACKUP);
+		//await prime.RequestBackup();
+		//Console.WriteLine("Sent message!");
+	}
+
+}

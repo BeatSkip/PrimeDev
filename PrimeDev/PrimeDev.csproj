@@ -36,9 +36,5 @@
 	  <ProjectReference Include="..\PrimeWeb\PrimeWeb.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Panels\" />
-	</ItemGroup>
-
 	
 </Project>

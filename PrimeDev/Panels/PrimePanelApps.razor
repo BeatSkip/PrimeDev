@@ -1,0 +1,98 @@
+﻿@inject PrimeManager manager
+@inject PrimeFileService primefiles
+
+<MudGrid Style="padding: 1 rem; width: 100%;" Class="align-stretch">
+	@if (primefiles.HasBackup)
+	{
+		@foreach(var app in primefiles.PrimeData.Apps)
+		{
+			
+			<PrimeAppListItem App=@app Expanded=@SelectedApp[app.Name] OnAppExpanded=@UpdateSelectedApp/>
+		}
+	}
+</MudGrid>
+
+@code {
+
+	private Dictionary<string, bool> SelectedApp;
+
+	private PrimeCalculator prime;
+
+	#region app list handling
+
+	private void UpdateSelectedApp(string value)
+	{
+		foreach (var key in SelectedApp.Keys)
+		{
+			SelectedApp[key] = false;
+		}
+		SelectedApp[value] = true;
+		StateHasChanged();
+	}
+
+	#endregion
+
+	#region general methods
+	protected override void OnInitialized()
+	{
+		
+
+		if (manager.IsInitialized)
+		{
+			GetPrime();
+		}
+
+		updateExpansionList();
+
+		manager.OnChange += ManagerChanged;
+		primefiles.AppsChanged += CalcFilesChanged;
+	}
+
+	void CalcFilesChanged(object? sender, EventArgs e)
+	{
+		updateExpansionList();
+	}
+
+	private void updateExpansionList()
+	{
+		if(SelectedApp != null)
+			SelectedApp.Clear();
+
+		SelectedApp = new Dictionary<string, bool>();
+
+		foreach (var app in primefiles.PrimeData.Apps)
+		{
+			SelectedApp.Add(app.Name, false);
+		}
+
+		StateHasChanged();
+	}
+
+	private void ManagerChanged()
+	{
+		if(this.prime == null)
+			GetPrime();
+
+		updateExpansionList();
+
+		StateHasChanged();
+	}
+
+	private void GetPrime()
+	{
+		this.prime = manager.GetCalculator();
+	}
+
+	public void Dispose()
+	{
+		manager.OnChange -= ManagerChanged;
+	}
+
+	async void Prime_Connected(object? sender, EventArgs e)
+	{
+		
+	}
+
+	#endregion
+
+}
