@@ -1,8 +1,8 @@
 ﻿@inject IJSRuntime js
 
-<MudItem xs="@(Expanded ? 12 : 3)">
+<MudItem xs="@(Expanded ? 6 : 3)">
 
-	<MudPaper Elevation="@(isElevated ? 3 : 0)" Outlined="false" Width="100%" Class="@((Expanded ? "mx-2 my-0" : "mx-1 my-0"))" Style="background-color: transparent; height: 100%; padding: 0.25rem 0 rem;" @onmouseenter="MouseEntered" @onmouseleave="MouseLeft" onclick="@OnClickHandler">
+	<MudPaper Elevation="@(isElevated ? 3 : 0)" Outlined="@(Expanded ? true : false)" Width="100%" Class="@((Expanded ? "mx-2 my-0" : "mx-1 my-0"))" Style="background-color: transparent; height: 100%; padding: 0.25rem 0 rem;" @onmouseenter="MouseEntered" @onmouseleave="MouseLeft" onclick="@OnClickHandler">
 
 		@if (!ShowContent)
 		{
@@ -13,27 +13,37 @@
 		}
 		else
 		{
-			<div class="d-flex flex-grow-1 justify-space-between gap-4">
-				<div class="d-flex flex-column align-center justify-center mud-width-full" style="width:90px;margin-left:1rem; margin-right:1rem;">
+			<div class="d-flex flex-grow-1 justify-space-between gap-2">
+				<div class="d-flex flex-column align-center justify-center mud-width-full" style="width:95px;margin-left:1rem; margin-right:1rem;">
 					<MudIcon Icon="@App.SvgIcon" ViewBox="0 0 80 80" Style="font-size: 3.5rem;margin:4px;" Size="Size.Large" />
 					<MudText Typo="Typo.body2" Align="Align.Center">@App.Name</MudText>
 				</div>
-				<div class="text-content" style="background-color: lightblue; width:100%; height:100%; position:relative; ">
-				</div>
-				<MudButtonGroup Color="Color.Primary" Variant="Variant.Text" VerticalAlign="true" Style="object-position: right;">
-					<MudButton>Properties</MudButton>
-					<MudButton OnClick="OnIdeStartHandler">Programming</MudButton>
-					<MudButton OnClick="DeleteApp" Disabled="@(Deleteable)">Delete</MudButton>
+
+				<MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" VerticalAlign="true" Style="object-position: right; margin-top:-1px;margin-right:-1px; margin-bottom:-1px;">
+					<MudButton id="custom-app-btns-t">Info</MudButton>
+					<div class="d-flex" style="width:100%;">
+						<MudButton id="custom-app-btns-m" EndIcon="@(toolsopen ? Icons.Filled.KeyboardArrowUp :Icons.Filled.KeyboardArrowDown)" Color="Color.Primary" OnClick="@ToggleTools">Tools</MudButton>
+						<MudPopover Open="@toolsopen" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+							<MudList Clickable="true">
+								<MudListItem  OnClick="@(() => ToolingHandler(("Python IDE")))">Python IDE</MudListItem>
+								<MudListItem  OnClick="@(() => ToolingHandler(("PPL IDE")))">PPL IDE</MudListItem>
+								<MudListItem  OnClick="@(() => ToolingHandler(("Parameters")))">Parameters</MudListItem>
+								<MudListItem  OnClick="@(() => ToolingHandler(("Files")))">Files</MudListItem>
+							</MudList>
+						</MudPopover>
+					</div>
+					<MudButton id="custom-app-btns-b" OnClick="DeleteApp" Disabled="@(Deleteable)">Delete</MudButton>
 				</MudButtonGroup>
 			</div>
 		}
-
 
 	</MudPaper>
 </MudItem>
 
 
 @code {
+
+	private bool toolsopen = false;
 
 	private bool Deleteable { get { return this.App.IsSystemApp; } }
 
@@ -57,19 +67,24 @@
 		StateHasChanged();
 	}
 
+	public void ToggleTools()
+	{
+		toolsopen = !toolsopen;
+	}
+
 	private bool _expanded = false;
 
 	[Parameter]
 	public HpApp App { get; set; }
 
 	[Parameter]
-	public bool Expanded { get { return _expanded; } set { _expanded = value; mouseisover = _expanded; StateHasChanged(); } }
+	public bool Expanded { get { return _expanded; } set { _expanded = value; mouseisover = _expanded; if (!_expanded) toolsopen = false; StateHasChanged(); } }
 
 	[Parameter]
 	public EventCallback<string> OnAppExpanded { get; set; }
 
 	[Parameter]
-	public EventCallback<string> StartProgrammingIDE { get; set; }
+	public EventCallback<(string App, string function)> ToolCallback { get; set; }
 
 	[Parameter]
 	public EventCallback<MouseEventArgs> OnClick { get; set; }
@@ -80,9 +95,10 @@
 		StateHasChanged();
 	}
 
-	protected async void OnIdeStartHandler()
+	protected async void ToolingHandler(string feature)
 	{
-		await StartProgrammingIDE.InvokeAsync(App.Name);
+		//await StartProgrammingIDE.InvokeAsync((App.Name, ppl ? "PPL" : "Python"));
+		await ToolCallback.InvokeAsync((App.Name, feature));
 	}
 
 	private void DeleteApp()

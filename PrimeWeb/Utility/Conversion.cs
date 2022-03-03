@@ -16,6 +16,11 @@ namespace PrimeWeb.Utility
 			return BytesToUnicodeString(data);
 		}
 
+		public static string DecodeTextData(BinaryReader reader, int length)
+		{
+			return BytesToUnicodeString(reader.ReadBytes(length));
+		}
+
 		public static string DecompressAndDecodeTextData(byte[] data)
 		{
 			var decompressed = decompress(data);
@@ -139,6 +144,16 @@ namespace PrimeWeb.Utility
 		public static uint ReadBigEndianBytes(byte[] number, int startindex = 0)
 		{
 			return ((uint)number[startindex]) << 24 | ((uint)number[startindex + 1]) << 16 | ((uint)number[startindex + 2]) << 8 | (uint)number[startindex + 3];
+		}
+
+		public static uint ReadBigEndianBytes(BinaryReader reader)
+		{
+			return ReadBigEndianBytes(reader.ReadBytes(4));
+		}
+
+		public static uint ReadLittleEndianBytes(BinaryReader reader)
+		{
+			return ReadLittleEndianBytes(reader.ReadBytes(4));
 		}
 
 		public static uint ReadBytesAsUint(byte[] number, Endianness type = Endianness.Big, int startindex = 0)

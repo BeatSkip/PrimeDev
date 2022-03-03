@@ -16,6 +16,7 @@ builder.Services.AddBlazorDownloadFile();
 builder.Services.AddScoped<HidNavigator>();
 builder.Services.AddScoped<PrimeManager>();
 builder.Services.AddScoped<PrimeFileService>();
+builder.Services.AddScoped<MainPanelService>();
 builder.Services.AddMudServices(config =>
 {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;

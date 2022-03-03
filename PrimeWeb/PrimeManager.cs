@@ -32,6 +32,7 @@ namespace PrimeWeb
 			
 		}
 
+		public PrimeCalculator CurrentCalc { get { return this.CurrentPrime; } }
 
 		public PrimeCalculator GetCalculator()
 		{

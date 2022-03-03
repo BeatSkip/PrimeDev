@@ -85,6 +85,9 @@ public class PayloadFactory : IPayloadParser
 		//DbgTools.PrintPacket(data, maxlines: 5);
 		(bool backup, PrimeFileType Type) handlestate = (IsRunningBackup, (PrimeFileType)data[6]);
 
+		if (handlestate.Type == PrimeFileType.SETTINGS)//preprocess settings
+			handleSettings(data);
+
 		switch (handlestate)
 		{
 
@@ -128,6 +131,7 @@ public class PayloadFactory : IPayloadParser
 			case (false, PrimeFileType.REAL):
 				break;
 			case (true, PrimeFileType.SETTINGS)://SETTINGS backup
+				backup.CALCSettings = new HpCalcSettings(data);
 				break;
 			case (false, PrimeFileType.SETTINGS):
 				break;
@@ -141,6 +145,30 @@ public class PayloadFactory : IPayloadParser
 				break;
 		}
 
+	}
+
+	private void handleSettings(byte[] data, bool backup = true)
+	{
+		var info = HpSettingsBuilder.GetFileName(data);
+
+		Console.WriteLine($"[SETTINGS] - filename: {info.name}");
+
+
+		switch (info.name)
+		{
+			case "calc.hpsettings":
+				var parsedcalc = new HpCalcSettings(data);
+				break;
+			case "cas.hpsettings":
+				var parsedcas = new HpCasSettings(data);
+				break;
+			case "settings":
+				//TODO: parse general settings
+				break;
+			case "calc.hpvars":
+				break;
+
+		}
 	}
 
 	private void HandleCHAT(byte[] payload)

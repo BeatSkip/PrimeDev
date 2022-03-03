@@ -1,0 +1,15 @@
+﻿@switch (this.currentpanelsetting)
+{
+	case (MainPanelContent.NotConnected):
+		<PageCalculatorNotConnected />
+		break;
+	case (MainPanelContent.Empty):
+		break;
+
+	case (MainPanelContent.CalcSettings):
+		<PageCalcSettings />
+		break;
+	case (MainPanelContent.RawDataViewer):
+		<PageRawContentViewer />
+		break;
+}

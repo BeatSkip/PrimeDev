@@ -36,5 +36,9 @@
 	  <ProjectReference Include="..\PrimeWeb\PrimeWeb.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Services\" />
+	</ItemGroup>
+
 	
 </Project>

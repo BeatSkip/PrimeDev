@@ -1,0 +1,45 @@
+﻿@inject PrimeManager manager
+@inject PrimeFileService primefiles
+@inject MainPanelService panelservice
+
+<MudGrid>
+
+</MudGrid>
+
+@code {
+
+
+	protected override void OnInitialized()
+	{
+		
+	}
+
+	private void MainpanelRequested(MainPanelContent content)
+	{
+		
+	}
+
+	private void ManagerChanged()
+	{
+		if(this.manager.GetCalculator == null)
+			GetPrime();
+
+		StateHasChanged();
+	}
+
+	private void GetPrime()
+	{
+		//this.prime = manager.GetCalculator();
+	}
+
+	public void Dispose()
+	{
+		manager.OnChange -= ManagerChanged;
+	}
+
+	async void Prime_Connected(object? sender, EventArgs e)
+	{
+		
+	}
+
+}

@@ -28,7 +28,7 @@ public struct HpCalcSettings
 
     public HpCalcSettings(byte[] source)
 	{
-
+		DbgTools.PrintPacket(source,title: "HPSettings");
 	}
    
 }

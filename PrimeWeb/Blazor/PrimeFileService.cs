@@ -4,6 +4,7 @@ namespace PrimeWeb.Blazor
 {
 	public class PrimeFileService
 	{
+		public string selectedApp { get; set; }
 
 		private PrimeCalculator prime;
 

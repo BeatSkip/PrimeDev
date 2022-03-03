@@ -1,13 +1,14 @@
 ﻿@inject PrimeManager manager
 @inject PrimeFileService primefiles
+@inject MainPanelService panelservice
 
-<MudGrid Style="padding: 1 rem; width: 100%;" Class="align-stretch">
+<MudGrid Style="padding: 1 rem; width: 100%; margin: -5px;" Class="align-stretch">
 	@if (primefiles.HasBackup)
 	{
 		@foreach(var app in primefiles.PrimeData.Apps)
 		{
 			
-			<PrimeAppListItem App=@app Expanded=@SelectedApp[app.Name] OnAppExpanded=@UpdateSelectedApp/>
+			<PrimeAppListItem App=@app Expanded=@SelectedApp[app.Name] OnAppExpanded=@UpdateSelectedApp ToolCallback=@StartToolPanel/>
 		}
 	}
 </MudGrid>
@@ -32,7 +33,23 @@
 
 	#endregion
 
-	#region general methods
+	#region app managment methods
+
+	private void StartToolPanel((string app,string function) args)
+	{
+		Console.WriteLine($"Requesting Tool: {args.function} for App: {args.app}");
+		primefiles.selectedApp = args.app;
+
+		if(args.function == "Python IDE")
+		{
+			panelservice.SetMainPanel(MainPanelContent.IDE);
+		}
+		
+	}
+
+	#endregion
+
+	#region Compontent housekeeping methods
 	protected override void OnInitialized()
 	{
 		

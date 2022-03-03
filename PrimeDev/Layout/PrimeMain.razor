@@ -3,6 +3,7 @@
 @inject IDialogService DialogService
 @inject PrimeManager manager
 @inject PrimeFileService primefiles
+@inject MainPanelService panelservice
 @inject ISnackbar Snackbar
 
 <MudThemeProvider Theme="mytheme" />
@@ -11,8 +12,9 @@
 
 <PrimeMainLayout StatusText="@statustext">
 	<Menu>
+
 		<MudTabs Elevation="1" Rounded="false" Centered="true" Outlined="true">
-			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Cable" Text="USB">
+			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Cable" Text="Prime">
 				<PrimePanelConnection />
 			</MudTabPanel>
 			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Apps" Text="Apps" Disabled="@disabletabs">
@@ -21,34 +23,21 @@
 			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Note" Text="Notes" Disabled="@disabletabs">
 
 			</MudTabPanel>
-			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Settings" Text="Settings" Disabled="@disabletabs">
+			
 
-			</MudTabPanel>
 		</MudTabs>
 	</Menu>
 
 
 	<MainPanel>
-		@if (disabletabs)
-		{
-			<MudGrid Justify="Justify.Center" Class="align-center" Style="height: 100%;">
-				<MudItem>
-					<MudPaper Style="padding: 15pt; padding-bottom:5pt;" Class="d-flex flex-column align-center justify-center mud-width-full py-8">
-						<MudText Typo="Typo.h6" Align="Align.Center">It seems you haven't connected your HP Prime Yet!</MudText>
-						<MudText Typo="Typo.subtitle1" Align="Align.Center">Click the connection button at the top right corner of this page to start the discovery and connection.</MudText>
-					</MudPaper>
-				</MudItem>
-			</MudGrid>
 
-		}
-		else
-		{
-
-		}
+			<MainPanelSwitcher @ref="mainpanel"/>
 	</MainPanel>
 </PrimeMainLayout>
 
 @code {
+
+	private MainPanelSwitcher mainpanel;
 
 	private PrimeCalculator prime;
 
@@ -57,6 +46,8 @@
 	private string statustext;
 
 	public bool drawerOpen { get; set; } = false;
+
+	private bool IDEMode { get; set; } = false;
 
 	void DrawerToggle()
 	{
@@ -115,8 +106,16 @@
 
 	protected override void OnInitialized()
 	{
+		panelservice.RegisterFileService(primefiles);
+
 		manager.OnStatusUpdate += StatusTextUpdated;
 		manager.OnChange += ManagerChanged;
+		panelservice.GlobalIDEModeChanged =  new EventCallback<bool>(this, IDE_changed);
+	}
+
+	public void IDE_changed(bool enabled)
+	{
+		Console.WriteLine("IDE Mode has changed!");
 	}
 
 	public void Dispose()

@@ -2,12 +2,13 @@
 @inject PrimeManager manager
 @inject PrimeFileService primefiles
 @inject ISnackbar Snackbar
+@inject MainPanelService panelservice
 
 <div style="width: 100%;">
 	<MudList Clickable="true">
 		<MudListSubheader>
 			Connection status
-			<MudChip Color="@StatusColor" Class="mx-2">
+			<MudChip Color="@StatusColor" Class="mx-3">
 				@(ConnectionStatus)
 			</MudChip>
 		</MudListSubheader>
@@ -15,6 +16,12 @@
 		{
 			<MudListItem Text="Connect" OnClick="Initialize" />
 		}
+		else
+		{
+			<MudListItem Text="Settings" Icon="@Icons.Material.Filled.Settings" />
+		}
+
+
 		
 	</MudList>
 	<MudList Clickable="false">

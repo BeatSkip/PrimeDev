@@ -4,6 +4,8 @@ public class HpApp
 {
 	public bool IsSystemApp { get; set; }
 
+	public BaseHpApp BaseApp {get; set;}
+
 	public byte[] HpAppcontent { get; set; }
 	public string HpAppnote { get; set; }
 
@@ -25,6 +27,7 @@ public class HpApp
 		ParseByteData(data);
 		//DbgTools.PrintPacket(HpAppcontent);
 		this.SvgIcon = HpIcons.GetIcon(HpAppcontent[20]);
+		this.BaseApp = (BaseHpApp)HpAppcontent[20];
 	}
 
 	private void ParseByteData(byte[] sourcedata)
