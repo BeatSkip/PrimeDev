@@ -1,0 +1,134 @@
+@import '_content/MonacoRazor/MonacoRazor.bundle.scp.css';
+
+/* /Layout/PrimeMainLayout.razor.rz.scp.css */
+
+
+
+.main-container[b-41g81plqdj] {
+	overflow: hidden;
+	display: grid;
+	grid-template-areas: "left right";
+	grid-template-columns: 30rem 1fr;
+	grid-template-rows: 1fr;
+	grid-column-gap: 0px;
+	grid-row-gap: 0px;
+	background-color: aqua;
+	position: relative;
+	height: 100vh;
+}
+
+.leftpanel[b-41g81plqdj] {
+	grid-area: left;
+	background-color: white;
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: 1fr 16px;
+	grid-column-gap: 0px;
+	grid-row-gap: 0px;
+}
+
+.rightpanel[b-41g81plqdj] {
+	grid-area: right;
+	background-color: #f8f9fc;
+}
+
+
+.menupanel[b-41g81plqdj] {
+
+}
+
+.statusbar[b-41g81plqdj] {
+	background-color: #c4c4c4;
+	width: 100%;
+	height: 100%;
+}
+/* /Pages/CodeEditor.razor.rz.scp.css */
+.fullpage[b-vgj0fqyu6r] {
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+.paneltopright[b-vgj0fqyu6r] {
+	position: fixed;
+	right: 0px;
+	top: var(--mud-appbar-height);
+	padding: 5rem 0rem;
+}
+
+.rotate[b-vgj0fqyu6r] {
+	transform: rotate(-90deg);
+	/* Legacy vendor prefixes that you probably don't need... */
+	/* Safari */
+	-webkit-transform: rotate(-90deg);
+	/* Firefox */
+	-moz-transform: rotate(-90deg);
+	/* IE */
+	-ms-transform: rotate(-90deg);
+	/* Opera */
+	-o-transform: rotate(-90deg);
+	/* Internet Explorer */
+	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+}
+/* /Shared/NavMenu.razor.rz.scp.css */
+.navbar-toggler[b-lfgnl4h9rt] {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+.top-row[b-lfgnl4h9rt] {
+	height: 3.5rem;
+	background-color: rgba(0,0,0,0.4);
+}
+
+.navbar-brand[b-lfgnl4h9rt] {
+	font-size: 1.1rem;
+}
+
+.oi[b-lfgnl4h9rt] {
+	width: 2rem;
+	font-size: 1.1rem;
+	vertical-align: text-top;
+	top: -2px;
+}
+
+.nav-item[b-lfgnl4h9rt] {
+	font-size: 0.9rem;
+	padding-bottom: 0.5rem;
+}
+
+	.nav-item:first-of-type[b-lfgnl4h9rt] {
+		padding-top: 1rem;
+	}
+
+	.nav-item:last-of-type[b-lfgnl4h9rt] {
+		padding-bottom: 1rem;
+	}
+
+	.nav-item[b-lfgnl4h9rt]  a {
+		color: #d7d7d7;
+		border-radius: 4px;
+		height: 3rem;
+		display: flex;
+		align-items: center;
+		line-height: 3rem;
+	}
+
+		.nav-item[b-lfgnl4h9rt]  a.active {
+			background-color: rgba(255,255,255,0.25);
+			color: white;
+		}
+
+		.nav-item[b-lfgnl4h9rt]  a:hover {
+			background-color: rgba(255,255,255,0.1);
+			color: white;
+		}
+
+@media (min-width: 641px) {
+	.navbar-toggler[b-lfgnl4h9rt] {
+		display: none;
+	}
+
+	.collapse[b-lfgnl4h9rt] {
+		/* Never collapse the sidebar for wide screens */
+		display: block;
+	}
+}
