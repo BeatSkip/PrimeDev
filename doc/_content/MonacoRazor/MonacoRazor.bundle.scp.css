@@ -1,0 +1,8 @@
+@import '';
+
+/* _content/MonacoRazor/CodeEditor.razor.rz.scp.css */
+.editor[b-rfl8mbhrrk] {
+    border: 2px solid gray;
+    margin: 1em 0;
+    min-height: 300px;
+}
