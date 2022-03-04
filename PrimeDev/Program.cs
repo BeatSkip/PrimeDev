@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PrimeDev;
 using PrimeDev.Layout;
+using PrimeDev.Services;
 using Blazm.Hid;
 using MudBlazor.Services;
 using PrimeWeb;
@@ -17,6 +18,7 @@ builder.Services.AddScoped<HidNavigator>();
 builder.Services.AddScoped<PrimeManager>();
 builder.Services.AddScoped<PrimeFileService>();
 builder.Services.AddScoped<MainPanelService>();
+builder.Services.AddScoped<PrimePythonIdeService>();
 builder.Services.AddMudServices(config =>
 {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;

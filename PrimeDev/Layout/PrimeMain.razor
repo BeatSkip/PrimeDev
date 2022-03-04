@@ -12,8 +12,13 @@
 
 <PrimeMainLayout StatusText="@statustext">
 	<Menu>
-
-		<MudTabs Elevation="1" Rounded="false" Centered="true" Outlined="true">
+		@if (IDEMode)
+		{
+			<PrimePanelPythonIDE OnIdeExited="PythonIDE_exited"/>
+		}
+		else
+		{
+			<MudTabs Elevation="1" Rounded="false" Centered="true" Outlined="true">
 			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Cable" Text="Prime">
 				<PrimePanelConnection />
 			</MudTabPanel>
@@ -26,6 +31,9 @@
 			
 
 		</MudTabs>
+		}
+
+		
 	</Menu>
 
 
@@ -53,8 +61,11 @@
 	{
 		if (manager.IsInitialized)
 			drawerOpen = !drawerOpen;
+	}
 
-
+	private void PythonIDE_exited()
+	{
+		panelservice.SetMainPanel(MainPanelContent.Empty);
 	}
 
 	MudTheme mytheme = new MudTheme()
@@ -116,6 +127,7 @@
 	public void IDE_changed(bool enabled)
 	{
 		Console.WriteLine("IDE Mode has changed!");
+		this.IDEMode = enabled;
 	}
 
 	public void Dispose()

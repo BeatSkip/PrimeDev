@@ -1,6 +1,4 @@
-﻿using PrimeWeb.HpTypes;
-
-namespace PrimeDev.Shared
+﻿namespace PrimeDev.Shared
 {
 	public class MainPanelService
 	{
@@ -16,17 +14,29 @@ namespace PrimeDev.Shared
 			fileService = service;
 		}
 
-		public EventCallback<MainPanelContent> OnMainPanelRequested { get; set; }
 
-		protected async void OnConfigureSettingsHandler(MainPanelContent panel)
+
+
+
+		/// <summary>
+		/// Event to indicate Description
+		/// </summary>
+		public event EventHandler<PanelEventArgs> MainPanelRequested;
+		/// <summary>
+		/// Called to signal to subscribers that Description
+		/// </summary>
+		/// <param name="e"></param>
+		protected virtual void OnMainPanelRequested(MainPanelContent e)
 		{
-			await OnMainPanelRequested.InvokeAsync(panel);
+			var handler = MainPanelRequested;
+			if (handler != null) handler(this, new PanelEventArgs() { content = e });
 		}
+
 
 		public void SetMainPanel(MainPanelContent content)
 		{
-			OnConfigureSettingsHandler(content);
-			if (content == MainPanelContent.IDE)
+			OnMainPanelRequested(content);
+			if (content == MainPanelContent.PythonIDE)
 			{
 				OnIdeModeChange(true);
 				ide_enabled = true;
@@ -38,7 +48,7 @@ namespace PrimeDev.Shared
 					OnIdeModeChange(false);
 				}
 			}
-				
+
 
 		}
 
@@ -59,7 +69,13 @@ namespace PrimeDev.Shared
 		Empty,
 		CalcSettings,
 		RawDataViewer,
-		IDE
+		PythonIDE,
+		PPLIDE
 
+	}
+
+	public class PanelEventArgs : EventArgs
+	{
+		public MainPanelContent content { get; set; }
 	}
 }

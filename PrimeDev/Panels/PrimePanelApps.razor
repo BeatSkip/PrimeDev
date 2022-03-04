@@ -1,6 +1,7 @@
 ﻿@inject PrimeManager manager
 @inject PrimeFileService primefiles
 @inject MainPanelService panelservice
+@inject PrimePythonIdeService pyservice
 
 <MudGrid Style="padding: 1 rem; width: 100%; margin: -5px;" Class="align-stretch">
 	@if (primefiles.HasBackup)
@@ -42,7 +43,8 @@
 
 		if(args.function == "Python IDE")
 		{
-			panelservice.SetMainPanel(MainPanelContent.IDE);
+			panelservice.SetMainPanel(MainPanelContent.PythonIDE);
+			pyservice.StartEditingPythonApp(args.app);
 		}
 		
 	}

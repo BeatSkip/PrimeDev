@@ -7,6 +7,8 @@ public partial class MainPanelSwitcher
 
 	[Inject]
 	public PrimeManager manager { get; init; }
+	[Inject]
+	public MainPanelService panelservice { get; init; }
 
 	[Inject]
 	public PrimeFileService fileService { get; init; }
@@ -15,6 +17,13 @@ public partial class MainPanelSwitcher
 	{
 		currentpanelsetting = MainPanelContent.NotConnected;
 		manager.OnChange += Manager_OnChange;
+		panelservice.MainPanelRequested += Panelservice_MainPanelRequested;
+	}
+
+	private void Panelservice_MainPanelRequested(object? sender, PanelEventArgs e)
+	{
+		currentpanelsetting = e.content;
+		StateHasChanged();
 	}
 
 	private void Manager_OnChange()
@@ -28,10 +37,7 @@ public partial class MainPanelSwitcher
 	private MainPanelContent currentpanelsetting { get; set; }
 
 
-	private void MainpanelRequested(MainPanelContent content)
-	{
 
-	}
 
 
 

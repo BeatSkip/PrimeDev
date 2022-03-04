@@ -98,6 +98,7 @@
 	protected async void ToolingHandler(string feature)
 	{
 		//await StartProgrammingIDE.InvokeAsync((App.Name, ppl ? "PPL" : "Python"));
+		toolsopen = false;
 		await ToolCallback.InvokeAsync((App.Name, feature));
 	}
 
