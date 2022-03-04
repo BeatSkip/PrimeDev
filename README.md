@@ -9,6 +9,10 @@ feature would be nice.
 ## Status
 Very alpha, right now you can connect to your prime and read the contents. note: this 'only' works for HP Prime G2 for now. G1 users, sorry, if i get more traction i might add support later on. although Connectivity kit 2022 is in the works, so let's see what the HP has in store for us.
 
+demo version online at: https://primedev.polyform.wiki/
+
+note: *USE AT YOUR OWN RISK; I'M NOT RESPONSIBLE FOR ANY BRICKING OF DEVICES! IT SHOULD BE FINE, BUT ESPECIALLY WITH THE G1, ALL BETS ARE OFF*
+
 **Latest changes**
 
 *01/03/2022* - complete rework of ui, see screenshot for result.
