@@ -8,7 +8,13 @@
 <MudGrid>
 	<MudToolBar Class="mud-elevation-2" Style="width: 100%; margin-top: 8px;">
 		<MudIconButton OnClick="ExitIDE" Icon="@Icons.Material.Outlined.ArrowBack" Color="Color.Inherit" Class="mr-5" />
-
+		<MudSpacer />
+		<MudTooltip Text="Save files to Calculator">
+			<MudIconButton OnClick="SaveAllFiles" Icon="@Icons.Material.Filled.Upgrade" Color="Color.Inherit" Class="mr-5" />
+		</MudTooltip>
+		<MudTooltip Text="Undo all edits">
+			<MudIconButton OnClick="UndoAllEdits" Icon="@Icons.Material.Filled.Undo" Color="Color.Inherit" Class="mr-5" />
+		</MudTooltip>
 	</MudToolBar>
 
 
@@ -22,16 +28,16 @@
 
 
 
-				@foreach (var file in pyserverice.AppFiles)
-				{
-					<MudListItem Text="@(file.Key)"  OnClick="(() => SelectFile(file.Key))" Icon="@(getFileIcon(file.Key))" IconColor="file.Value.unsavededit ? Color.Warning : Color.Default" Value="@(file.Key)"  Class="@(file.Key == SelectedValue.ToString() ? "mud-selected-item narrow-icons" : "narrow-icons")" />
-				}
-			
+			@foreach (var file in pyserverice.AppFiles)
+			{
+				<MudListItem Text="@(file.Key)" OnClick="(() => SelectFile(file.Key))" Icon="@(getFileIcon(file.Key))" IconColor="file.Value.unsavededit ? Color.Warning : Color.Default" Value="@(file.Key)" Class="@(file.Key == SelectedValue.ToString() ? "mud-selected-item narrow-icons" : "narrow-icons")" />
+			}
+
 		</MudList>
 		<MudList Dense="false" Clickable="true" Style="width: 100%;">
 			<MudDivider />
-			<MudListItem Icon="@Icons.Filled.Add" AdornmentColor="Color.Success" Text="@("Add new File")" Class="narrow-icons" OnClick="CreateNewFile"/>
-			<MudListItem Icon="@Icons.Filled.Delete" AdornmentColor="Color.Warning" Text="@($"Delete   '{SelectedValue}'")" Class="narrow-icons" OnClick="DeleteFile"/>
+			<MudListItem Icon="@Icons.Filled.Add" AdornmentColor="Color.Success" Text="@("Add new File")" Class="narrow-icons" OnClick="CreateNewFile" />
+			<MudListItem Icon="@Icons.Filled.Delete" AdornmentColor="Color.Warning" Text="@($"Delete   '{SelectedValue}'")" Class="narrow-icons" OnClick="DeleteFile" />
 
 			<MudDivider />
 		</MudList>
@@ -53,6 +59,19 @@
 
 	MudListItem selectedItem;
 
+
+	#region File Management
+
+	async Task SaveAllFiles()
+	{
+		await pyserverice.SaveAppToCalculator();
+	}
+
+	async Task UndoAllEdits()
+	{
+
+	}
+
 	async Task CreateNewFile()
 	{
 		var result = await DialogService.Show<CreateFileDialog>("Create new file:").Result;
@@ -71,23 +90,25 @@
 	private async Task DeleteFile()
 	{
 		bool? result = await DialogService.ShowMessageBox(
-			"Warning", 
-			"Deleting can not be undone!", 
-			yesText:"Delete!", cancelText:"Cancel");
+			"Warning",
+			"Deleting can not be undone!",
+			yesText: "Delete!", cancelText: "Cancel");
 
-		if(result==null ? false : true)
+		if (result == null ? false : true)
 		{
 			pyserverice.DeleteFile((string)SelectedValue);
 		}
 
-        StateHasChanged();
-    }
-	
+		StateHasChanged();
+	}
+
 
 	private void FileHasBeenEdited()
 	{
 		StateHasChanged();
 	}
+
+	#endregion
 
 	private void AppSelected()
 	{
@@ -113,11 +134,11 @@
 		await OnIdeExited.InvokeAsync();
 	}
 
-#region internal features
+	#region internal features
 
 
 
-	
+
 
 
 	protected override void OnInitialized()
@@ -128,7 +149,7 @@
 		AppSelected();
 	}
 
-	
+
 
 	private void ManagerChanged()
 	{
@@ -155,7 +176,7 @@
 
 		return Icons.Custom.FileFormats.FileDocument;
 	}
-#endregion
+	#endregion
 
 
 }

@@ -96,7 +96,7 @@
         Snackbar.Add("Connection successful!", Severity.Success, config => { config.ShowCloseIcon = true; config.VisibleStateDuration = 2000; });
     }
 
-    void Prime_Received_backup(object? sender, BackupReceivedEventArgs e)
+    void Prime_Received_backup(object? sender, BackupEventArgs e)
 	{
         Snackbar.Add("Received Backup data", Severity.Info, config => { config.ShowCloseIcon = true; config.VisibleStateDuration = 2000; });
 	}

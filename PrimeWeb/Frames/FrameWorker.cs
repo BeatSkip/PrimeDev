@@ -1,4 +1,4 @@
-﻿//#define DBG_ACK
+﻿#define DBG_ACK
 
 using Blazm.Hid;
 using PrimeWeb.Packets;
@@ -14,23 +14,13 @@ namespace PrimeWeb.Frames
 	public class FrameWorker
 	{
 		private bool ProtocolNegotiated = false;
-
 		private IHidDevice device;
-
 		public uint MessageCount { get; private set; } = 1;
-
 		public ProtocolVersion Protocol { get; private set; } = ProtocolVersion.Unknown;
-
-		private PrimePacket TransmissionPacket { get; set; }
-		private PrimePacket ReceivePacket { get; set; }
-
-		private PayloadFactory factory;
-
 		private uint MessageID_Backup = uint.MaxValue;
 
-		public FrameWorker(IHidDevice hid, PayloadFactory pfactory)
+		public FrameWorker(IHidDevice hid)
 		{
-			factory = pfactory;
 			this.device = hid;
 			this.device.ReportReceived += Prime_ReportReceived;
 			this.device.Connected += Device_Connected;
@@ -40,9 +30,6 @@ namespace PrimeWeb.Frames
 
 		private async void Device_Connected(object? sender, EventArgs e)
 		{
-			Console.WriteLine("[PacketWorker] - Prime is connected!");
-			Console.WriteLine("Sending status packet!");
-
 			var pkt_status = MessageUtils.Misc.GetPacketInfoRequest();
 			await device.SendReportAsync(pkt_status.id, pkt_status.data);
 		}
@@ -57,23 +44,111 @@ namespace PrimeWeb.Frames
 
 		#endregion
 
-		#region USB Input/Output
+		#region internal usb TX
 
-		public async Task SendFrame(IFrame frame)
+		private Action<byte[]> AckReceived;
+
+		private void NotifyAckReceived(byte[] data) => AckReceived?.Invoke(data);
+
+		public void StartBackup()
 		{
-			var bytes = frame.GetFrameBytes();
-			await device.SendReportAsync(0x00, bytes);
-			//Console.WriteLine("-- sent data ----");
-			//DbgTools.PrintPacket(bytes, maxlines: 5);
-			//Console.WriteLine(" -- -- -- --- -- ");
+			this.MessageID_Backup = MessageCount;
 		}
+
+		public async Task TransmitRawData(byte [] data)
+		{
+			await device.SendReportAsync(0x00, data);
+		}
+
+		private async Task<AckFrame> TransmitMessageAsync(byte[] data)
+		{
+			Dictionary<int, byte[]> sentmessages = new Dictionary<int, byte[]>();
+			AckFrame acknack;
+			var ackmsg = WaitForAckResponse();
+
+			foreach (var item in SplitBlocks((int)MessageCount, data))
+			{
+				sentmessages.Add((int)item[0], item);
+
+				await device.SendReportAsync(0x00, item);
+
+				if (ackmsg.IsCompletedSuccessfully)
+				{
+					acknack = new AckFrame(ackmsg.Result);
+					if (!acknack.IsAck && acknack.SequenceToResend != 0xFF)
+						Console.WriteLine("resending sequence!");
+					{
+						for (int i = acknack.SequenceToResend; i < (int)item[0]; i++)
+						{
+							await device.SendReportAsync(0x00, sentmessages[i]);
+						}
+					}
+					ackmsg = WaitForAckResponse();
+				}
+			}
+
+
+
+
+			MessageCount++;
+
+			return await ackmsg.ContinueWith(x => new AckFrame(x.Result));
+		}
+
+		private Task<byte[]> WaitForAckResponse()
+		{
+			Console.WriteLine("received async ACK!");
+			var tcsAck = new TaskCompletionSource<byte[]>();
+
+			Action<byte[]> callback = null;
+			callback = (e) =>
+			{
+				this.AckReceived -= callback;
+				tcsAck.SetResult(e);
+			};
+
+			this.AckReceived += callback;
+			return tcsAck.Task;
+		}
+
+		private IEnumerable<byte[]> SplitBlocks(int messagenumber, byte[] data)
+		{
+			byte sequence = 1;
+			int bytestogo = data.Length;
+			int bytestotake = data.Length <= 1015 ? data.Length : 1015;
+			using (var ms = new MemoryStream(data))
+			using (var reader = new BinaryReader(ms))
+			{
+
+				List<byte> packet = new List<byte>();
+				packet.AddRange(GetMessageHeader(messagenumber, data.Length));
+				packet.AddRange(reader.ReadBytes(bytestotake));
+				bytestogo -= bytestotake;
+				sequence++;
+				yield return packet.ToArray();
+
+				while (bytestogo > 0)
+				{
+					packet.Clear();
+					packet.Add(sequence);
+					sequence++;
+					bytestotake = bytestogo <= 1023 ? bytestogo : 1023;
+
+					packet.AddRange(reader.ReadBytes(bytestotake));
+					bytestogo -= bytestotake;
+					yield return packet.ToArray();
+				}
+			}
+		}
+
+		#endregion
+
+		#region USB Input/Output
 
 		private async void Prime_ReportReceived(object? sender, OnInputReportArgs e)
 		{
 			var data = e.Data;
 			var type = IdentifyReport(data.SubArray(0, 13));
-
-
 			logpacket($"Report received! type: {type}");
 
 			switch (type)
@@ -100,52 +175,65 @@ namespace PrimeWeb.Frames
 			}
 		}
 
-
 		#endregion
 
 		#region Protocol Handling	
 
+		int IncomingToGo;
+		int BytesToGo;
+		int IncomingMessageID;
+		int IncomingSequence;
+		MemoryStream IncomingBytes;
+		BinaryWriter receiveWriter;
+
+
 		public async Task HandleReport_Content(byte[] data)
 		{
 			var frame = new ContentFrame(data);
-			
+			var bytestoread = BytesToGo <= 1023 ? BytesToGo : 1023;
 			if (frame.IsStartFrame)
 			{
-				ReceivePacket = new PrimePacket(factory);
+				IncomingBytes = new MemoryStream();
+				receiveWriter = new BinaryWriter(IncomingBytes);
+				IncomingToGo = (int)frame.IOMessageSize;
+				BytesToGo = IncomingToGo;
+				IncomingMessageID = (int)frame.IOMessageCounter;
+				IncomingSequence = 1;
+				bytestoread = BytesToGo <= 1015 ? BytesToGo : 1015;
 
 				logpacket($"Created new Packet! of type: {(PrimeCMD)frame.Data[0]}");
 			}
 
-			await ReceivePacket.ReceiveNextFrame(this, frame);
+			if ((int)frame.Sequence > IncomingSequence)
+			{
+				Console.WriteLine("error! missed sequence!");
+			}
 
-			
+			receiveWriter.Write(frame.GetContentBytes(bytestoread));
+			BytesToGo -= bytestoread;
+
+			if (IncomingBytes.Position > IncomingToGo -2)
+			{
+				var acker = new AckFrame(true,frame.Sequence,(uint)IncomingMessageID, (uint) IncomingToGo);
+				await TransmitRawData(acker.GetFrameBytes());
+				NotifyMessageReceived(IncomingBytes.ToArray());
+			}
+
+			IncomingSequence++;
+
 		}
 
 		public async Task HandleReport_Ack(byte[] data)
 		{
 			var frame = new AckFrame(data);
-			if (!frame.IsValid)
+			if (frame.IsValid)
 			{
-				Console.WriteLine("Received Ack Frame not valid!");
-			}
-			else
-			{
-
 				if(frame.IOMessageID == MessageID_Backup)
 				{
-					this.factory.StartBackup();
+					NotifyBackupStarted();
 				}
-
-#if (DBG_ACK)
-				frame.printdebug();
-				Console.WriteLine("Received ACK!");
-#endif
-				//DbgTools.PrintPacket(data);
-				//await TransmissionPacket.ReceiveNextFrame(this, frame);
-
+				NotifyAckReceived(data);
 			}
-
-
 		}
 
 		public void HandleReport_OutOfBand(byte[] data)
@@ -158,36 +246,15 @@ namespace PrimeWeb.Frames
 			if (this.Protocol != ProtocolVersion.Old)
 			{
 				this.Protocol = ProtocolVersion.Old;
-				Console.WriteLine("Received Old protocol message while not in old protocol mode!");
-				Console.WriteLine("Switching back to old protocol mode....");
 			}
 
 			var cmd = (PrimeCMD)data[1];
 			var BodyLength = BitConverter.ToInt32(data.SubArray(3, 4).Reverse().ToArray());
 			var Body = data.SubArray(7, BodyLength);
 
-			var Bodyhex = BitConverter.ToString(Body).Replace("-", " ");
-			var Bodystr = Encoding.UTF8.GetString(Body);
-
-
-			switch (cmd)
-			{
-				case (PrimeCMD.GET_INFOS):
-					ProcessHpInfos(Body);
-					return;
-
-				default:
-					break;
-			}
-
-			Console.WriteLine("### Unknown V1 Packet ###");
-			Console.WriteLine($"Command: {cmd.ToString()}  - {data[1].ToString("X2")}");
-			Console.WriteLine($"Body length: {BodyLength} Bytes");
-			Console.WriteLine($"Body [HEX]:\n {Bodyhex}");
-			Console.WriteLine($"Body [UTF8]:\n {Bodystr}");
-			Console.WriteLine("### END ###");
-			Console.WriteLine("");
-
+			if(cmd == PrimeCMD.GET_INFOS)
+				finalizeprotocolchange(Body);
+	
 		}
 
 		public FrameType IdentifyReport(ReadOnlySpan<byte> data)
@@ -210,250 +277,89 @@ namespace PrimeWeb.Frames
 			return FrameType.Error;
 		}
 
-		public static PacketType IdentifyPacket(ContentFrame frame)
-		{
-			if (frame.IsStartFrame)
-				throw new Exception("Can't identify packet if frame is not the primary frame!");
-
-			return (PacketType)frame.GetContentBytes()[0];
-		}
-
 
 		#endregion
 
 		#region Packet Sending
 
-		public async Task Send(IPayloadGenerator data,bool isbackup)
-		{
-			await this.Send(new PrimePacket(data),isbackup);
-		}
-
 		public async Task Send(IPayloadGenerator data)
 		{
-			await this.Send(new PrimePacket(data));
+			await TransmitMessageAsync(data.Generate());
 		}
-
-		public async Task Send(PrimePacket packet, bool isbackup = false)
+		public async Task Send(byte[] data)
 		{
-			packet.Direction = TransferType.Tx;
-
-			if (isbackup)
-			{
-				this.MessageID_Backup = MessageCount;
-			}
-				
-
-			packet.Initialize(MessageCount++);
-
-			TransmissionPacket = packet;
-
-			bool allsent = false;
-			do
-			{
-				allsent = await TransmissionPacket.TransmitNextFrame(this);
-			} while (!allsent);
+			await TransmitMessageAsync(data);
 		}
 
-#endregion
+		#endregion
 
 		#region legacy
 
-		private async Task ProcessHpInfos(byte[] data)
+		private async Task finalizeprotocolchange(byte[] data)
 		{
+			
+
 			var result = new HpInfos(data);
-			result.Product = ProductIdToProductString(device.ProductId);
-			Console.WriteLine($"Info | {result.Product} | Serialnumber: {result.Serial} | Version: {result.Version} | Build: {result.Build} ");
+			result.SetProductId(device.ProductId);
+			NotifyCalcInfoReceived(result);
 
 			if (result.Build < 10591)
 			{
 				Console.WriteLine("Sorry Calculator not supported! please update!");
-				OnUnsupportedCalcConnected();
+				throw new Exception("Sorry Calculator not supported! please update!");
 				return;
 			}
 
 			if (ProtocolNegotiated)
 				return;
 
-			var pkt_prot = MessageUtils.Misc.GetPacketSetProtocolV2();
-			await device.SendReportAsync(pkt_prot.id, pkt_prot.data);
-
+			byte[] content = { 0xFF, 0xEC, 0, 0, 0, 0, 0, 0 };
+			await device.SendReportAsync(0x00, content);
 			Console.WriteLine("Sent protocol V2 request");
-
 			ProtocolNegotiated = true;
-
 			this.Protocol = ProtocolVersion.V2;
-			OnInfoReceived(result);
+			NotifyCommunicationInitialized();
+
+
 		}
-
-		private string ProductIdToProductString(ushort? pid)
-		{
-			switch (pid)
-			{
-				case (0x0441):
-				case (0x1541):
-					return "HP Prime G1";
-				case (0x2441):
-					return "HP Prime G2";
-				default:
-					return "Unrecognized Calculator";
-
-			}
-		}
-
-
-#endregion
+		#endregion
 
 		#region Events
 
-		/// <summary>
-		/// Event to indicate Description
-		/// </summary>
-		public event EventHandler<FilePacketEventArgs> ContentReceived;
+		public Action BackupStarted { get; set; }
+		private void NotifyBackupStarted() => BackupStarted?.Invoke();
 
 
-		/// <summary>
-		/// Called to signal to subscribers that Description
-		/// </summary>
-		/// <param name="e"></param>
-		protected virtual void OnContentReceived(FilePacketEventArgs e)
+		public Action<byte[]> MessageReceived { get; set; }
+		private void NotifyMessageReceived(byte[] data) => MessageReceived?.Invoke(data);
+
+		public Action CommunicationInitialized { get; set; }
+		private void NotifyCommunicationInitialized() => CommunicationInitialized?.Invoke();
+
+		public Action<HpInfos> CalcInfoReceived { get; set; }
+		private void NotifyCalcInfoReceived(HpInfos data) => CalcInfoReceived?.Invoke(data);
+
+		#endregion
+
+		#region utility
+
+		private static byte[] GetMessageHeader(int messagenumber, int messagesize)
 		{
-			var handler = ContentReceived;
-			if (handler != null) handler(this, e);
+			byte[] header = new byte[9];
+
+			header[0] = (byte)0x01;
+			header[1] = (byte)((uint)messagenumber & (uint)0x000000FF);
+			header[2] = (byte)(((uint)messagenumber & (uint)0x0000FF00) >> 8);
+			header[3] = (byte)(((uint)messagenumber & (uint)0x00FF0000) >> 16);
+			header[4] = (byte)(((uint)messagenumber & (uint)0xFF000000) >> 24);
+
+			header[5] = (byte)((uint)messagesize & (uint)0x000000FF);
+			header[6] = (byte)(((uint)messagesize & (uint)0x0000FF00) >> 8);
+			header[7] = (byte)(((uint)messagesize & (uint)0x00FF0000) >> 16);
+			header[8] = (byte)(((uint)messagesize & (uint)0xFF000000) >> 24);
+
+			return header;
 		}
-
-
-
-
-		/// <summary>
-		/// Error event triggered when an unsupported calculator is connected.
-		/// </summary>
-		public event EventHandler UnsupportedCalcConnected;
-
-		protected virtual void OnUnsupportedCalcConnected()
-		{
-
-			var handler = UnsupportedCalcConnected;
-			if (handler != null) handler(this, EventArgs.Empty);
-		}
-
-
-
-		/// <summary>
-		/// event indicating the calculator communication has been 
-		/// initialized, calculator info has been received and 
-		/// protocol has been negotiated
-		/// </summary>
-		public event EventHandler<CommsInitEventArgs> CalcInitialized;
-
-
-
-		protected virtual void OnInfoReceived(HpInfos info)
-		{
-
-			var handler = CalcInitialized;
-			if (handler != null) handler(this, new CommsInitEventArgs() { Info = info, Version = ProtocolVersion.V2 });
-		}
-
-
-
-#endregion
-
-		#region Legacy code
-
-		/*
-		private void ParseReportV2Protocol(byte[] data)
-		{
-
-			var kind = data[0] == 254 ? NewPacketType.OutOfBounds : (data[0] == 1 ? NewPacketType.MessageStart : NewPacketType.Message);
-
-			//Console.WriteLine($"Packet kind: {kind.ToString()}");
-
-			switch (kind)
-			{
-				case (NewPacketType.OutOfBounds):
-					HandleOutOfBounds(data);
-					break;
-				case (NewPacketType.MessageStart):
-					var report = new V2ReportStart(data);
-					report.Print();
-					CurrentMessageIn = new V2MessageIn(report);
-
-					if (CurrentMessageIn.Completed)
-					{
-						OnV2MessageReceived(new V2MessageEventArgs() { Data = CurrentMessageIn.GetData() });
-						device.SendReportAsync(0x00, CurrentMessageIn.GetAckMessage());
-					}
-
-
-					break;
-				case (NewPacketType.Message):
-					if (CurrentMessageIn == null)
-						return;
-					var status = CurrentMessageIn.AddSlice(data);
-					device.SendReportAsync(0x00, CurrentMessageIn.GetAckMessage());
-					if (CurrentMessageIn.Completed)
-					{
-						OnV2MessageReceived(new V2MessageEventArgs() { Data = CurrentMessageIn.GetData() });
-
-					}
-
-
-					Console.WriteLine($"Added slice {status.slicenumber} to message {CurrentMessageIn.MessageNumber}! {status.BytesToGo} Bytes to go");
-					break;
-				default:
-					break;
-			}
-		}
-
-
-		private void HandleOutOfBounds(byte[] data)
-		{
-			if (data[1] == 0x00)
-			{
-				Console.WriteLine($"NACK Received! Sequence: {data[2]}");
-				if (CurrentMessageOut != null)
-					CurrentMessageOut.NAck(data[2]);
-
-				return;
-			}
-
-			if (data[1] == 0x01 && data[2] == 0xFF)
-			{
-				Console.WriteLine("heartbeat..");
-				return;
-			}
-
-			if (data[1] == 0x01 && data[2] != 0xFF)
-			{
-				Console.WriteLine("ACK Received! Sequence: {data[2]}");
-				if (CurrentMessageOut != null)
-				{
-					var messagecomplete = CurrentMessageOut.Ack(data[2]);
-
-					if (messagecomplete)
-					{
-						//TODO: Sent message complete handler
-					}
-
-				}
-
-
-				return;
-			}
-
-
-		}
-
-		public event EventHandler<V2MessageEventArgs> V2MessageReceived;
-
-		protected virtual void OnV2MessageReceived(V2MessageEventArgs e)
-		{
-
-			var handler = V2MessageReceived;
-			if (handler != null) handler(this, e);
-		}
-		*/
-#endregion
 
 		private void logpacket(string line)
 		{
@@ -462,17 +368,14 @@ namespace PrimeWeb.Frames
 #endif
 		}
 
+		#endregion
+
+
+
+
+
 
 	}
-
-
-	public class CommsInitEventArgs : EventArgs
-	{
-		public ProtocolVersion Version { get; set; }
-		public HpInfos Info { get; set; }
-	}
-
-	
 
 
 

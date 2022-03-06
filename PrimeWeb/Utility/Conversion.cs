@@ -75,22 +75,8 @@ namespace PrimeWeb.Utility
 		{
 			using (MemoryStream ms = new MemoryStream())
 			{
-				using (ZLibStream zls = new ZLibStream(ms, CompressionLevel.NoCompression))
+				using (ZLibStream zls = new ZLibStream(ms, CompressionLevel.Fastest))
 				{
-					zls.Write(input, 0, input.Length);
-				}
-				return ms.ToArray();
-			}
-		}
-
-
-		public static byte[] decompress_old(byte[] input)
-		{
-			using (MemoryStream ms = new MemoryStream())
-			{
-				using (ZLibStream zls = new ZLibStream(ms, CompressionMode.Decompress))
-				{
-					
 					zls.Write(input, 0, input.Length);
 				}
 				return ms.ToArray();
@@ -114,6 +100,11 @@ namespace PrimeWeb.Utility
 			}
 		}
 
+		public static byte[] GetLittleEndianBytes(int number)
+		{
+			return GetLittleEndianBytes((uint)number);
+		}
+
 		public static byte[] GetLittleEndianBytes(uint number)
 		{
 			byte[] data = new byte[4];
@@ -123,6 +114,11 @@ namespace PrimeWeb.Utility
 			data[3] = (byte)((number & (uint)0xFF000000) >> 24);
 
 			return data;
+		}
+
+		public static byte[] GetBigEndianBytes(int number)
+		{
+			return GetBigEndianBytes((uint)number);
 		}
 
 		public static byte[] GetBigEndianBytes(uint number)

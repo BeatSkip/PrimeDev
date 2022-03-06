@@ -61,9 +61,13 @@ namespace PrimeDev.Services
 			NotifyFileEdited();
 		}
 
-		public void SaveAppToCalculator()
+		public async Task SaveAppToCalculator()
 		{
 			this.CurrentApp.Files = _files.ToDictionary(x => x.Key, x => Encoding.UTF8.GetBytes(x.Value.filecontent));
+			await primefiles.UploadDataToPrime(this.CurrentApp);
+
+			
+			Console.WriteLine("HpApp written to Prime!");
 		}
 
 

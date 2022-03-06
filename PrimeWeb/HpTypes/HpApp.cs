@@ -1,6 +1,6 @@
 ﻿namespace PrimeWeb.Types;
 
-public class HpApp
+public class HpApp : IPayloadGenerator
 {
 	public bool IsSystemApp { get; set; }
 
@@ -21,6 +21,9 @@ public class HpApp
 	public byte[] Content { get { return this.contents; } set { this.contents = value; } }
 
 	private byte[] rawdata;
+
+	private byte[] headerbytes;
+
 	public HpApp(byte[] data)
 	{
 		rawdata = data;
@@ -43,8 +46,6 @@ public class HpApp
 		}
 
 		this.Appsize = (int)header.Size;
-
-
 
 
 		using (var ms = new MemoryStream(contents))
@@ -75,7 +76,7 @@ public class HpApp
 		if ((BaseHpApp)HpAppcontent[20] == BaseHpApp.Finance)
 		{
 			Console.WriteLine("Finance app dump!");
-			DbgTools.PrintPacket(contents);
+			//DbgTools.PrintPacket(contents);
 		}
 
 		Console.WriteLine($"finalized {this.Name} app files, reading files");
@@ -148,6 +149,98 @@ public class HpApp
 		return -1;
 	}
 
+
+	public byte[] Generate()
+	{
+		return createPayloadData();
+	}
+	public byte[] createPayloadData()
+	{
+		
+		var crc = new byte[] { 0x00, 0x00 };
+		var appdata = PackageAppData();
+		var newlenght = Conversion.GetBigEndianBytes((uint)(appdata.Length-4));
+		appdata[0] = newlenght[0];
+		appdata[1] = newlenght[1];
+		appdata[2] = newlenght[2];
+		appdata[3] = newlenght[3];
+
+		//DbgTools.PrintPacket(appdata, title: "created packet!");
+
+		var compressed = Conversion.compress(appdata);
+		var length = Conversion.GetBigEndianBytes((uint)compressed.Length + 4);
+
+		using (var ms = new MemoryStream())
+		using (var writer = new BinaryWriter(ms))
+		{
+			writer.Write((byte)0xF7);
+			writer.Write((byte)0x03);
+			//writer.Write(cmdheader);
+			writer.Write(length);
+			writer.Write(crc);
+			writer.Write(crc);
+			writer.Write(compressed);
+			//writer.Write(appdata);
+
+			var tocheck = ms.ToArray();
+			var crcdata = CrcChecker.crc16_block(tocheck, (uint)(compressed.Length + 4));
+
+			tocheck[6] = (byte)crcdata;
+			tocheck[7] = (byte)(crcdata >> 8 & 0xFF);
+
+			return tocheck;
+		}
+		Console.WriteLine("app payload has been created!");
+
+	}
+
+	private byte[] PackageAppData()
+	{
+		using(var ms = new MemoryStream())
+		using(var writer = new BinaryWriter(ms))
+		{
+			writer.Write(new byte[] { 0x00, 0x00, 0x00, 0x00 });
+			writer.Write((byte)PrimeFileType.APP);
+			var namebytes = Conversion.EncodeTextData(this.IsSystemApp ? $"&{this.Name}" : this.Name);
+			writer.Write((byte)namebytes.Length);
+			writer.Write(namebytes);
+			var headerlengthbytes = Conversion.GetBigEndianBytes((uint)HpAppcontent.Length);
+			writer.Write(headerlengthbytes);
+			writer.Write(HpAppcontent);
+
+			var notedata = Conversion.EncodeTextData(HpAppnote);
+			var notelengthbytes = Conversion.GetBigEndianBytes((uint)notedata.Length);
+			writer.Write(notelengthbytes);
+			writer.Write(notedata);
+
+			var filescontent = packageAppFiles();
+			writer.Write(filescontent);
+			return ms.ToArray();
+		}
+	}
+
+	private byte[] packageAppFiles()
+	{
+		var filesstart = new byte[] { 0x00, 0x00, 0x00, 0x02, 0x00, 0x00 };
+		var splitter = new byte[] { 0x00, 0x00 };
+		using (var ms = new MemoryStream())
+		using (var writer = new BinaryWriter(ms))
+		{
+			writer.Write(filesstart);
+			foreach (var file in Files)
+			{
+				var namebytes = Conversion.EncodeTextData(file.Key);
+
+				var length = Conversion.GetBigEndianBytes((uint)(namebytes.Length + 2 + file.Value.Length));
+				writer.Write(length);
+				writer.Write(namebytes);
+				writer.Write(splitter);
+				writer.Write(file.Value);
+			}
+
+			return ms.ToArray();
+		}
+	}
 
 
 }

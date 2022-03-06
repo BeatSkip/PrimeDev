@@ -17,6 +17,31 @@ namespace PrimeWeb.Utility
 			return (Filename, FileType, FileSize, PacketContent);
 		}
 
+		public static byte[] GenerateFileHeader(string Name, PrimeFileType Type, uint Size, byte[] Contents)
+		{
+			var crc = new byte[] { 0x00, 0x00 };
+			using (var ms = new MemoryStream())
+			using (var writer = new BinaryWriter(ms))
+			{
+				//writer.Write(cmdheader);
+				//writer.Write(length);
+				//writer.Write(crc);
+				//writer.Write(compressed);
+				//return ms.ToArray();
+			}
+
+			//uint FileSize = ((uint)sourcedata[2]) << 24 | ((uint)sourcedata[3]) << 16 | ((uint)sourcedata[4]) << 8 | (uint)sourcedata[5];
+			//int namelength = sourcedata[7];
+			//var FileType = (PrimeFileType)sourcedata[6];
+			//
+			//var Filename = Conversion.DecodeTextData(sourcedata.SubArray(10, namelength));
+			//
+			//var PacketContent = sourcedata.SubArray(10 + namelength);
+			//
+			//return (Filename, FileType, FileSize, PacketContent);
+			return new byte[] { 0x00, 0x00 };
+		}
+
 		public static void ParseSettingsFile(byte[] data)
 		{
 			Console.WriteLine("Settings data:");

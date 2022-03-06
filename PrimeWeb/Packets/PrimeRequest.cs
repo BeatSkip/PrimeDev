@@ -17,6 +17,14 @@ public class PrimeRequest : IPayloadGenerator
 		content.Add(PrimeCommands.DefaultParams[Cmd]);
 	}
 
+	public PrimeRequest(PrimeCommand Cmd, byte[] data)
+	{
+		content.Add(Cmd);
+		content.Add(PrimeCommands.DefaultParams[Cmd]);
+		content.AddRange(data);
+
+	}
+
 	public PrimeRequest(byte Cmd, byte param)
 	{
 		content.Add(Cmd);
@@ -36,9 +44,9 @@ public class PrimeRequest : IPayloadGenerator
 		content.Add(0x00);//CRC
 		content.Add(0x00);//CRC
 		content.AddRange(namebytes);
-		
-
 	}
+
+	
 
 	public byte[] Generate()
 	{

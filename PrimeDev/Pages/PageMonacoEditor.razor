@@ -1,17 +1,19 @@
 ﻿@inject PrimePythonIdeService pyserverice
+@inject IResizeListener listener
 
-<MonacoEditor @ref="_editor" Id="ide-anim" ConstructionOptions="EditorConstructionOptions" OnDidInit="EditorOnDidInit" OnContextMenu="OnContextMenu" OnDidChangeModelContent="OnContentSizeChanged" />
+<MonacoEditor @ref="_editor" Id="ide-anim" ConstructionOptions="EditorConstructionOptions" OnDidInit="EditorOnDidInit" OnContextMenu="OnContextMenu" OnDidChangeModelContent="OnContentSizeChanged"  />
 
-<MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Class="fab-bottom-right right-drawer-size-bigger">
-	<MudButton StartIcon="@Icons.Material.Filled.Upload">Save and Upload</MudButton>
-	<MudButton StartIcon="@Icons.Material.Filled.Clear" IconColor="Color.Warning" OnClick="(async () => await Testfeature())">Test</MudButton>
-</MudButtonGroup>
+
 
 
 @code {
 
+	//<MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Class="fab-bottom-right right-drawer-size-bigger">
+	//<MudButton StartIcon="@Icons.Material.Filled.Upload">Save and Upload</MudButton>
+	//<MudButton StartIcon="@Icons.Material.Filled.Clear" IconColor="Color.Warning" OnClick="(async () => await Testfeature())">Test</MudButton>
+	//</MudButtonGroup>
+
 	[Inject] IJSRuntime _jsRuntime { get; set; }
-	private DotNetObjectReference<Index> objRef;
 
 	#region Monaco Editor
 	private MonacoEditor _editor { get; set; }
@@ -130,7 +132,8 @@
 
 	}
 
-
-
 	#endregion
+
+	
+
 }

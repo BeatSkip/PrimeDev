@@ -1,5 +1,6 @@
 ﻿using Blazm.Hid;
 
+
 namespace PrimeWeb.Calculator;
 
 /// <summary>
@@ -11,43 +12,33 @@ public class PrimeCalculator
 	public string ProductName { get { return DeviceInfo.Product; } }
 
 	private IHidDevice prime;
-
 	private FrameWorker frameWorker;
-
 	private PayloadFactory dataFactory;
 
 	public PrimeCalculator(IHidDevice device, string Title = "")
 	{
 		prime = device;
-		dataFactory = new PayloadFactory();
-		frameWorker = new FrameWorker(device, dataFactory);
-		frameWorker.CalcInitialized += PacketWorker_CalcInitialized;
-		frameWorker.ContentReceived += PacketWorker_ContentReceived;
-		
+		frameWorker = new FrameWorker(device);
+		frameWorker.CommunicationInitialized += CommunicationInitialized;
+		dataFactory = new PayloadFactory(frameWorker);
+		dataFactory.OnCalculatorInfoReceived += CalcInfoReceived;
+		dataFactory.BackupReceived += DataFactory_BackupReceived;
 	}
 
-	private void DataFactory_BackupReceived(object? sender, BackupReceivedEventArgs e)
+	private void DataFactory_BackupReceived(object? sender, BackupEventArgs e)
 	{
-		throw new NotImplementedException();
+		OnBackup(e.Content);
 	}
 
-	private void PacketWorker_ContentReceived(object? sender, FilePacketEventArgs e)
+	private void CalcInfoReceived(HpInfos info)
 	{
-		
+		this.DeviceInfo = info;
+		OnChanged();
 	}
-
-	private void PacketWorker_RawContentReceived(object? sender, RawContentEventArgs e)
+	private void CommunicationInitialized()
 	{
-		this.OnRawContentReceived(e);
+		OnConnected(); 
 	}
-
-	private void PacketWorker_CalcInitialized(object? sender, CommsInitEventArgs e)
-	{
-		this.DeviceInfo = e.Info;
-		this.InfoChanged();
-		ConnectionInitDone();
-	}
-
 
 	#region properties
 
@@ -87,7 +78,7 @@ public class PrimeCalculator
 			return;
 
 		await frameWorker.ConnectAsync();
-
+		//await packer.InitializeAsync();
 
 	}
 
@@ -111,37 +102,27 @@ public class PrimeCalculator
 
 	public async Task SendRequest(PrimeCommand command)
 	{
-		await frameWorker.Send(new PrimeRequest(command), (command == PrimeCommands.BACKUP));
-	}
+		if (command == PrimeCommands.BACKUP)
+		{
+			frameWorker.StartBackup();
+			dataFactory.StartBackup();
+		}
+			
 
-	public async Task SendRequest(PrimeRequest request)
-	{
-		await this.Request(request);
-	}
-
-	public async Task Request(PrimeRequest request)
-	{
-		if (!IsConnected) return;
-
-		await frameWorker.Send(request);
+		
+		await frameWorker.Send(new PrimeRequest(command));
 	}
 
 	public async Task SendChatMessage(string Message)
 	{
 		if (!IsConnected) return;
-
-		var payload = new PrimeChatPayload(Message);
-
+		var payload = ChatConverter.CreateChat(Message);
 		await frameWorker.Send(payload);
-
-
 	}
 
-	public async Task GetScreenshot(Action<string> callback)
+	public async Task SendHpApp(HpApp app)
 	{
-		if (!IsConnected) return;
-
-
+		await frameWorker.Send(app);
 	}
 
 	#endregion
@@ -151,7 +132,7 @@ public class PrimeCalculator
 	/// <summary>
 	/// Reports physical device events
 	/// </summary>
-	public event EventHandler<EventArgs> Connected, Disconnected, Changed;
+	
 
 	/// <summary>
 	/// Reports data received from the USB
@@ -167,63 +148,19 @@ public class PrimeCalculator
 
 	#region reception events
 
-	/// <summary>
-	/// Chat message received event
-	/// </summary>
-	public event EventHandler<ChatEventArgs> ChatReceived;
 
-	/// <summary>
-	/// Called to indicate the reception of a new message
-	/// </summary>
-	/// <param name="e"></param>
-	protected virtual void OnChatReceived(ChatEventArgs e)
+	public event EventHandler<BackupEventArgs> BackupReceived;
+	protected virtual void OnBackup(HpBackup backup)
 	{
-		EventHandler<ChatEventArgs> eh = ChatReceived;
-		if (eh != null)
-		{
-			eh(this, e);
-		}
+		var handler = BackupReceived;
+		if (handler != null) handler(this, new BackupEventArgs() { Content = backup});
 	}
-
-
-	public event EventHandler<BackupReceivedEventArgs> BackupReceived
-	{
-		add { dataFactory.BackupReceived += value; }
-		remove { dataFactory.BackupReceived -= value; }
-	}
-
-
 	#endregion
 
 
 	#region events
 
-	internal void ConnectionInitDone()
-	{
-		OnConnected();
-	}
-
-
-	internal void InfoChanged()
-	{
-		OnChanged();
-	}
-
-	internal void TransferCompleted(byte[] data)
-	{
-		OnTransferCompleted(new DataReceivedEventArgs(data));
-	}
-
-	/// <summary>
-	/// Some data arrived (Device has to be Receiving data)
-	/// </summary>
-	/// <param name="e">Data received</param>
-	protected virtual void OnTransferCompleted(DataReceivedEventArgs e)
-	{
-
-		var handler = DataReceived;
-		if (handler != null) handler(this, e);
-	}
+	public event EventHandler<EventArgs> Connected, Disconnected, Changed;
 
 	/// <summary>
 	/// Some data arrived (Device has to be Receiving data)
@@ -234,8 +171,6 @@ public class PrimeCalculator
 		var handler = Changed;
 		if (handler != null) handler(this, new EventArgs());
 	}
-
-
 
 	/// <summary>
 	/// First compatible device was found and it is connected
@@ -256,37 +191,7 @@ public class PrimeCalculator
 	}
 
 
-	/// <summary>
-	/// Event to indicate Description
-	/// </summary>
-	public event EventHandler<RawContentEventArgs> RawContentReceived;
-
-
-	/// <summary>
-	/// Called to signal to subscribers that Description
-	/// </summary>
-	/// <param name="e"></param>
-	protected virtual void OnRawContentReceived(RawContentEventArgs e)
-	{
-		var handler = RawContentReceived;
-		if (handler != null) handler(this, e);
-	}
-
 	#endregion
 
-	#region LegacyCode
-	/*
-     /// <summary>
-    /// Chat message has been received!
-    /// </summary>
-    /// <param name="e">Chat message received</param>
-    protected virtual void OnMessageReceived(MessageReceivedEventArgs e)
-    {
-        var handler = ChatMessageReceived;
-        if (handler != null) handler(this, e);
-    }
-     */
-
-	#endregion
 }
 

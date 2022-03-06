@@ -24,12 +24,17 @@ namespace PrimeWeb.Blazor
 
 		}
 
-		private void Prime_BackupReceived(object? sender, BackupReceivedEventArgs e)
+		private void Prime_BackupReceived(object? sender, BackupEventArgs e)
 		{
 			this.PrimeData = e.Content;
 			this.OnAppsChanged();
 		}
 
+
+		public async Task UploadDataToPrime(HpApp app)
+		{
+			await prime.SendHpApp(app);
+		}
 
 		/// <summary>
 		/// Event to indicate Description

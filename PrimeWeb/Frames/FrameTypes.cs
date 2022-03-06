@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using PrimeWeb.Packets;
-using PrimeWeb.Types;
-
-namespace PrimeWeb.Protocol
+﻿namespace PrimeWeb.Protocol
 {
 	public enum FrameType
 	{
@@ -26,7 +17,7 @@ namespace PrimeWeb.Protocol
 		public bool IsValid { get; }
 		public FrameType Type { get; }
 
-		
+
 	}
 
 	public class AckFrame : IFrame
@@ -101,7 +92,7 @@ namespace PrimeWeb.Protocol
 
 		public bool IsStartFrame { get { return (Sequence == 0x01); } }
 
-		public int BlockLength { get { return Data.Length; } }
+		public int BlockLength { get { return IsStartFrame ? 1015 : 1023; } }
 
 		public byte Sequence { get; private set; } // Packet ID: out of bounds: 254
 
@@ -115,7 +106,7 @@ namespace PrimeWeb.Protocol
 
 		public bool IsValid { get { return (Sequence != 0xFE && IsStartFrame ? (IOMessageSize < ((240 * 1023) - 8) && IOMessageCounter < 25000000 && IOMessageCounter != 0) : (Sequence > 0x00 && Sequence < 0xFE)); } }
 
-		public int PayloadSize { get { return IsStartFrame ? (int) IOMessageSize : -1; } }
+		public int PayloadSize { get { return IsStartFrame ? (int)IOMessageSize : -1; } }
 
 		public ContentFrame(byte[] data)
 		{
@@ -136,19 +127,19 @@ namespace PrimeWeb.Protocol
 			}
 		}
 
-		public ContentFrame(int sequence, byte[] data, uint messagenumber = 0)
+		public ContentFrame(int sequence, byte[] data, uint messagenumber = 0, uint totalLength = 0)
 		{
 			Sequence = (byte)sequence;
 			Data = data;
 			if (Sequence == 0x01)
 			{
 				IOMessageCounter = messagenumber;
-				IOMessageSize = (uint)data.Length;
+				IOMessageSize = totalLength;
 			}
 			else
 			{
 				IOMessageCounter = 0;
-				IOMessageSize = 0;		
+				IOMessageSize = 0;
 			}
 		}
 
@@ -181,14 +172,21 @@ namespace PrimeWeb.Protocol
 		{
 			var payload = new byte[1 + Data.Length];
 			payload[0] = Sequence;
-		
+
 			Array.Copy(Data, 0, payload, 1, Data.Length);
 			return payload;
 		}
 
+		public byte[] GetContentBytes(int length)
+		{
+			return Data.SubArray(0, length);
+		}
+
 		public byte[] GetContentBytes()
 		{
+
 			return Data;
+
 		}
 
 	}
@@ -202,7 +200,7 @@ namespace PrimeWeb.Protocol
 		public bool IsValid { get { return true; } }
 
 		private byte[] Data;
-		
+
 		public LegacyFrame(byte[] data)
 		{
 			Data = data;

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PrimeWeb.Types
+﻿namespace PrimeWeb.Types
 {
 	public struct HpInfos
 	{
@@ -18,10 +12,11 @@ namespace PrimeWeb.Types
 
 		public string Product { get; set; }
 
+		public ushort ProductID { get; set; }
 		public HpInfos(byte[] data)
 		{
 			this.Data = data;
-
+			ProductID = 0;
 			int index_serial = Data.Length - 16;
 			int index_version = index_serial - 16;
 			int index_build = index_version - 4;
@@ -34,6 +29,26 @@ namespace PrimeWeb.Types
 			Version = Encoding.UTF8.GetString(BytesVersion);
 			Build = version;
 			Product = "";
+		}
+
+		public void SetProductId(ushort? pid)
+		{
+			ProductID = pid ?? 0;
+			switch (pid)
+			{
+				case (0x0441):
+				case (0x1541):
+					Product = "HP Prime G1";
+					break;
+				case (0x2441):
+					Product =  "HP Prime G2";
+					break;
+				default:
+					Product = "Unrecognized Calculator";
+					break;
+
+			}
+
 		}
 	}
 

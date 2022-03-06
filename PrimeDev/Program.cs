@@ -5,6 +5,7 @@ using PrimeDev.Layout;
 using PrimeDev.Services;
 using Blazm.Hid;
 using MudBlazor.Services;
+using BlazorPro.BlazorSize;
 using PrimeWeb;
 using PrimeWeb.Blazor;
 
@@ -19,6 +20,13 @@ builder.Services.AddScoped<PrimeManager>();
 builder.Services.AddScoped<PrimeFileService>();
 builder.Services.AddScoped<MainPanelService>();
 builder.Services.AddScoped<PrimePythonIdeService>();
+builder.Services.AddResizeListener(options =>
+                            {
+                                options.ReportRate = 250;
+                                options.EnableLogging = false;
+                                options.SuppressInitEvent = true;
+                            });
+
 builder.Services.AddMudServices(config =>
 {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;

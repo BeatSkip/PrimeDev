@@ -1,19 +1,22 @@
 ﻿namespace PrimeWeb.Packets;
 
-public class PayloadFactory : IPayloadParser
+public partial class PayloadFactory : IPayloadParser
 {
 	public bool IsRunningBackup { get; private set; } = false;
 
 	private HpBackup backup;
+	private FrameWorker worker;
 
-	public PayloadFactory()
+	public PayloadFactory(FrameWorker frameworker)
 	{
-		IsRunningBackup = false;
+		worker = frameworker;
+		worker.CalcInfoReceived += CalcInfoReceived;
+		worker.MessageReceived += ParsePayload;
 	}
 
-	public void PublishNewPayload(byte[] data)
+	private void CalcInfoReceived(HpInfos info)
 	{
-
+		NotifyCalculatorInfoReceived(info);
 	}
 
 	public void StartBackup()
@@ -25,6 +28,9 @@ public class PayloadFactory : IPayloadParser
 		}
 		IsRunningBackup = true;
 	}
+
+
+
 
 	public void ParsePayload(byte[] payload)
 	{
@@ -64,7 +70,7 @@ public class PayloadFactory : IPayloadParser
 	{
 		logline("End of Backup received");
 		IsRunningBackup = false;
-		OnBackupReceived(new BackupReceivedEventArgs() { Content = backup });
+		OnBackupReceived(new BackupEventArgs() { Content = backup });
 
 	}
 
@@ -76,7 +82,10 @@ public class PayloadFactory : IPayloadParser
 		byte[] data;
 
 		if (iscompressed)
+		{
 			data = HpFileParser.DecompressFileStream(payload.SubArray(10));
+			//DbgTools.PrintPacket(data, title: "raw uncompressed dump");
+		}
 		else
 			data = payload;
 
@@ -176,54 +185,14 @@ public class PayloadFactory : IPayloadParser
 
 	}
 
-	/// <summary>
-	/// Event to indicate Description
-	/// </summary>
-	public event EventHandler<BackupReceivedEventArgs> BackupReceived;
-	/// <summary>
-	/// Called to signal to subscribers that Description
-	/// </summary>
-	/// <param name="e"></param>
-	protected virtual void OnBackupReceived(BackupReceivedEventArgs e)
-	{
-		var eh = BackupReceived;
-		if (eh != null)
-		{
-			eh(this, e);
-		}
-	}
+
+	#region Events
 
 
 
-	/// <summary>
-	/// Event to indicate Description
-	/// </summary>
-	public event EventHandler<AppReceivedEventArgs> AppReceived;
-	protected virtual void OnAppReceived(AppReceivedEventArgs e)
-	{
-		var handler = AppReceived;
-		if (handler != null) handler(this, e);
-	}
 
-	/// <summary>
-	/// Event to indicate Description
-	/// </summary>
-	public event EventHandler<ChatReceivedEventArgs> ChatReceived;
-	protected virtual void OnChatReceived(ChatReceivedEventArgs e)
-	{
-		var handler = ChatReceived;
-		if (handler != null) handler(this, e);
-	}
+	#endregion
 
-	/// <summary>
-	/// Event to indicate Description
-	/// </summary>
-	public event EventHandler<FileReceivedEventArgs> FileReceived;
-	protected virtual void OnFileReceived(ChatReceivedEventArgs e)
-	{
-		var handler = ChatReceived;
-		if (handler != null) handler(this, e);
-	}
 
 	private void logline(string line)
 	{
@@ -232,32 +201,4 @@ public class PayloadFactory : IPayloadParser
 
 }
 
-public class AppReceivedEventArgs : EventArgs
-{
-	public string Name { get; set; }
-	public HpApp App { get; set; }
 
-}
-
-public class ChatReceivedEventArgs : EventArgs
-{
-	public DateTime Date { get; set; }
-	public string Message { get; set; }
-}
-
-public class FileReceivedEventArgs : EventArgs
-{
-	public string Data { get; set; }
-}
-
-
-
-public class BackupReceivedEventArgs : EventArgs
-{
-	public HpBackup Content { get; set; }
-}
-
-public class ChatEventArgs : EventArgs
-{
-
-}
