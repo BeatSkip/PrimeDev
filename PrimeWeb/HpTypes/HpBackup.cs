@@ -23,7 +23,7 @@ namespace PrimeWeb.HpTypes
 		public List<HpProgram> Programs { get; set; } = new List<HpProgram>();
 		public List<HpNote> Notes { get; set; } = new List<HpNote>();
 		public List<HpExamnMode> ExamModes { get; set; } = new List<HpExamnMode>();
-		public List<HpApp> Apps { get; set; } = new List<HpApp>();
+		public List<HpAppDir> Apps { get; set; } = new List<HpAppDir>();
 
 	}
 }

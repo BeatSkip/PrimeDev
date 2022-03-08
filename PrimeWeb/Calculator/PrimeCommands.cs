@@ -51,8 +51,6 @@
 			{SET_DATETIME      ,"SET_DATETIME"},
 			{MAX_PROT_VER      ,"MAX_PROT_VER"},
 			{UNKNOWN           ,"UNKNOWN"},
-		
-		
 		};
 
 	}

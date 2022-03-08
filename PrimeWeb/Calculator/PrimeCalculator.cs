@@ -120,7 +120,7 @@ public class PrimeCalculator
 		await frameWorker.Send(payload);
 	}
 
-	public async Task SendHpApp(HpApp app)
+	public async Task SendHpApp(HpAppDir app)
 	{
 		await frameWorker.Send(app);
 	}

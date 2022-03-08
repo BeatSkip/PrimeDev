@@ -1,58 +1,18 @@
 ﻿using System.Globalization;
 using System.Runtime.InteropServices;
 
-namespace PrimeWeb.HpInternal
+namespace PrimeWeb.Files
 {
 
-	public struct Packet_HP_Real
+	public class HP_Real : HP_Obj
 	{
-	}
-
-	public struct HP_Real
-	{
-		public ushort EmbeddedRefCount { get; set; }
-
-		public byte TypeFlags { get; set; }
-
-		public byte Type
-		{
-			get { return (byte)(TypeFlags & 0x0F); }
-			set { TypeFlags = (byte)((TypeFlags & 0xF0) & ((byte)(value & 0x0F))); }
-		}
-
-		public byte Flags
-		{
-			get { return (byte)((TypeFlags & 0xF0) >> 4); }
-			set { TypeFlags = (byte)((TypeFlags & 0x0F) & ((byte)((value << 4) & 0xF0))); }
-		}
-
-		public Sign sign { get; set; }
+		public HP_Real() : base(12) { base.Type = Tags.REAL; }
+		public sbyte sign { get; set; }
 		public uint Exponent { get; set; }
+		public ulong mantissa { get; set; }
 
-		public Mantissa mantissa { get; set; }
+		public double Value { get; set; }
 
-		public enum Sign : sbyte
-		{
-			Pos = 1,
-			Neg = -1,
-			NaN = 0,
-			PInf = 2,
-			NInf = -2
-		}
-
-	}
-
-	[StructLayout(LayoutKind.Explicit)]
-	public struct Mantissa
-	{
-		[FieldOffset(0)]
-		public uint m0;
-
-		[FieldOffset(4)]
-		public uint m1;
-
-		[FieldOffset(0)]
-		public ulong M;
 	}
 
 	public static class hpmath
@@ -96,7 +56,7 @@ namespace PrimeWeb.HpInternal
 			string mtmp = "";
 
 
-			var e = Conversion.GetLittleEndianBytes((uint)exponent - 1).SubArray(0,3);
+			var e = Conversion.GetLittleEndianBytes((uint)exponent - 1).SubArray(0, 3);
 			result += BitConverter.ToString(e).Replace("-", "");
 
 			switch (sign)
@@ -114,13 +74,13 @@ namespace PrimeWeb.HpInternal
 
 			for (int i = 0; i < 11; i++)
 			{
-			
+
 				up = !up;
 				mtmp += (i < mantissa.Length ? ((int)mantissa[i] - 48) : 0).ToString();
 			}
 			Console.WriteLine("");
 
-			
+
 
 			var tmp = ConvertHexStringToByteArray(mtmp);
 			result += BitConverter.ToString(tmp.Reverse().ToArray()).Replace("-", "");

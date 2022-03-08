@@ -75,7 +75,7 @@
 	private bool _expanded = false;
 
 	[Parameter]
-	public HpApp App { get; set; }
+	public HpAppDir App { get; set; }
 
 	[Parameter]
 	public bool Expanded { get { return _expanded; } set { _expanded = value; mouseisover = _expanded; if (!_expanded) toolsopen = false; StateHasChanged(); } }

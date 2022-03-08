@@ -1,6 +1,6 @@
 ﻿namespace PrimeWeb.Types;
 
-public class HpApp : IPayloadGenerator
+public class HpAppDir : IPayloadGenerator
 {
 	public bool IsSystemApp { get; set; }
 
@@ -24,7 +24,7 @@ public class HpApp : IPayloadGenerator
 
 	private byte[] headerbytes;
 
-	public HpApp(byte[] data)
+	public HpAppDir(byte[] data)
 	{
 		rawdata = data;
 		ParseByteData(data);

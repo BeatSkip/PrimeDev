@@ -9,7 +9,7 @@ namespace PrimeWeb.Packets
 	public class AppEventArgs : EventArgs
 	{
 		public string Name { get; set; }
-		public HpApp App { get; set; }
+		public HpAppDir App { get; set; }
 	}
 
 	public class ChatEventArgs : EventArgs

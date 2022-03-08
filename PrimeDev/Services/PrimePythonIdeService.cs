@@ -4,7 +4,7 @@ namespace PrimeDev.Services
 {
 	public class PrimePythonIdeService
 	{
-		public HpApp CurrentApp { get; private set; }
+		public HpAppDir CurrentApp { get; private set; }
 		public string SelectedFile { get; private set; }
 
 		private PrimeFileService primefiles;

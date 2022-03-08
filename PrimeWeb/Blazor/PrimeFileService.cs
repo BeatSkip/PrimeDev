@@ -31,7 +31,7 @@ namespace PrimeWeb.Blazor
 		}
 
 
-		public async Task UploadDataToPrime(HpApp app)
+		public async Task UploadDataToPrime(HpAppDir app)
 		{
 			await prime.SendHpApp(app);
 		}

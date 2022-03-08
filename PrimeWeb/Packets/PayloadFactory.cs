@@ -101,7 +101,7 @@ public partial class PayloadFactory : IPayloadParser
 		{
 
 			case (true, PrimeFileType.APP): //App backup
-				backup.Apps.Add(new HpApp(data));
+				backup.Apps.Add(new HpAppDir(data));
 				break;
 			case (false, PrimeFileType.APP):
 				break;
