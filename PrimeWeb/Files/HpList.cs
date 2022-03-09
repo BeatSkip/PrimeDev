@@ -1,7 +1,8 @@
-﻿namespace PrimeWeb.HpTypes;
+﻿namespace PrimeWeb.Files;
 
-public struct HpList
+public class HP_List
 {
-	
+
+	List<HP_Obj> Items;
 
 }

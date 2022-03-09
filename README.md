@@ -15,6 +15,8 @@ note: *USE AT YOUR OWN RISK; I'M NOT RESPONSIBLE FOR ANY BRICKING OF DEVICES! IT
 
 **Latest changes**
 
+*10/03/2022* - internal finetuning, Variables tab added, More work on internal data formats
+
 *01/03/2022* - complete rework of ui, see screenshot for result.
 
 *27/02/2022* - Code editor layout, UI design, internal optimization, debugging

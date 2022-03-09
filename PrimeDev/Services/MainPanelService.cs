@@ -1,4 +1,4 @@
-﻿namespace PrimeDev.Shared
+﻿namespace PrimeDev.Services
 {
 	public class MainPanelService
 	{

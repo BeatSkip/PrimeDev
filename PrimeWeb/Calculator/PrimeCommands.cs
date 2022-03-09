@@ -16,14 +16,14 @@
 		public const byte MAX_PROT_VER		= 0xFD;
 		public const byte UNKNOWN			= 0x00;
 
-		public static List<PrimeCommand> ValidRequests = new List<PrimeCommand>()
+		internal static List<PrimeCommand> ValidRequests = new List<PrimeCommand>()
 		{
 			INFOS,
 			BACKUP,
 			CHECK_READY
 		};
 
-		public static Dictionary<PrimeCommand, byte> DefaultParams = new Dictionary<PrimeCommand, byte>
+		internal static Dictionary<PrimeCommand, byte> DefaultParams = new Dictionary<PrimeCommand, byte>
 		{
 			{CHECK_READY	   , 0x01},
 			{INFOS			   , 0x01},
@@ -38,7 +38,7 @@
 			{UNKNOWN           , 0x00},
 		};
 
-		public static Dictionary<PrimeCommand, string> AsString = new Dictionary<PrimeCommand, string>
+		internal static Dictionary<PrimeCommand, string> AsString = new Dictionary<PrimeCommand, string>
 		{
 			{CHECK_READY       ,"CHECK_READY"},
 			{INFOS             ,"INFOS"},

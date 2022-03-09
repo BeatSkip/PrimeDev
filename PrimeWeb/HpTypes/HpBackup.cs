@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PrimeWeb.Files;
 
 namespace PrimeWeb.HpTypes
 {
@@ -18,7 +19,7 @@ namespace PrimeWeb.HpTypes
 		public HpCasSettings CASSettings { get; set; }
 		public HpVars CALChpvars { get; set; }
 
-		public List<HpList> Lists { get; set; } = new List<HpList>();
+		public List<HP_List> Lists { get; set; } = new List<HP_List>();
 		public List<HpMatrix> Matrices { get; set; } = new List<HpMatrix>();
 		public List<HpProgram> Programs { get; set; } = new List<HpProgram>();
 		public List<HpNote> Notes { get; set; } = new List<HpNote>();

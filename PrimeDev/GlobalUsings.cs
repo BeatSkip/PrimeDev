@@ -8,12 +8,10 @@ global using Microsoft.AspNetCore.Components.Routing;
 global using Microsoft.AspNetCore.Components.WebAssembly.Http;
 global using Microsoft.AspNetCore.Components.Web.Virtualization;
 
-
-
 global using BlazorMonaco;
 global using MudBlazor;
 global using PrimeDev;
-global using PrimeDev.Shared;
+global using PrimeDev.Types;
 global using PrimeWeb;
 global using PrimeWeb.Calculator;
 global using PrimeWeb.Types;

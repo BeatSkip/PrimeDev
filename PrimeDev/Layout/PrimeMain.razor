@@ -13,32 +13,35 @@
 	<Menu>
 		@if (IDEMode)
 		{
-			<PrimePanelPythonIDE OnIdeExited="PythonIDE_exited"/>
+			<PrimePanelPythonIDE OnIdeExited="PythonIDE_exited" />
 		}
 		else
 		{
 			<MudTabs Elevation="1" Rounded="false" Centered="true" Outlined="true">
-			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Cable" Text="Prime">
-				<PrimePanelConnection />
-			</MudTabPanel>
-			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Apps" Text="Apps" Disabled="@disabletabs">
-				<PrimePanelApps/>
-			</MudTabPanel>
-			<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Note" Text="Notes" Disabled="@disabletabs">
+				<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Cable" Text="Prime">
+					<PrimePanelConnection />
+				</MudTabPanel>
+				<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Apps" Text="Apps" Disabled="@disabletabs">
+					<PrimePanelApps />
+				</MudTabPanel>
+				<MudTabPanel Class="dense-tabs" Icon="@Icons.Material.Filled.Note" Text="Notes" Disabled="@disabletabs">
 
-			</MudTabPanel>
-			
+				</MudTabPanel>
+				<MudTabPanel Class="dense-tabs" Icon="@CustomIcons.Variable.Italic" Text="Vars" Disabled="@disabletabs">
+					<PrimePanelVariables/>
+				</MudTabPanel>
 
-		</MudTabs>
+
+			</MudTabs>
 		}
 
-		
+
 	</Menu>
 
 
 	<MainPanel>
 
-			<MainPanelSwitcher @ref="mainpanel"/>
+		<MainPanelSwitcher @ref="mainpanel" />
 	</MainPanel>
 </PrimeMainLayout>
 
@@ -122,7 +125,7 @@
 
 		manager.OnStatusUpdate += StatusTextUpdated;
 		manager.OnChange += ManagerChanged;
-		panelservice.GlobalIDEModeChanged =  new EventCallback<bool>(this, IDE_changed);
+		panelservice.GlobalIDEModeChanged = new EventCallback<bool>(this, IDE_changed);
 	}
 
 	public void IDE_changed(bool enabled)

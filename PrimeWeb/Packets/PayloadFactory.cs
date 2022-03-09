@@ -1,4 +1,6 @@
-﻿namespace PrimeWeb.Packets;
+﻿using PrimeWeb.Files;
+
+namespace PrimeWeb.Packets;
 
 public partial class PayloadFactory : IPayloadParser
 {
@@ -118,7 +120,9 @@ public partial class PayloadFactory : IPayloadParser
 			case (false, PrimeFileType.COMPLEX):
 				break;
 			case (true, PrimeFileType.LIST)://List backup
-				backup.Lists.Add(new HpList(data));
+				handleLIST(data);
+				DbgTools.PrintPacket(data, title: "LIST");
+				//backup.Lists.Add(new HpList(data));
 				break;
 			case (false, PrimeFileType.LIST):
 				break;
@@ -185,6 +189,11 @@ public partial class PayloadFactory : IPayloadParser
 
 	}
 
+
+	private void handleLIST(byte[] payload)
+	{
+		PrimeFileParser.Parse_List(payload);
+	}
 
 	#region Events
 
