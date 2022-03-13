@@ -2,6 +2,7 @@
 using NetCoreEx.BinaryExtensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +26,20 @@ namespace PrimeWeb.Files
 				var crc = reader.ReadBytes(2);
 				string name = reader.ReadUnicodeString(namelength);
 
-				Console.WriteLine($"List - {name} - {lstlength} Bytes");
+				
+
+				var MagicString = reader.ReadBytes(4);
+
+				if (MagicString[0] != 0xFE || MagicString[1] != 0xFF || MagicString[2] != 0x16 || MagicString[3] != 0x00)
+				{
+					DbgTools.PrintPacket(MagicString, title: "error list!");
+					throw new Exception("Sorry trying to parse a list that isn't a list!");
+				}
+					
+
+				int itemcnt = reader.ReadByte();
+
+				Console.WriteLine($"List - {name} - {lstlength} Bytes - {itemcnt} items");
 
 				return new HP_List();
 			}

@@ -150,7 +150,7 @@ public class PrimeCalculator
 
 
 	public event EventHandler<BackupEventArgs> BackupReceived;
-	protected virtual void OnBackup(HpBackup backup)
+	protected virtual void OnBackup(HpCalcContents backup)
 	{
 		var handler = BackupReceived;
 		if (handler != null) handler(this, new BackupEventArgs() { Content = backup});

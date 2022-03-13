@@ -9,10 +9,9 @@ using System.Text;
 namespace PrimeWeb.Frames
 {
 
-
-
 	public class FrameWorker
 	{
+		static readonly byte[] PacketReqInfo = { 0x00, PrimeCommands.INFOS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 		private bool ProtocolNegotiated = false;
 		private IHidDevice device;
 		public uint MessageCount { get; private set; } = 1;
@@ -30,8 +29,7 @@ namespace PrimeWeb.Frames
 
 		private async void Device_Connected(object? sender, EventArgs e)
 		{
-			var pkt_status = MessageUtils.Misc.GetPacketInfoRequest();
-			await device.SendReportAsync(pkt_status.id, pkt_status.data);
+			await device.SendReportAsync(0x00, PacketReqInfo);
 		}
 
 		public async Task ConnectAsync()
@@ -201,7 +199,7 @@ namespace PrimeWeb.Frames
 				IncomingSequence = 1;
 				bytestoread = BytesToGo <= 1015 ? BytesToGo : 1015;
 
-				logpacket($"Created new Packet! of type: {(PrimeCMD)frame.Data[0]}");
+				logpacket($"Created new Packet! of type: {((PrimeCommand)frame.Data[0]).ToString()}");
 			}
 
 			if ((int)frame.Sequence > IncomingSequence)
@@ -248,11 +246,11 @@ namespace PrimeWeb.Frames
 				this.Protocol = ProtocolVersion.Old;
 			}
 
-			var cmd = (PrimeCMD)data[1];
+			PrimeCommand cmd = data[1];
 			var BodyLength = BitConverter.ToInt32(data.SubArray(3, 4).Reverse().ToArray());
 			var Body = data.SubArray(7, BodyLength);
 
-			if(cmd == PrimeCMD.GET_INFOS)
+			if(cmd == PrimeCommands.INFOS)
 				finalizeprotocolchange(Body);
 	
 		}
@@ -299,7 +297,7 @@ namespace PrimeWeb.Frames
 		{
 			
 
-			var result = new HpInfos(data);
+			var result = HpInfos.FromBytes(data);
 			result.SetProductId(device.ProductId);
 			NotifyCalcInfoReceived(result);
 

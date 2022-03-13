@@ -15,7 +15,7 @@ namespace PrimeWeb.Utility
         {
 			internal static (byte id, byte[] data) GetPacketRequestScreen(ScreenFormat format)
 			{
-				byte[] content = { 0x01, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, (byte)PrimeCMD.RECV_SCREEN, 0x0D };
+				byte[] content = { 0x01, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, PrimeCommands.SCREEN, 0x0D };
 				return (0, content);
 			}
 
@@ -44,17 +44,7 @@ namespace PrimeWeb.Utility
 				return (0, content);
 			}
 
-			internal static (byte id, byte[] data) GetPacketAck(long packet)
-			{
-				byte[] content = { 0xFE, (byte)0x01, 0, 0, 0, 0, 0, 0 };
-				return (0, content);
-			}
-
-			internal static (byte id, byte[] data) GetPacketInfoRequest()
-			{
-				byte[] content = { 0x00, (byte)PrimeCMD.GET_INFOS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-				return (0, content);
-			}
+			
 		}
 	}
 }

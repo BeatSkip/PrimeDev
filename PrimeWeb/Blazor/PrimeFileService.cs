@@ -8,7 +8,7 @@ namespace PrimeWeb.Blazor
 
 		private PrimeCalculator prime;
 
-		public HpBackup PrimeData { get; set; }
+		public HpCalcContents PrimeData { get; set; }
 
 		public bool HasBackup { get { return PrimeData != null; } }
 

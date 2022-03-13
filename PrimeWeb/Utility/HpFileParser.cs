@@ -4,11 +4,11 @@ namespace PrimeWeb.Utility
 {
 	public static class HpFileParser
 	{
-		public static (string Name, PrimeFileType Type, uint Size, byte[] Contents) ParseFileHeader(byte[] sourcedata)
+		public static (string Name, PrimeDataType Type, uint Size, byte[] Contents) ParseFileHeader(byte[] sourcedata)
 		{
 			uint FileSize = ((uint)sourcedata[2]) << 24 | ((uint)sourcedata[3]) << 16 | ((uint)sourcedata[4]) << 8 | (uint)sourcedata[5];
 			int namelength = sourcedata[7];
-			var FileType = (PrimeFileType)sourcedata[6];
+			var FileType = (PrimeDataType)sourcedata[6];
 
 			var Filename = Conversion.DecodeTextData(sourcedata.SubArray(10, namelength));
 
@@ -17,7 +17,7 @@ namespace PrimeWeb.Utility
 			return (Filename, FileType, FileSize, PacketContent);
 		}
 
-		public static byte[] GenerateFileHeader(string Name, PrimeFileType Type, uint Size, byte[] Contents)
+		public static byte[] GenerateFileHeader(string Name, PrimeDataType Type, uint Size, byte[] Contents)
 		{
 			var crc = new byte[] { 0x00, 0x00 };
 			using (var ms = new MemoryStream())
@@ -45,7 +45,7 @@ namespace PrimeWeb.Utility
 		public static void ParseSettingsFile(byte[] data)
 		{
 			Console.WriteLine("Settings data:");
-			DbgTools.PrintPacket(data);
+			//DbgTools.PrintPacket(data);
 		}
 
 		public static byte[] DecompressFileStream(byte[] compressed)
@@ -55,6 +55,7 @@ namespace PrimeWeb.Utility
 			using var zLibStream = new ZLibStream(from, CompressionMode.Decompress);
 			zLibStream.CopyTo(to);
 			List<byte> result = new List<byte>(new byte[] { 0xF7, 0x03 });
+			//List<byte> result = new List<byte>( );
 			var ds = to.ToArray();
 
 			result.AddRange(Conversion.GetBigEndianBytes((uint)ds.Length));

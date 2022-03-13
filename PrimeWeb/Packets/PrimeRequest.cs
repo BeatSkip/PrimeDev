@@ -32,20 +32,6 @@ public class PrimeRequest : IPayloadGenerator
 
 	}
 
-	public PrimeRequest(byte Command, string name)
-	{
-		
-		var namebytes = Conversion.EncodeTextData(name);
-		uint length = (uint)namebytes.Length + 4;
-
-		content.Add((byte)Command);
-		content.Add((byte)CmdType.Three);//Still unsure what and how about this one... 0x03 or 0x01, haven't noticed a difference yet..
-		content.AddRange(Conversion.GetBigEndianBytes(length));//Name Length
-		content.Add(0x00);//CRC
-		content.Add(0x00);//CRC
-		content.AddRange(namebytes);
-	}
-
 	
 
 	public byte[] Generate()

@@ -16,8 +16,6 @@
 
 		public bool IsValid { get; }
 		public FrameType Type { get; }
-
-
 	}
 
 	public class AckFrame : IFrame
@@ -88,7 +86,7 @@
 
 	public class ContentFrame : IFrame
 	{
-		public PrimeCMD Command { get { return IsStartFrame ? (PrimeCMD)Data[0] : PrimeCMD.UNKNOWN; } }
+		public PrimeCommand Command { get { return IsStartFrame ? Data[0] : PrimeCommands.UNKNOWN; } }
 
 		public bool IsStartFrame { get { return (Sequence == 0x01); } }
 

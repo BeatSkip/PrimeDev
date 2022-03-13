@@ -15,6 +15,8 @@ note: *USE AT YOUR OWN RISK; I'M NOT RESPONSIBLE FOR ANY BRICKING OF DEVICES! IT
 
 **Latest changes**
 
+*13/03/2022* - starting to nail down final data handling, phasing out legacy experimental parsers
+
 *10/03/2022* - internal finetuning, Variables tab added, More work on internal data formats
 
 *01/03/2022* - complete rework of ui, see screenshot for result.

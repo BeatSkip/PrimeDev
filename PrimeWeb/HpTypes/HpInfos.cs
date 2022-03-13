@@ -2,33 +2,40 @@
 {
 	public struct HpInfos
 	{
-		public byte[] Data { get; init; }
+		public byte[] Data { get; private set; } = new byte[0];
 
-		public string Serial { get; init; }
+		public string Serial { get; private set; } = "";
 
-		public string Version { get; init; }
+		public string Version { get; private set; } = "";
 
-		public int Build { get; init; }
+		public int Build { get; private set; } = 0;
 
-		public string Product { get; set; }
+		public string Product { get; set; } = "";
 
-		public ushort ProductID { get; set; }
-		public HpInfos(byte[] data)
+		public ushort ProductID { get; set; } = 0;
+
+		public HpInfos() { }
+
+		public static HpInfos FromBytes(byte[] data)
 		{
-			this.Data = data;
-			ProductID = 0;
-			int index_serial = Data.Length - 16;
+			
+			int index_serial = data.Length - 16;
 			int index_version = index_serial - 16;
 			int index_build = index_version - 4;
 
-			byte[] BytesSerial = Data.SubArray(index_serial, 10);
-			byte[] BytesVersion = Data.SubArray(index_version, 10);
-			int version = Data[index_build + 1] << 8 | Data[index_build];
+			byte[] BytesSerial = data.SubArray(index_serial, 10);
+			byte[] BytesVersion = data.SubArray(index_version, 10);
+			int version = data[index_build + 1] << 8 | data[index_build];
 
-			Serial = Encoding.UTF8.GetString(BytesSerial);
-			Version = Encoding.UTF8.GetString(BytesVersion);
-			Build = version;
-			Product = "";
+			return new HpInfos()
+			{
+				ProductID = 0,
+				Serial = Encoding.UTF8.GetString(BytesSerial),
+				Version = Encoding.UTF8.GetString(BytesVersion),
+				Build = version,
+				Product = "",
+				Data = data,
+			};
 		}
 
 		public void SetProductId(ushort? pid)
@@ -41,7 +48,7 @@
 					Product = "HP Prime G1";
 					break;
 				case (0x2441):
-					Product =  "HP Prime G2";
+					Product = "HP Prime G2";
 					break;
 				default:
 					Product = "Unrecognized Calculator";

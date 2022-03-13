@@ -1,8 +1,15 @@
+**13/03/2022** 
+starting to nail down final data handling, phasing out legacy experimental parsers
+
+**10/03/2022**
+internal finetuning, Variables tab added, More work on internal data formats
+
+
 **01/03/2022** 
 complete UI redesign stated, i started to absolutely hate the ui design i made. so began from scratch.
 ![newui](https://github.com/BeatSkip/PrimeDev/blob/master/img/rework_ui.png?raw=true)
 
-rework_ui.png
+
 **27/02/2022** 
 Code editor layout, UI design, internal optimization, debugging. Next step is saving edited data to prime!!
 

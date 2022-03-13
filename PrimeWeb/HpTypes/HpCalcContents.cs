@@ -8,9 +8,9 @@ using PrimeWeb.Files;
 namespace PrimeWeb.HpTypes
 {
 	[Serializable]
-	public class HpBackup
+	public class HpCalcContents
 	{
-		public HpBackup()
+		public HpCalcContents()
 		{
 			this.Date = DateTime.Now;
 		}
@@ -25,6 +25,16 @@ namespace PrimeWeb.HpTypes
 		public List<HpNote> Notes { get; set; } = new List<HpNote>();
 		public List<HpExamnMode> ExamModes { get; set; } = new List<HpExamnMode>();
 		public List<HpAppDir> Apps { get; set; } = new List<HpAppDir>();
+
+		public void AddFile(byte[] data)
+		{
+			var file = new HP_File(data);
+
+			switch (file.Name)
+			{
+
+			}
+		}
 
 	}
 }

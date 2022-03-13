@@ -30,7 +30,7 @@ namespace PrimeWeb.HpTypes
 				var crc = reader.ReadBytes(2);
 				var name = Conversion.DecodeTextData(reader.ReadBytes(namelength));
 			}
-			DbgTools.PrintPacket(data, title: "hpprogram");
+			//DbgTools.PrintPacket(data, title: "hpprogram");
 		}
 	}
 }

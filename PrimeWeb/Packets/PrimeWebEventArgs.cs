@@ -25,7 +25,7 @@ namespace PrimeWeb.Packets
 
 	public class BackupEventArgs : EventArgs
 	{
-		public HpBackup Content { get; set; }
+		public HpCalcContents Content { get; set; }
 	}
 
 	public class CalcInfoEventArgs : EventArgs

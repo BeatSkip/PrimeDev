@@ -25,7 +25,7 @@
 			set { Source[2] = value; }
 		}
 
-		public byte Type
+		public ObjTag Type
 		{
 			get { return (byte)(TypeFlags & 0x0F); }
 			set { TypeFlags = (byte)((TypeFlags & 0xF0) & ((byte)(value & 0x0F))); }

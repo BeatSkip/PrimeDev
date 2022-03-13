@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using MiniBinaryParser;
+using System.Globalization;
 using System.Runtime.InteropServices;
 
 namespace PrimeWeb.Files
@@ -10,8 +11,14 @@ namespace PrimeWeb.Files
 		public sbyte sign { get; set; }
 		public uint Exponent { get; set; }
 		public ulong mantissa { get; set; }
-
 		public double Value { get; set; }
+
+		public static HP_Real FromBytes(byte[] bytes)
+		{
+			var result = new HP_Real();
+			//DbgTools.PrintPacket(bytes);
+			return result;
+		}
 
 	}
 
@@ -107,6 +114,11 @@ namespace PrimeWeb.Files
 			}
 
 			return data;
+		}
+
+		private static void ParseBytes(byte[] data)
+		{
+			
 		}
 	}
 }

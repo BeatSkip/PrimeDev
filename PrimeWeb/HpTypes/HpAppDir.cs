@@ -200,7 +200,7 @@ public class HpAppDir : IPayloadGenerator
 		using(var writer = new BinaryWriter(ms))
 		{
 			writer.Write(new byte[] { 0x00, 0x00, 0x00, 0x00 });
-			writer.Write((byte)PrimeFileType.APP);
+			writer.Write((byte)PrimeDataTypes.APP);
 			var namebytes = Conversion.EncodeTextData(this.IsSystemApp ? $"&{this.Name}" : this.Name);
 			writer.Write((byte)namebytes.Length);
 			writer.Write(namebytes);
