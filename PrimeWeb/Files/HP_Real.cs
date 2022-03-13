@@ -16,7 +16,6 @@ namespace PrimeWeb.Files
 		public static HP_Real FromBytes(byte[] bytes)
 		{
 			var result = new HP_Real();
-			//DbgTools.PrintPacket(bytes);
 			return result;
 		}
 

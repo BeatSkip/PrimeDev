@@ -20,13 +20,9 @@ public class HpAppDir : IPayloadGenerator
 
 	public byte[] Content { get { return this.contents; } set { this.contents = value; } }
 
-	private byte[] rawdata;
-
-	private byte[] headerbytes;
 
 	public HpAppDir(byte[] data)
 	{
-		rawdata = data;
 		ParseByteData(data);
 		//DbgTools.PrintPacket(HpAppcontent);
 		this.SvgIcon = HpIcons.GetIcon(HpAppcontent[20]);

@@ -17,31 +17,7 @@ namespace PrimeWeb.Utility
 			return (Filename, FileType, FileSize, PacketContent);
 		}
 
-		public static byte[] GenerateFileHeader(string Name, PrimeDataType Type, uint Size, byte[] Contents)
-		{
-			var crc = new byte[] { 0x00, 0x00 };
-			using (var ms = new MemoryStream())
-			using (var writer = new BinaryWriter(ms))
-			{
-				//writer.Write(cmdheader);
-				//writer.Write(length);
-				//writer.Write(crc);
-				//writer.Write(compressed);
-				//return ms.ToArray();
-			}
-
-			//uint FileSize = ((uint)sourcedata[2]) << 24 | ((uint)sourcedata[3]) << 16 | ((uint)sourcedata[4]) << 8 | (uint)sourcedata[5];
-			//int namelength = sourcedata[7];
-			//var FileType = (PrimeFileType)sourcedata[6];
-			//
-			//var Filename = Conversion.DecodeTextData(sourcedata.SubArray(10, namelength));
-			//
-			//var PacketContent = sourcedata.SubArray(10 + namelength);
-			//
-			//return (Filename, FileType, FileSize, PacketContent);
-			return new byte[] { 0x00, 0x00 };
-		}
-
+	
 		public static void ParseSettingsFile(byte[] data)
 		{
 			Console.WriteLine("Settings data:");
@@ -63,7 +39,21 @@ namespace PrimeWeb.Utility
 			return result.ToArray();
 		}
 
-		
+		public static byte[] DecompressFileContent(byte[] compressed)
+		{
+			using var from = new MemoryStream(compressed);
+			using var to = new MemoryStream();
+			using var zLibStream = new ZLibStream(from, CompressionMode.Decompress);
+			to.Write(new byte[] { 0x00, 0x00, 0x00, 0x00 });
+			zLibStream.CopyTo(to);
+			to.Position = 0;
+			to.Write(Conversion.GetBigEndianBytes((uint)to.Length - 4));
+			to.Position = to.Length - 1;
+			return to.ToArray();
+
+		}
+
+
 
 
 		private static int Search(byte[] src, byte[] pattern, int startindex = 0)

@@ -2,6 +2,7 @@
 
 namespace PrimeWeb.Blazor
 {
+	//TODO: phase out PrimeFileService
 	public class PrimeFileService
 	{
 		public string selectedApp { get; set; }

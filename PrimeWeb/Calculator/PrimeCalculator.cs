@@ -20,11 +20,57 @@ public class PrimeCalculator
 		prime = device;
 		frameWorker = new FrameWorker(device);
 		frameWorker.CommunicationInitialized += CommunicationInitialized;
+		frameWorker.MessageReceived += ParsePayload;
 		dataFactory = new PayloadFactory(frameWorker);
 		dataFactory.OnCalculatorInfoReceived += CalcInfoReceived;
-		dataFactory.BackupReceived += DataFactory_BackupReceived;
+		dataFactory.BackupReceived += DataFactory_BackupReceived; // to be phased out
 	}
 
+	#region internal events
+
+	public void ParsePayload(byte[] payload)
+	{
+		PrimeCommand command = payload[0];
+
+
+	switch ((byte)command)
+		{
+			case PrimeCommands.INFOS:
+				HandleINFOS(payload);
+				break;
+			case PrimeCommands.BACKUP:
+				HandleBACKUP(payload);
+				break;
+			case PrimeCommands.FILE:
+				HandleFILE(payload);
+				break;
+			case PrimeCommands.CHAT:
+				HandleCHAT(payload);
+				break;
+			default:
+				break;
+		}
+	}
+
+	private void HandleFILE(byte[] data)
+	{
+		Contents.AddFile(data);
+	}
+
+	private void HandleCHAT(byte[] data)
+	{
+		
+	}
+
+	private void HandleBACKUP(byte[] data)
+	{
+
+	}
+
+	private void HandleINFOS(byte[] data)
+	{
+
+	}
 	private void DataFactory_BackupReceived(object? sender, BackupEventArgs e)
 	{
 		OnBackup(e.Content);
@@ -40,7 +86,11 @@ public class PrimeCalculator
 		OnConnected(); 
 	}
 
+	#endregion
+
 	#region properties
+
+	public HpCalcContents Contents { get; set; } = new HpCalcContents();
 
 	/// <summary>
 	/// Device information like software version and Serial number

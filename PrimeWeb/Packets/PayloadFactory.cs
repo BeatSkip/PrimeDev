@@ -46,9 +46,6 @@ public partial class PayloadFactory : IPayloadParser
 
 		switch ((byte)command)
 		{
-			case PrimeCommands.INFOS:
-				HandleINFOS(payload);
-				break;
 			case PrimeCommands.BACKUP:
 				HandleBACKUP(payload);
 				break;
@@ -61,11 +58,6 @@ public partial class PayloadFactory : IPayloadParser
 			default:
 				break;
 		}
-
-	}
-
-	private void HandleINFOS(byte[] payload)
-	{
 
 	}
 
