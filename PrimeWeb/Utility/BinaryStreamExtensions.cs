@@ -32,6 +32,13 @@ namespace PrimeWeb.Utility
             return -1;
         }
 
+        public static long BytesToGo(this BinaryReader reader)
+		{
+            return (reader.BaseStream.Length - reader.BaseStream.Position);
+		}
+
+
+
         public static string ReadUnicodeString(this BinaryReader reader, int length)
         {
             return Conversion.DecodeTextData(reader, length);

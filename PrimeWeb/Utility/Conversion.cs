@@ -141,11 +141,22 @@ namespace PrimeWeb.Utility
 		{
 			return ((uint)number[startindex]) << 24 | ((uint)number[startindex + 1]) << 16 | ((uint)number[startindex + 2]) << 8 | (uint)number[startindex + 3];
 		}
-
 		public static uint ReadBigEndianBytes(BinaryReader reader)
 		{
 			return ReadBigEndianBytes(reader.ReadBytes(4));
 		}
+
+		public static ulong ReadLittleEndianULong(byte[] number, int startindex = 0)
+		{
+			return ((ulong)number[startindex + 7]) << 56 | ((ulong)number[startindex + 6]) << 48 | ((ulong)number[startindex + 5]) << 40 | ((ulong)number[startindex + 4]) << 32 | ((ulong)number[startindex + 3]) << 24 | ((ulong)number[startindex + 2]) << 16 | ((ulong)number[startindex + 1]) << 8 | (ulong)number[startindex];
+		}
+
+		public static ulong ReadBigEndianULong(byte[] number, int startindex = 0)
+		{
+			return ((ulong)number[startindex]) << 56 | ((ulong)number[startindex + 1]) << 48 | ((ulong)number[startindex + 2]) << 40 | ((ulong)number[startindex + 3]) << 32 | ((ulong)number[startindex + 4]) << 24 | ((ulong)number[startindex + 5]) << 16 | ((ulong)number[startindex + 6]) << 8 | (ulong)number[startindex + 7];
+		}
+
+		
 
 		public static uint ReadLittleEndianBytes(BinaryReader reader)
 		{

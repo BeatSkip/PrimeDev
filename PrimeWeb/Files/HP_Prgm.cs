@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PrimeWeb.Files
 {
-	internal class HpAppPrgm
+	public class HP_Prgm : HP_File
 	{
 	}
 }

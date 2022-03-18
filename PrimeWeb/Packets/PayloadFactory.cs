@@ -168,7 +168,7 @@ public partial class PayloadFactory : IPayloadParser
 
 	private void handleLIST(byte[] payload)
 	{
-		PrimeFileParser.Parse_List(payload);
+		//PrimeFileParser.Parse_List(payload);
 	}
 
 	#region Events

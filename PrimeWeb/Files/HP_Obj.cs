@@ -7,6 +7,21 @@
 			Source = src;
 		}
 
+		public HP_Obj(BinaryReader reader)
+		{
+			var src = new List<byte>();
+			if(reader.BytesToGo() < 4)
+			{
+				Console.WriteLine($"wanted to read object, but only {reader.BytesToGo()} bytes left!");
+				return;
+			}
+			src.AddRange(reader.ReadBytes(4));
+			Source = src.ToArray();
+			Console.WriteLine($"loaded HP_Obj with reader! type: {(this.Type)}");
+		}
+
+		
+
 		public HP_Obj(int bytecount)
 		{
 			Source = new byte[bytecount];
@@ -36,6 +51,52 @@
 			get { return (byte)((TypeFlags & 0xF0) >> 4); }
 			set { TypeFlags = (byte)((TypeFlags & 0x0F) & ((byte)((value << 4) & 0xF0))); }
 		}
+
+		public static HP_Obj ReadObject(byte[] data)
+		{
+			using(var ms = new MemoryStream(data))
+			using(var reader = new BinaryReader(ms))
+			{
+				return ReadObject(reader);
+			}
+
+		}
+
+
+		public static HP_Obj ReadObject(BinaryReader reader)
+		{
+			var obj = new HP_Obj(reader);
+			Console.WriteLine($"read");
+			switch ((byte)obj.Type)
+			{
+				case Tags.LIST:
+					return new HP_List(obj.Source, reader);
+					
+				case Tags.REAL:
+					
+					return new HP_Real(obj.Source, reader);
+					
+				default:
+					throw new Exception($"Objectreader type note expected! {obj.Type}");
+					return null;
+			}
+			
+		}
+
+		//public static HP_List ReadList(byte[] data)
+		//{
+		//	using (var ms = new MemoryStream(data))
+		//	using (var reader = new BinaryReader(ms))
+		//	{
+		//		var obj = new HP_Obj(reader);
+		//		return new HP_List(obj.Source, reader);
+		//	}
+		//
+		//}
+
+
+
+
 
 		public static class Tags
 		{

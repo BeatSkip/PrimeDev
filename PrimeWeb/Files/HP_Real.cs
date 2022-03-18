@@ -7,8 +7,31 @@ namespace PrimeWeb.Files
 
 	public class HP_Real : HP_Obj
 	{
+
+		private uint marker;
+
+		public HP_Real(byte[] data) : base(data) { }
 		public HP_Real() : base(12) { base.Type = Tags.REAL; }
-		public sbyte sign { get; set; }
+
+		public HP_Real(byte[] header, BinaryReader reader) : base(header)
+		{
+			marker = reader.ReadBeUint32();
+			if (reader.BytesToGo() < 8)
+			{
+				Console.WriteLine($"wanted to read object, but only {reader.BytesToGo()} bytes left!");
+				return;
+			}
+			var total = new List<byte>();
+			total.AddRange(header);
+			total.AddRange(reader.ReadBytes(8));
+			this.Source = total.ToArray();
+			
+			Parse();
+			Console.WriteLine($"read HP_Real with value: {this.Value}");
+
+			
+		}
+		public sbyte Sign { get; set; }
 		public uint Exponent { get; set; }
 		public ulong mantissa { get; set; }
 		public double Value { get; set; }
@@ -16,7 +39,38 @@ namespace PrimeWeb.Files
 		public static HP_Real FromBytes(byte[] bytes)
 		{
 			var result = new HP_Real();
+			
 			return result;
+		}
+
+		private void ParseExpanded()
+		{
+			var srcexp = new byte[4] { base.Source[7], base.Source[6], base.Source[5], base.Source[4] };
+			this.Exponent = BitConverter.ToInt32(srcexp);
+			ulong data = Conversion.ReadLittleEndianULong(base.Source, 8);
+			var bcd = Binary.GetBCD(data);
+			var realbcd = Binary.HpBCD(data);
+			//this.Exponent = (uint)(data & (ulong)0x0000000000000FFF);
+			this.Sign = (sbyte)(data >> 60 & (ulong)0x000000000000000F);
+
+			Value = realbcd * Math.Pow(10, ((int)Exponent) * Sign);
+			if (bcd[0] != '0')
+				Console.WriteLine($"bcd: {bcd}\texponent: {Exponent}\tsign: {Sign.ToString("X")}\tRef: {base.Flags.ToString("X2")}\tnumber: {base.RefCount}\tValue: {realbcd.ToString()}");
+
+		}
+
+		private void Parse()
+		{
+			ulong data = Conversion.ReadLittleEndianULong(base.Source, 4);
+			var bcd = Binary.GetBCD(data);
+			var realbcd = Binary.HpBCD(data);
+			this.Exponent = (uint)(data & (ulong)0x0000000000000FFF);
+			this.Sign = (sbyte)(data >> 60 & (ulong)0x000000000000000F);
+
+			Value = realbcd * Math.Pow(10, ((int)Exponent)*Sign);
+			if(bcd[0] != '0')
+				Console.WriteLine($"bcd: {bcd}\texponent: {Exponent}\tsign: {Sign.ToString("X")}\tRef: {base.Flags.ToString("X2")}\tnumber: {base.RefCount}\tValue: {realbcd.ToString()}");
+
 		}
 
 	}

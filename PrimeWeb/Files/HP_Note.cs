@@ -13,6 +13,7 @@ namespace PrimeWeb.Files
 			set { base.Content = Encoding.UTF8.GetBytes(value); } 
 		}
 		public HP_Note(byte[] data) : base(data) {
+
 		}
 
 		//public HP_Note(HP_File parent)

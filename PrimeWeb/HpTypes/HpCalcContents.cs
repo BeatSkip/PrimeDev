@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PrimeWeb.Files;
+using PrimeWeb.Testing;
 
 namespace PrimeWeb.HpTypes
 {
@@ -19,7 +20,7 @@ namespace PrimeWeb.HpTypes
 		public HpCasSettings CASSettings { get; set; }
 		public HpVars CALChpvars { get; set; }
 
-		public List<HP_List> Lists { get; set; } = new List<HP_List>();
+		public Dictionary<string,HP_List> Lists { get; set; } = new Dictionary<string, HP_List>();
 		public List<HpMatrix> Matrices { get; set; } = new List<HpMatrix>();
 		public List<HpProgram> Programs { get; set; } = new List<HpProgram>();
 		public List<HP_Note> Notes { get; set; } = new List<HP_Note>();
@@ -37,13 +38,20 @@ namespace PrimeWeb.HpTypes
 					SettingsAdded(file);
 					break;
 				case PrimeDataTypes.LIST:
+					
+					Console.WriteLine($"{file.Name} - contents:");
+					DbgTools.PrintPacket((file.Content as byte[]));
+					var list = (HP_List)HP_Obj.ReadObject(file.Content as byte[]);
+					//var list = HP_Obj.ReadList(file.Content as byte[]);
+					//Lists.Add(file.Name, list);
+					//DbgTools.PrintPacket((file.Content as byte[]));
 					break;
 				case PrimeDataTypes.MATRIX:
 					break;
 				case PrimeDataTypes.PRGM:
 					break;
 				case PrimeDataTypes.NOTE:
-					var note = file as HP_Note;
+					var note = new HP_Note(data);
 					Notes.Add(note);
 					break;
 				case PrimeDataTypes.TESTMODECONFIG:
@@ -52,6 +60,12 @@ namespace PrimeWeb.HpTypes
 					Console.WriteLine($"APP Detected!");
 					var app = new HP_App(file);
 					Appx.Add(app);
+					//if(app.BaseApp == BaseHpApp.Finance)
+					//{
+					//	Console.WriteLine($"basefinance found!");
+					//	DbgTools.PrintPacket(data, title: "FINANCE");
+					//	AppTester.TestFinance(data);
+					//}
 					break;
 			}
 

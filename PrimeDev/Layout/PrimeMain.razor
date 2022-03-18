@@ -121,6 +121,7 @@
 
 	protected override void OnInitialized()
 	{
+		PrimeWeb.Testing.AppTester.TestFinance();
 		panelservice.RegisterFileService(primefiles);
 
 		manager.OnStatusUpdate += StatusTextUpdated;
