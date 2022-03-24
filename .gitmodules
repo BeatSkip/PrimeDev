@@ -1,3 +1,6 @@
 [submodule "Blazm.HID"]
 	path = Blazm.HID
 	url = https://github.com/BeatSkip/Blazm.HID
+[submodule "Sysend.Blazor"]
+	path = Sysend.Blazor
+	url = https://github.com/BeatSkip/Sysend.Blazor
