@@ -8,9 +8,9 @@ public class HP_List : HP_Obj
 
 	public HP_List(byte[] data) : base (data) { }
 
-	public HP_List(byte[] header, BinaryReader reader): base(header)
+	public HP_List(BinaryReader reader): base(8)
 	{
-		Count = Conversion.ReadLittleEndianBytes(reader);
+
 		Console.WriteLine($"Starting list read with {Count} items");
 		Items = new List<HP_Obj>();
 		for (int i = 0; i < Count; i++)

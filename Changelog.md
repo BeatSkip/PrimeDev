@@ -1,14 +1,17 @@
+**23/03/2022** 
+Ported over Sysend.Js to blazor to make communication between windows and tabs possible.
+This will allow for possible integration of the Prime emulator into this project.
+More reverse engineering work
+
 **13/03/2022** 
 starting to nail down final data handling, phasing out legacy experimental parsers
 
 **10/03/2022**
 internal finetuning, Variables tab added, More work on internal data formats
 
-
 **01/03/2022** 
 complete UI redesign stated, i started to absolutely hate the ui design i made. so began from scratch.
 ![newui](https://github.com/BeatSkip/PrimeDev/blob/master/img/rework_ui.png?raw=true)
-
 
 **27/02/2022** 
 Code editor layout, UI design, internal optimization, debugging. Next step is saving edited data to prime!!
@@ -20,7 +23,6 @@ Code editor fully implemented, hpapp file parsing partially done. enough to actu
 
 ![ide expanded](https://github.com/BeatSkip/PrimeDev/blob/master/img/screenshot_ide2.png?raw=true)
 
-  
 
 **23/02/2022**: Designed all standard prime icons in SVG format. Fixed decompression.
 

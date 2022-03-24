@@ -38,8 +38,15 @@ namespace PrimeWeb.Utility
 		}
 
 
+        public static byte[] PeekMore(this BinaryReader reader, int length = 4)
+		{
+            var result = reader.ReadBytes(length);
+			reader.BaseStream.Position = reader.BaseStream.Position - length;
+            return result;
+		}
 
-        public static string ReadUnicodeString(this BinaryReader reader, int length)
+
+		public static string ReadUnicodeString(this BinaryReader reader, int length)
         {
             return Conversion.DecodeTextData(reader, length);
         }

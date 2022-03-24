@@ -36,6 +36,7 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Blazm.HID\Blazm.Hid\Blazm.Hid\Blazm.Hid.csproj" />
 	  <ProjectReference Include="..\PrimeWeb\PrimeWeb.csproj" />
+	  <ProjectReference Include="..\Sysend.Blazor\Sysend.Blazor\Sysend.Blazor.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

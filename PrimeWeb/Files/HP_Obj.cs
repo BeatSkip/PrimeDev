@@ -10,7 +10,7 @@
 		public HP_Obj(BinaryReader reader)
 		{
 			var src = new List<byte>();
-			if(reader.BytesToGo() < 4)
+			if (reader.BytesToGo() < 4)
 			{
 				Console.WriteLine($"wanted to read object, but only {reader.BytesToGo()} bytes left!");
 				return;
@@ -20,7 +20,7 @@
 			Console.WriteLine($"loaded HP_Obj with reader! type: {(this.Type)}");
 		}
 
-		
+
 
 		public HP_Obj(int bytecount)
 		{
@@ -28,10 +28,10 @@
 		}
 		public byte[] Source { get; set; }
 
-		public ushort RefCount 
-		{ 
+		public ushort RefCount
+		{
 			get { return (byte)((Source[1] << 8) | Source[0]); }
-			set { Source[0] = (byte) (value & 0x00FF); Source[1] = (byte)((value & 0xFF00) >> 8);}
+			set { Source[0] = (byte)(value & 0x00FF); Source[1] = (byte)((value & 0xFF00) >> 8); }
 		}
 
 		public byte TypeFlags
@@ -52,11 +52,18 @@
 			set { TypeFlags = (byte)((TypeFlags & 0x0F) & ((byte)((value << 4) & 0xF0))); }
 		}
 
+		public static HP_Obj PeekObject(BinaryReader reader)
+		{
+			return new HP_Obj(reader.PeekMore(8));
+
+		}
+
 		public static HP_Obj ReadObject(byte[] data)
 		{
-			using(var ms = new MemoryStream(data))
-			using(var reader = new BinaryReader(ms))
+			using (var ms = new MemoryStream(data))
+			using (var reader = new BinaryReader(ms))
 			{
+
 				return ReadObject(reader);
 			}
 
@@ -65,22 +72,23 @@
 
 		public static HP_Obj ReadObject(BinaryReader reader)
 		{
-			var obj = new HP_Obj(reader);
+
+			var obj = new HP_Obj(reader.PeekMore(8));
 			Console.WriteLine($"read");
 			switch ((byte)obj.Type)
 			{
 				case Tags.LIST:
-					return new HP_List(obj.Source, reader);
-					
+					return new HP_List(reader);
+
 				case Tags.REAL:
-					
-					return new HP_Real(obj.Source, reader);
-					
+
+					return new HP_Real(reader);
+
 				default:
 					throw new Exception($"Objectreader type note expected! {obj.Type}");
 					return null;
 			}
-			
+
 		}
 
 		//public static HP_List ReadList(byte[] data)
@@ -118,20 +126,20 @@
 
 			public static Dictionary<PrimeCommand, string> AsString = new Dictionary<PrimeCommand, string>
 			{
-				{REAL					  , "REAL"},
-				{INT					  , "INT"},
-				{STRING					  , "STRING"},
-				{COMPLEX				  , "COMPLEX"},
-				{MATRIX					  , "MATRIX"},
-				{ERROR					  , "ERROR"},
-				{LIST					  , "LIST"},
-				{IDENT					  , "IDENT"},
-				{FUNC_CALL				  , "FUNC_CALL"},
-				{UNIT					  , "UNIT"},
-				{INSTRUCTION_SEQUENCE	  , "INSTRUCTION_SEQUENCE"},
-				{USERFUNC				  , "USERFUNC"},
-				{LIST_PROCESSOR			  , "LIST_PROCESSOR"},
-				{EVALUATOR_REQUEST		  , "EVALUATOR_REQUEST"},
+				{REAL                     , "REAL"},
+				{INT                      , "INT"},
+				{STRING                   , "STRING"},
+				{COMPLEX                  , "COMPLEX"},
+				{MATRIX                   , "MATRIX"},
+				{ERROR                    , "ERROR"},
+				{LIST                     , "LIST"},
+				{IDENT                    , "IDENT"},
+				{FUNC_CALL                , "FUNC_CALL"},
+				{UNIT                     , "UNIT"},
+				{INSTRUCTION_SEQUENCE     , "INSTRUCTION_SEQUENCE"},
+				{USERFUNC                 , "USERFUNC"},
+				{LIST_PROCESSOR           , "LIST_PROCESSOR"},
+				{EVALUATOR_REQUEST        , "EVALUATOR_REQUEST"},
 				{GEN                      , "GEN"}
 			};
 
@@ -155,7 +163,7 @@
 	}
 
 
-	
+
 
 	public enum Sign : sbyte
 	{

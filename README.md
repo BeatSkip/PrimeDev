@@ -15,6 +15,8 @@ note: *USE AT YOUR OWN RISK; I'M NOT RESPONSIBLE FOR ANY BRICKING OF DEVICES! IT
 
 **Latest changes**
 
+*24/03/2022* - Ported over Sysend.Blazor for initial architecture compatibility with future integrated Prime emulator
+
 *13/03/2022* - starting to nail down final data handling, phasing out legacy experimental parsers
 
 *10/03/2022* - internal finetuning, Variables tab added, More work on internal data formats

@@ -13,26 +13,20 @@ namespace PrimeWeb.Files
 		public HP_Real(byte[] data) : base(data) { }
 		public HP_Real() : base(12) { base.Type = Tags.REAL; }
 
-		public HP_Real(byte[] header, BinaryReader reader) : base(header)
+		public HP_Real(BinaryReader reader) : base(12)
 		{
-			marker = reader.ReadBeUint32();
-			if (reader.BytesToGo() < 8)
-			{
-				Console.WriteLine($"wanted to read object, but only {reader.BytesToGo()} bytes left!");
-				return;
-			}
-			var total = new List<byte>();
-			total.AddRange(header);
-			total.AddRange(reader.ReadBytes(8));
-			this.Source = total.ToArray();
+			this.Source = reader.ReadBytes(12);
 			
 			Parse();
 			Console.WriteLine($"read HP_Real with value: {this.Value}");
-
+		
 			
 		}
+
+		public byte[] unpacked { get; private set; }
+
 		public sbyte Sign { get; set; }
-		public uint Exponent { get; set; }
+		public int Exponent { get; set; }
 		public ulong mantissa { get; set; }
 		public double Value { get; set; }
 
@@ -64,7 +58,7 @@ namespace PrimeWeb.Files
 			ulong data = Conversion.ReadLittleEndianULong(base.Source, 4);
 			var bcd = Binary.GetBCD(data);
 			var realbcd = Binary.HpBCD(data);
-			this.Exponent = (uint)(data & (ulong)0x0000000000000FFF);
+			this.Exponent = (int)(data & (ulong)0x0000000000000FFF);
 			this.Sign = (sbyte)(data >> 60 & (ulong)0x000000000000000F);
 
 			Value = realbcd * Math.Pow(10, ((int)Exponent)*Sign);

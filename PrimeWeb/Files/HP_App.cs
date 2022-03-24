@@ -52,7 +52,9 @@ namespace PrimeWeb.Files
 			int i = 0;
 			if (BaseApp == BaseHpApp.Finance)
 			{
-				//Console.WriteLine($"spaghetti method finance!");
+				Console.WriteLine($"spaghetti method finance!");
+
+				DbgTools.PrintPacket(HpAppcontent);
 				//using (var ms = new MemoryStream(HpAppcontent))
 				//using (var reader = new BinaryReader(ms))
 				//{
@@ -60,13 +62,13 @@ namespace PrimeWeb.Files
 				//	{
 				//		var testID = new StructId(reader.ReadBytes(4));
 				//		
-				//		//if (testID.Member != 0)
-				//		//	Console.WriteLine($"TestID\t{reader.BaseStream.Position}\ttype:\t{testID.Type}\ttypemodifiers:\t{testID.TypeModifiers}\tcompressed:\t{testID.Compressed.ToString()}\tTypeId\t{testID.TypeId}\tmember:\t{testID.Member}");
+				//		if (testID.Member != 0)
+				//			Console.WriteLine($"TestID\t{reader.BaseStream.Position}\ttype:\t{testID.Type}\ttypemodifiers:\t{testID.TypeModifiers}\tcompressed:\t{testID.Compressed.ToString()}\tTypeId\t{testID.TypeId}\tmember:\t{testID.Member}");
 				//		
 				//		i++;
 				//	}
 				//}
-				//Console.WriteLine($"spaghetti end \n");
+				Console.WriteLine($"spaghetti end \n");
 			}
 		} 
 	}
